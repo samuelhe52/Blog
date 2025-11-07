@@ -43,15 +43,9 @@ const pageTitle = title || SITE.title;
       (function(){
         try{
           const m=(n)=>{const r=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return r?decodeURIComponent(r[1]):''};
-          const pref=m('lang');
-          const p=location.pathname; const isEn=p.startsWith('/en/');
-          if(!pref){
-            const nav=(navigator.language||'').toLowerCase(); const wantEn=nav.startsWith('en');
-            document.cookie='lang='+(wantEn?'en':'zh-CN')+'; path=/; max-age=31536000';
-            if((wantEn && !isEn) || (!wantEn && isEn)) location.replace(wantEn?'/en/':'/');
-          } else {
-            if(pref==='en' && !isEn) location.replace('/en/');
-            if(pref==='zh-CN' && isEn) location.replace('/');
+          if(!m('lang')){
+            const nav=(navigator.language||'').toLowerCase();
+            document.cookie='lang='+(nav.startsWith('en')?'en':'zh-CN')+'; path=/; max-age=31536000';
           }
         }catch(e){}
       })();
