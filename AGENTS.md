@@ -1,22 +1,23 @@
 # Agents Guide
-Timestamp: 2025-11-07T17:10:58.559Z
+Timestamp: 2025-11-07T19:58:00.000Z
 
 ## Purpose
 This file tells any assisting agent (automation, AI, scripts) EXACTLY how to approach this bilingual Astro blog project.
 
 ## High-Level Vision
-Minimalist, performant bilingual (Chinese default, English secondary) static blog using Astro + Nano; clean SEO, translation pairing, dynamic OG images; future-friendly (search, typed i18n later).
+Minimalist, performant bilingual (Chinese default, English secondary) static blog using Astro with custom minimal theme inspired by Astro Nano; clean SEO, translation pairing, dynamic OG images; future-friendly (search, typed i18n later).
 
 ## Author Preferences
 - Explanations: patient, plain language; avoid heavy jargon unless clarified.
 - Implementation: clear directory structure, small focused components, minimal client JS.
-- Internationalization: use @astrojs/i18n; Chinese default (no prefix), English under /en/.
+- Internationalization: Chinese default (no prefix), English under /en/.
 - URL style: enforce trailing slashes.
 - OG images: per-post dynamic generation; site-level image non-localized.
 - UI strings: start with JSON (/src/i18n/{zh,en}.json); may migrate to typed TS later.
 - Language switcher: global (site-wide preference), always visible; disable target if translation missing.
 - Persistence: cookie stores chosen language; initial auto-detect from browser.
 - SEO: self-canonical per page; hreflang only for existing translations (zh-CN, en).
+- Dependencies: Keep minimal, avoid complex tooling unless necessary.
 
 ## Author Info
 - Site title: konakona's Lodge
@@ -24,14 +25,16 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Contact: samuelhe52@outlook.com
 
 ## Core Decisions
-(Consolidated from DECISIONS.md as of 2025-11-07T17:14:47.107Z)
+(Updated 2025-11-07T19:58:00.000Z)
+- **Theme approach**: Custom minimal theme (NOT using Astro Nano package due to dependency complexity). Goal is feature parity with Nano while maintaining bilingual-first design. See NANO_PARITY.md for checklist.
 - Default locale: Chinese (no /zh prefix). English under /en/.
 - translationSlug identical across languages (English string).
 - Fallback: show available language; switcher always visible; disable target if missing translation.
-- Sitemap: single combined; RSS deferred.
+- Sitemap: single combined sitemap with hreflang alternates.
+- RSS: Planned - separate feeds per language.
 - Language switcher: site-wide language preference via cookie; auto-detect on first visit.
 - Locale codes: hreflang zh-CN & en; og:locale zh_CN default, en_US alternate.
-- OG images: per-post dynamic; site image not localized.
+- OG images: Planned dynamic generation per-post.
 - Canonicals: self per page; hreflang only for existing translations.
 - Deployment: custom VM with Nginx + Let's Encrypt.
 - CI/CD: GitHub Actions automated build & rsync deploy.
@@ -39,15 +42,28 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Domain: blog.konakona52.com root (no base path).
 - UI strings: JSON for now; may migrate to TS later.
 - Search: planned later (multilingual); defer in MVP.
+- Styling: Custom CSS with CSS variables (not Tailwind yet, may add later for utilities).
 
-## Current Deliverables (MVP)
-- Astro + Nano initialized.
-- @astrojs/i18n configured (zh-CN default, en secondary) with trailing slash.
-- Content dirs: src/content/posts/{zh,en}/.
-- translationSlug in frontmatter to pair posts.
-- Layout: html lang, canonical, hreflang, meta description, OG/Twitter tags.
-- Dynamic OG image endpoint (/og/[slug].png) with title + branding.
-- Language switcher (cookie + detection) disabling missing translation target.
+## Current Deliverables (MVP Complete)
+- ✅ Astro initialized with bilingual structure.
+- ✅ Content collections: src/content/posts/{zh,en}/.
+- ✅ translationSlug in frontmatter to pair posts.
+- ✅ Layout: html lang, canonical, hreflang, meta description, OG/Twitter tags.
+- ✅ Language switcher (cookie + detection) with disabled states for missing translations.
+- ✅ MissingTranslationNotice component.
+- ✅ Combined sitemap with hreflang alternates.
+- ✅ Header, PostList, PostHeader components.
+- ✅ Light/dark mode support via CSS variables.
+- ✅ Minimal responsive design.
+- ✅ GitHub Actions deployment workflow.
+- ✅ robots.txt.
+
+## Next Priorities (See NANO_PARITY.md)
+1. RSS Feed generation (per language)
+2. MDX support for rich content
+3. Lighthouse audit & optimization
+4. Dynamic OG images
+5. Optional: Tailwind integration for utility classes
 - Combined sitemap (both locales; alternates only when translation exists).
 - GitHub Actions workflow (build & rsync deploy to Nginx VM with TLS).
 
