@@ -1,0 +1,92 @@
+---
+interface Props {
+  lang: 'zh-CN' | 'en';
+}
+
+const { lang } = Astro.props;
+const lightLabel = lang === 'zh-CN' ? '浅色' : 'Light';
+const darkLabel = lang === 'zh-CN' ? '深色' : 'Dark';
+const autoLabel = lang === 'zh-CN' ? '自动' : 'Auto';
+---
+
+<div class="theme-switcher">
+  <button id="theme-light" aria-label={lightLabel} title={lightLabel}>☀</button>
+  <button id="theme-dark" aria-label={darkLabel} title={darkLabel}>☾</button>
+  <button id="theme-auto" aria-label={autoLabel} title={autoLabel} class="active">⚙</button>
+</div>
+
+<style>
+  .theme-switcher {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: var(--code-bg);
+    border-radius: 8px;
+  }
+  
+  .theme-switcher button {
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  
+  .theme-switcher button:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+  
+  .theme-switcher button.active {
+    background: var(--link);
+    color: white;
+  }
+</style>
+
+<script>
+  function setTheme(theme: 'light' | 'dark' | 'auto') {
+    localStorage.setItem('theme', theme);
+    
+    const lightBtn = document.getElementById('theme-light');
+    const darkBtn = document.getElementById('theme-dark');
+    const autoBtn = document.getElementById('theme-auto');
+    
+    lightBtn?.classList.remove('active');
+    darkBtn?.classList.remove('active');
+    autoBtn?.classList.remove('active');
+    
+    if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.setAttribute('data-theme', 'light');
+      lightBtn?.classList.add('active');
+    } else if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+      darkBtn?.classList.add('active');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      autoBtn?.classList.add('active');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }
+  
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'auto' | null;
+    setTheme(savedTheme || 'auto');
+  }
+  
+  document.getElementById('theme-light')?.addEventListener('click', () => setTheme('light'));
+  document.getElementById('theme-dark')?.addEventListener('click', () => setTheme('dark'));
+  document.getElementById('theme-auto')?.addEventListener('click', () => setTheme('auto'));
+  
+  initTheme();
+</script>

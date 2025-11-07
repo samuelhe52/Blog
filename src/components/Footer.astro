@@ -1,0 +1,50 @@
+---
+import ThemeSwitcher from './ThemeSwitcher.astro';
+
+interface Props {
+  lang: 'zh-CN' | 'en';
+}
+
+const { lang } = Astro.props;
+const currentYear = new Date().getFullYear();
+---
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-left">
+      <p>&copy; {currentYear} konakona. {lang === 'zh-CN' ? '保留所有权利。' : 'All rights reserved.'}</p>
+    </div>
+    <div class="footer-right">
+      <ThemeSwitcher lang={lang} />
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .footer-left p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  
+  @media (max-width: 640px) {
+    .footer-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+  }
+</style>

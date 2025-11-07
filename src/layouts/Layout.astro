@@ -1,5 +1,7 @@
 ---
 import { SITE } from '../site.config';
+import Footer from '../components/Footer.astro';
+
 export interface Props {
   lang: 'zh-CN' | 'en';
   title?: string;
@@ -146,5 +148,6 @@ const pageTitle = title || SITE.title;
   </head>
   <body>
     <slot />
+    <Footer lang={lang} />
   </body>
 </html>
