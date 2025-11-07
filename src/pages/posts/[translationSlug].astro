@@ -19,7 +19,7 @@ const alternates = {
 };
 ---
 <Layout lang="zh-CN" title={post.data.title} description={post.data.description} alternates={alternates}>
-  <LanguageSwitcher lang="zh-CN" disableEn={!counterpart} />
+  <LanguageSwitcher lang="zh-CN" disableEn={!counterpart} toZh={`/posts/${translationSlug}/`} toEn={counterpart ? `/en/posts/${translationSlug}/` : '/en/'} />
   <article>
     <h1>{post.data.title}</h1>
     <Content />

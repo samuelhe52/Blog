@@ -7,7 +7,7 @@ const posts = await getCollection('posts', ({ data }) => data.lang === 'en');
 const alternates = { 'zh-CN': new URL('/', SITE.domain).href, en: new URL('/en/', SITE.domain).href };
 ---
 <Layout lang="en" description="Personal blog" alternates={alternates}>
-  <LanguageSwitcher lang="en" />
+  <LanguageSwitcher lang="en" toZh="/" toEn="/en/" />
   <h1>{SITE.title}</h1>
   <ul>
     {posts.map((p) => (
