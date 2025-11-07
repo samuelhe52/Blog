@@ -13,10 +13,15 @@ jobs:
           cache: 'npm'
       - run: npm ci --ignore-scripts
       - run: npm run build
+      - name: Validate secrets
+        run: |
+          [ -n "${{ secrets.SSH_HOST }}" ] || { echo 'SSH_HOST empty'; exit 1; }
+          [ -n "${{ secrets.SSH_USER }}" ] || { echo 'SSH_USER empty'; exit 1; }
+          [ -n "${{ secrets.SSH_KEY }}" ] || { echo 'SSH_KEY empty'; exit 1; }
       - name: Add host key
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -T 10 -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts || { echo 'ssh-keyscan failed'; cat ~/.ssh/known_hosts; exit 1; }
       - name: Deploy via rsync
         uses: burnett01/rsync-deployments@5.2
         with:
