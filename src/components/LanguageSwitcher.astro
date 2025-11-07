@@ -9,12 +9,12 @@ interface Props {
 const { lang, disableZh = false, disableEn = false, toZh = '/', toEn = '/en/' } = Astro.props;
 ---
 <nav style="display:flex; gap: .5rem">
-  <button id="to-zh" disabled={lang === 'zh-CN' || disableZh}>中文</button>
-  <button id="to-en" disabled={lang === 'en' || disableEn}>English</button>
+  <button id="to-zh" data-target={toZh} disabled={lang === 'zh-CN' || disableZh}>中文</button>
+  <button id="to-en" data-target={toEn} disabled={lang === 'en' || disableEn}>English</button>
 </nav>
 <script is:inline>
-  const zh = document.getElementById('to-zh') as HTMLButtonElement | null;
-  const en = document.getElementById('to-en') as HTMLButtonElement | null;
-  if (zh && !zh.disabled) zh.addEventListener('click', () => { document.cookie = 'lang=zh-CN; path=/; max-age=31536000'; location.href = toZh; });
-  if (en && !en.disabled) en.addEventListener('click', () => { document.cookie = 'lang=en; path=/; max-age=31536000'; location.href = toEn; });
+  const zh = document.getElementById('to-zh');
+  const en = document.getElementById('to-en');
+  if (zh && !zh.disabled) zh.addEventListener('click', () => { document.cookie = 'lang=zh-CN; path=/; max-age=31536000'; location.href = zh.getAttribute('data-target'); });
+  if (en && !en.disabled) en.addEventListener('click', () => { document.cookie = 'lang=en; path=/; max-age=31536000'; location.href = en.getAttribute('data-target'); });
 </script>
