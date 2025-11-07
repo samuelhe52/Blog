@@ -31,6 +31,8 @@ Updated: 2025-11-07T19:57:00Z
 10. **Missing translation notice** component
 11. **Post listing** with dates & descriptions
 12. **Markdown support** - Built-in Astro
+13. **MDX Support** - Components in markdown (Astro v5 + @astrojs/mdx)
+14. **Dynamic OG images** - SVG generation per post at build time
 
 ### ❌ Missing (Need to Add)
 1. **RSS Feed** - Auto-generated per language
@@ -48,7 +50,7 @@ Updated: 2025-11-07T19:57:00Z
 1. ✅ Lighthouse audit & fixes (100/100/96/100 - Excellent!)
 2. ✅ MDX support (DONE - Astro v5 + @astrojs/mdx)
 3. ~~Better styling/polish~~ (Deferred - current CSS is clean and works well)
-4. OG images (dynamic generation for social sharing)
+4. ✅ OG images (DONE - SVG generation at build time)
 5. UX enhancements (reading time, back to top, animations)
 6. RSS Feed (deferred - less critical for initial launch)
 

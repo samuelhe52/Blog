@@ -19,9 +19,11 @@ const alternates = {
   'zh-CN': new URL(`/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href,
   ...(counterpart ? { en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href } : {})
 };
+
+const ogImageUrl = new URL(`/og/${translationSlug}.svg`, Astro.site ?? 'https://blog.konakona52.com/').href;
 ---
 
-<Layout lang="zh-CN" title={post.data.title} description={post.data.description} alternates={alternates}>
+<Layout lang="zh-CN" title={post.data.title} description={post.data.description} alternates={alternates} ogImage={ogImageUrl}>
   <Header
     lang="zh-CN"
     disableEn={!counterpart}
