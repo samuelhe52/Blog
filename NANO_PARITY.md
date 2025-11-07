@@ -36,6 +36,7 @@ Updated: 2025-11-07T19:57:00Z
 15. **Reading time** - Calculated word count with bilingual labels
 16. **Back to top button** - Smooth scroll with fade-in/out
 17. **Page animations** - Subtle fade-in on load
+18. **RSS Feeds** - Separate feeds per language (/rss.xml, /en/rss.xml)
 
 ### ❌ Missing (Need to Add)
 1. **RSS Feed** - Auto-generated per language
@@ -55,7 +56,7 @@ Updated: 2025-11-07T19:57:00Z
 3. ~~Better styling/polish~~ (Deferred - current CSS is clean and works well)
 4. ✅ OG images (DONE - SVG generation at build time)
 5. ✅ UX enhancements (DONE - reading time, back-to-top, animations)
-6. RSS Feed (deferred - less critical for initial launch)
+6. ✅ RSS Feed (DONE - Separate feeds per language)
 
 ## Implementation Notes
 - Keep bilingual as first priority
