@@ -45,13 +45,12 @@ Updated: 2025-11-07T19:57:00Z
 10. **OG images** - Dynamic generation per post
 
 ## Priority Order (MVP+)
-1. RSS Feed (critical for blogs)
+1. Lighthouse audit & fixes (performance baseline)
 2. MDX support (flexibility for rich content)
-3. Lighthouse audit & fixes
+3. Better styling/polish (consider Tailwind utilities)
 4. OG images (social sharing)
-5. Tailwind + typography (polish)
-6. Animations (nice-to-have)
-7. Back to top, reading time (UX polish)
+5. UX enhancements (reading time, back to top, animations)
+6. RSS Feed (deferred - less critical for initial launch)
 
 ## Implementation Notes
 - Keep bilingual as first priority

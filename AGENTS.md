@@ -59,11 +59,12 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - ✅ robots.txt.
 
 ## Next Priorities (See NANO_PARITY.md)
-1. RSS Feed generation (per language)
+1. Lighthouse audit & optimization
 2. MDX support for rich content
-3. Lighthouse audit & optimization
+3. Better styling/polish
 4. Dynamic OG images
-5. Optional: Tailwind integration for utility classes
+5. UX enhancements (reading time, animations)
+6. RSS Feed (deferred)
 - Combined sitemap (both locales; alternates only when translation exists).
 - GitHub Actions workflow (build & rsync deploy to Nginx VM with TLS).
 

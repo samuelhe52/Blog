@@ -51,27 +51,33 @@ Updated: 2025-11-07T19:58:00.000Z
 
 ## Next Phases (Post-MVP)
 
-### Phase 9: RSS Feed
-- Implement RSS generation per language (/rss.xml for zh, /en/rss.xml for en).
-- Use @astrojs/rss package.
+### Phase 9: Lighthouse Optimization
+- Run audit, fix performance/accessibility issues.
+- Target: 90+ on all metrics.
+- Optimize images, fonts, critical CSS.
 
 ### Phase 10: MDX Support
 - Add @astrojs/mdx integration.
 - Test with sample component-rich posts.
 
-### Phase 11: Lighthouse Optimization
-- Run audit, fix performance/accessibility issues.
-- Target: 90+ on all metrics.
+### Phase 11: Styling Polish
+- Consider Tailwind integration for utility classes.
+- Improve typography with @tailwindcss/typography or custom.
+- Refine responsive design.
 
 ### Phase 12: Dynamic OG Images
 - Implement per-post OG image generation.
 - Test with Chinese & English titles.
 
 ### Phase 13: UI Enhancements
-- Optional: Add Tailwind for utility classes.
 - Reading time estimates.
 - Back to top button.
-- Subtle animations.
+- Subtle animations (fade-in on scroll).
+- Table of contents for long posts.
+
+### Phase 14: RSS Feed (Deferred)
+- Implement RSS generation per language (/rss.xml for zh, /en/rss.xml for en).
+- Use @astrojs/rss package.
 
 ## Future (Deferred)
 - Search: choose indexing (Lunr/Fuse vs external service). Per-language index generation script.
