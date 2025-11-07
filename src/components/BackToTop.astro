@@ -1,0 +1,75 @@
+---
+interface Props {
+  lang: 'zh-CN' | 'en';
+}
+
+const { lang } = Astro.props;
+const label = lang === 'zh-CN' ? '返回顶部' : 'Back to top';
+---
+
+<button id="back-to-top" aria-label={label} title={label}>
+  ↑
+</button>
+
+<style>
+  #back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--link);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s, transform 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+  }
+  
+  #back-to-top:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  #back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    #back-to-top {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    #back-to-top:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    }
+  }
+</style>
+
+<script>
+  const button = document.getElementById('back-to-top');
+  
+  if (button) {
+    // Show button when scrolled down
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        button.classList.add('visible');
+      } else {
+        button.classList.remove('visible');
+      }
+    });
+    
+    // Scroll to top on click
+    button.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+</script>

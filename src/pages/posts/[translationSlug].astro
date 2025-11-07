@@ -2,7 +2,9 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import PostHeader from '../../components/PostHeader.astro';
+import BackToTop from '../../components/BackToTop.astro';
 import { getCollection } from 'astro:content';
+import { calculateReadingTime, formatReadingTime } from '../../utils/reading-time';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => data.lang === 'zh-CN' && !data.draft);
@@ -14,6 +16,9 @@ const all = await getCollection('posts');
 const post = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug)!;
 const counterpart = all.find((p) => p.data.lang === 'en' && p.data.translationSlug === translationSlug);
 const { Content } = await post.render();
+
+const readingMinutes = calculateReadingTime(post.body);
+const readingTime = formatReadingTime(readingMinutes, 'zh-CN');
 
 const alternates = {
   'zh-CN': new URL(`/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href,
@@ -32,12 +37,13 @@ const ogImageUrl = new URL(`/og/${translationSlug}.svg`, Astro.site ?? 'https://
   />
   <main>
     <article>
-      <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} />
+      <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} readingTime={readingTime} />
       <div class="prose">
         <Content />
       </div>
     </article>
   </main>
+  <BackToTop lang="zh-CN" />
 </Layout>
 
 <style>

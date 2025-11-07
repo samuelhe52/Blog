@@ -33,6 +33,9 @@ Updated: 2025-11-07T19:57:00Z
 12. **Markdown support** - Built-in Astro
 13. **MDX Support** - Components in markdown (Astro v5 + @astrojs/mdx)
 14. **Dynamic OG images** - SVG generation per post at build time
+15. **Reading time** - Calculated word count with bilingual labels
+16. **Back to top button** - Smooth scroll with fade-in/out
+17. **Page animations** - Subtle fade-in on load
 
 ### ❌ Missing (Need to Add)
 1. **RSS Feed** - Auto-generated per language
@@ -51,7 +54,7 @@ Updated: 2025-11-07T19:57:00Z
 2. ✅ MDX support (DONE - Astro v5 + @astrojs/mdx)
 3. ~~Better styling/polish~~ (Deferred - current CSS is clean and works well)
 4. ✅ OG images (DONE - SVG generation at build time)
-5. UX enhancements (reading time, back to top, animations)
+5. ✅ UX enhancements (DONE - reading time, back-to-top, animations)
 6. RSS Feed (deferred - less critical for initial launch)
 
 ## Implementation Notes
