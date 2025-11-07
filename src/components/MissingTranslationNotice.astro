@@ -1,0 +1,51 @@
+---
+interface Props {
+  lang: 'zh-CN' | 'en';
+  translationUrl: string;
+}
+const { lang, translationUrl } = Astro.props;
+const strings = await import(`../i18n/${lang === 'zh-CN' ? 'zh' : 'en'}.json`);
+---
+<aside class="missing-translation-notice">
+  <p>
+    ℹ️ {strings.translation_missing}
+    <br />
+    <a href={translationUrl}>{strings.view_in_other_language} →</a>
+  </p>
+</aside>
+
+<style>
+  .missing-translation-notice {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+  }
+  .missing-translation-notice p {
+    margin: 0;
+    color: #92400e;
+  }
+  .missing-translation-notice a {
+    color: #b45309;
+    font-weight: 500;
+  }
+  .missing-translation-notice a:hover {
+    color: #92400e;
+  }
+  @media (prefers-color-scheme: dark) {
+    .missing-translation-notice {
+      background: #451a03;
+      border-left-color: #d97706;
+    }
+    .missing-translation-notice p {
+      color: #fde68a;
+    }
+    .missing-translation-notice a {
+      color: #fbbf24;
+    }
+    .missing-translation-notice a:hover {
+      color: #fde68a;
+    }
+  }
+</style>

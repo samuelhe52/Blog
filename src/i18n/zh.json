@@ -5,5 +5,7 @@
   "switch_language": "切换语言",
   "english": "English",
   "chinese": "中文",
-  "posts": "文章"
+  "posts": "文章",
+  "translation_missing": "此内容暂无中文翻译",
+  "view_in_other_language": "查看英文版本"
 }

@@ -5,5 +5,7 @@
   "switch_language": "Switch language",
   "english": "English",
   "chinese": "Chinese",
-  "posts": "Posts"
+  "posts": "Posts",
+  "translation_missing": "This content is not yet available in English",
+  "view_in_other_language": "View in Chinese"
 }
