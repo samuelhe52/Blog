@@ -78,10 +78,12 @@ const pageTitle = title || SITE.title;
         color: var(--text);
         background: var(--bg);
         font-size: 16px;
+        transition: color 0.3s ease-in-out, background 0.3s ease-in-out;
       }
       a {
         color: var(--link);
         text-decoration: none;
+        transition: color 0.2s ease-in-out;
       }
       a:hover {
         text-decoration: underline;
@@ -90,6 +92,7 @@ const pageTitle = title || SITE.title;
         line-height: 1.2;
         margin: 2rem 0 1rem;
         font-weight: 600;
+        transition: color 0.3s ease-in-out;
       }
       h1 { font-size: 2rem; margin-top: 0; }
       h2 { font-size: 1.5rem; }
@@ -103,6 +106,7 @@ const pageTitle = title || SITE.title;
         background: var(--code-bg);
         padding: 0.2em 0.4em;
         border-radius: 3px;
+        transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
       }
       pre {
         background: var(--code-bg);
@@ -110,6 +114,7 @@ const pageTitle = title || SITE.title;
         border-radius: 6px;
         overflow-x: auto;
         margin: 1rem 0;
+        transition: background 0.3s ease-in-out;
       }
       pre code {
         background: none;
@@ -119,12 +124,14 @@ const pageTitle = title || SITE.title;
         border: none;
         border-top: 1px solid var(--border);
         margin: 2rem 0;
+        transition: border-color 0.3s ease-in-out;
       }
       blockquote {
         border-left: 3px solid var(--border);
         padding-left: 1rem;
         margin: 1rem 0;
         color: var(--text-muted);
+        transition: border-color 0.3s ease-in-out, color 0.3s ease-in-out;
       }
       
       /* Staggered fade-in animation (Nano style) */
