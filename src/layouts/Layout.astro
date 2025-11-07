@@ -110,20 +110,16 @@ const pageTitle = title || SITE.title;
         color: var(--text-muted);
       }
       
-      /* Subtle fade-in animation */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      /* Staggered fade-in animation (Nano style) */
+      .animate {
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
       }
       
-      body > * {
-        animation: fadeIn 0.4s ease-out;
+      .animate.show {
+        opacity: 1;
+        transform: translateY(0);
       }
     </style>
     <script is:inline>
@@ -135,6 +131,16 @@ const pageTitle = title || SITE.title;
             document.cookie='lang='+(nav.startsWith('en')?'en':'zh-CN')+'; path=/; max-age=31536000';
           }
         }catch(e){}
+        
+        // Staggered animation on page load
+        document.addEventListener('DOMContentLoaded', () => {
+          const animateElements = document.querySelectorAll('.animate');
+          animateElements.forEach((element, index) => {
+            setTimeout(() => {
+              element.classList.add('show');
+            }, index * 100);
+          });
+        });
       })();
     </script>
   </head>

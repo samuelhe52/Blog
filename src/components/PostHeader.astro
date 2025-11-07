@@ -15,10 +15,15 @@ const { title, description, date, readingTime } = Astro.props;
     <div class="meta">
       {date && (
         <time datetime={date.toISOString()}>
-          {date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
         </time>
       )}
-      {readingTime && <span class="reading-time">{readingTime}</span>}
+      {readingTime && (
+        <>
+          &bull;
+          <span class="reading-time">{readingTime}</span>
+        </>
+      )}
     </div>
   )}
   {description && <p class="description">{description}</p>}
@@ -33,7 +38,7 @@ const { title, description, date, readingTime } = Astro.props;
   }
   .meta {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     align-items: center;
     color: var(--text-muted);
     font-size: 0.9rem;
@@ -42,9 +47,8 @@ const { title, description, date, readingTime } = Astro.props;
   time {
     display: inline;
   }
-  .reading-time::before {
-    content: "·";
-    margin-right: 1rem;
+  .reading-time {
+    display: inline;
   }
   .description {
     color: var(--text-muted);

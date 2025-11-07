@@ -37,8 +37,10 @@ const ogImageUrl = new URL(`/og/${translationSlug}.svg`, Astro.site ?? 'https://
   />
   <main>
     <article>
-      <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} readingTime={readingTime} />
-      <div class="prose">
+      <div class="animate">
+        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} readingTime={readingTime} />
+      </div>
+      <div class="prose animate">
         <Content />
       </div>
     </article>
