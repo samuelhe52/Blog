@@ -35,8 +35,9 @@ const homeUrl = lang === 'zh-CN' ? '/' : '/en/';
     border-bottom: 1px solid var(--border);
   }
   
+  :root[data-theme="dark"] header,
   @media (prefers-color-scheme: dark) {
-    header {
+    :root:not([data-theme]) header {
       background: rgba(28, 25, 23, 0.75);
     }
   }

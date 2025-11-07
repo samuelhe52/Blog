@@ -36,6 +36,10 @@ const pageTitle = title || SITE.title;
     <style is:global>
       :root {
         color-scheme: light dark;
+      }
+      
+      :root,
+      :root[data-theme="light"] {
         --text: #1a1a1a;
         --text-muted: #666;
         --bg: #fafaf9;
@@ -43,8 +47,19 @@ const pageTitle = title || SITE.title;
         --border: #e7e5e4;
         --code-bg: #f5f5f4;
       }
+      
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --text: #e7e5e4;
+        --text-muted: #a8a29e;
+        --bg: #1c1917;
+        --link: #60a5fa;
+        --border: #292524;
+        --code-bg: #292524;
+      }
+      
       @media (prefers-color-scheme: dark) {
-        :root {
+        :root:not([data-theme]) {
           --text: #e7e5e4;
           --text-muted: #a8a29e;
           --bg: #1c1917;
