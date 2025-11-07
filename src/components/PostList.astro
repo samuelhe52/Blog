@@ -1,0 +1,92 @@
+---
+interface Props {
+  posts: Array<{
+    slug: string;
+    title: string;
+    description?: string;
+    date: Date;
+  }>;
+  lang: 'zh-CN' | 'en';
+}
+
+const { posts, lang } = Astro.props;
+const baseUrl = lang === 'zh-CN' ? '/posts' : '/en/posts';
+---
+
+<ul class="post-list">
+  {posts.map((post) => (
+    <li class="post-item">
+      <a href={`${baseUrl}/${post.slug}/`} class="post-link">
+        <div class="post-info">
+          <h2 class="post-title">{post.title}</h2>
+          {post.description && <p class="post-description">{post.description}</p>}
+        </div>
+        <time datetime={post.date.toISOString()}>
+          {post.date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
+        </time>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .post-item {
+    margin: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .post-item:last-child {
+    border-bottom: none;
+  }
+  .post-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  .post-link:hover {
+    text-decoration: none;
+  }
+  .post-link:hover .post-title {
+    color: var(--link);
+  }
+  .post-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .post-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0 0 0.25rem 0;
+    transition: color 0.2s;
+  }
+  .post-description {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  time {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  @media (max-width: 640px) {
+    .post-link {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+</style>

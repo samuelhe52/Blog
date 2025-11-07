@@ -1,0 +1,46 @@
+---
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { SITE } from '../site.config';
+
+interface Props {
+  lang: 'zh-CN' | 'en';
+  disableZh?: boolean;
+  disableEn?: boolean;
+  toZh?: string;
+  toEn?: string;
+}
+
+const { lang, disableZh, disableEn, toZh, toEn } = Astro.props;
+const homeUrl = lang === 'zh-CN' ? '/' : '/en/';
+---
+
+<header>
+  <div class="header-content">
+    <a href={homeUrl} class="site-title">{SITE.title}</a>
+    <LanguageSwitcher lang={lang} disableZh={disableZh} disableEn={disableEn} toZh={toZh} toEn={toEn} />
+  </div>
+</header>
+
+<style>
+  header {
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .site-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .site-title:hover {
+    text-decoration: none;
+    opacity: 0.8;
+  }
+</style>

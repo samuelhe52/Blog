@@ -1,10 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import LanguageSwitcher from '../../components/LanguageSwitcher.astro';
+import Header from '../../components/Header.astro';
+import PostHeader from '../../components/PostHeader.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => data.lang === 'zh-CN');
+  const posts = await getCollection('posts', ({ data }) => data.lang === 'zh-CN' && !data.draft);
   return posts.map((p) => ({ params: { translationSlug: p.data.translationSlug } }));
 }
 
@@ -13,15 +14,32 @@ const all = await getCollection('posts');
 const post = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug)!;
 const counterpart = all.find((p) => p.data.lang === 'en' && p.data.translationSlug === translationSlug);
 const { Content } = await post.render();
+
 const alternates = {
-  'zh-CN': new URL(`/posts/${translationSlug}/`, Astro.site ?? 'https://blog.mydomain.com/').href,
-  ...(counterpart ? { en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.mydomain.com/').href } : {})
+  'zh-CN': new URL(`/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href,
+  ...(counterpart ? { en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href } : {})
 };
 ---
+
 <Layout lang="zh-CN" title={post.data.title} description={post.data.description} alternates={alternates}>
-  <LanguageSwitcher lang="zh-CN" disableEn={!counterpart} toZh={`/posts/${translationSlug}/`} toEn={counterpart ? `/en/posts/${translationSlug}/` : '/en/'} />
-  <article>
-    <h1>{post.data.title}</h1>
-    <Content />
-  </article>
+  <Header
+    lang="zh-CN"
+    disableEn={!counterpart}
+    toZh={`/posts/${translationSlug}/`}
+    toEn={counterpart ? `/en/posts/${translationSlug}/` : '/en/'}
+  />
+  <main>
+    <article>
+      <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} />
+      <div class="prose">
+        <Content />
+      </div>
+    </article>
+  </main>
 </Layout>
+
+<style>
+  .prose {
+    margin-top: 2rem;
+  }
+</style>

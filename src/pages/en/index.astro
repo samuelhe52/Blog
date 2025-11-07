@@ -1,17 +1,28 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import LanguageSwitcher from '../../components/LanguageSwitcher.astro';
+import Header from '../../components/Header.astro';
+import PostList from '../../components/PostList.astro';
 import { getCollection } from 'astro:content';
 import { SITE } from '../../site.config';
-const posts = await getCollection('posts', ({ data }) => data.lang === 'en');
-const alternates = { 'zh-CN': new URL('/', SITE.domain).href, en: new URL('/en/', SITE.domain).href };
+
+const posts = (await getCollection('posts', ({ data }) => data.lang === 'en' && !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .map(p => ({
+    slug: p.data.translationSlug,
+    title: p.data.title,
+    description: p.data.description,
+    date: p.data.date
+  }));
+
+const alternates = {
+  'zh-CN': new URL('/', SITE.domain).href,
+  en: new URL('/en/', SITE.domain).href
+};
 ---
-<Layout lang="en" description="Personal blog" alternates={alternates}>
-  <LanguageSwitcher lang="en" toZh="/" toEn="/en/" />
-  <h1>{SITE.title}</h1>
-  <ul>
-    {posts.map((p) => (
-      <li><a href={`/en/posts/${p.data.translationSlug}/`}>{p.data.title}</a>{p.data.description && (' — ' + p.data.description)}</li>
-    ))}
-  </ul>
+
+<Layout lang="en" description="konakona's personal blog" alternates={alternates}>
+  <Header lang="en" toZh="/" toEn="/en/" />
+  <main>
+    <PostList posts={posts} lang="en" />
+  </main>
 </Layout>
