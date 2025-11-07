@@ -39,6 +39,23 @@ const pageTitle = title || SITE.title;
       ul { padding-left: 1.25rem; }
       h1,h2,h3 { line-height: 1.2; }
     </style>
+    <script is:inline>
+      (function(){
+        try{
+          const m=(n)=>{const r=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return r?decodeURIComponent(r[1]):''};
+          const pref=m('lang');
+          const p=location.pathname; const isEn=p.startsWith('/en/');
+          if(!pref){
+            const nav=(navigator.language||'').toLowerCase(); const wantEn=nav.startsWith('en');
+            document.cookie='lang='+(wantEn?'en':'zh-CN')+'; path=/; max-age=31536000';
+            if((wantEn && !isEn) || (!wantEn && isEn)) location.replace(wantEn?'/en/':'/');
+          } else {
+            if(pref==='en' && !isEn) location.replace('/en/');
+            if(pref==='zh-CN' && isEn) location.replace('/');
+          }
+        }catch(e){}
+      })();
+    </script>
   </head>
   <body>
     <slot />
