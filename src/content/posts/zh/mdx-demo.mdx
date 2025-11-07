@@ -1,0 +1,52 @@
+---
+title: 'MDX 演示'
+date: 2025-11-07
+lang: 'zh-CN'
+translationSlug: 'mdx-demo'
+description: '展示 MDX 功能的示例文章'
+draft: false
+---
+
+import { Code } from 'astro:components';
+
+# MDX 演示
+
+这是一篇使用 **MDX** 编写的文章，可以在 Markdown 中使用 JSX 组件！
+
+## 内联组件示例
+
+你可以在文章中嵌入自定义组件：
+
+<div style="padding: 1rem; background: var(--code-bg); border-radius: 6px; margin: 1rem 0;">
+  <strong>这是一个自定义的 HTML 块！</strong>
+  <p>可以使用任何 HTML 或 React 组件。</p>
+</div>
+
+## 代码高亮
+
+使用 Astro 的 Code 组件：
+
+<Code code={`function hello() {
+  console.log('Hello from MDX!');
+}`} lang="javascript" />
+
+## 交互式内容
+
+export const Highlight = ({children, color}) => (
+  <span style={{
+    backgroundColor: color,
+    borderRadius: '2px',
+    color: '#fff',
+    padding: '0.2rem 0.4rem',
+  }}>{children}</span>
+);
+
+这段文字包含 <Highlight color="#25c2a0">高亮显示</Highlight> 的内容！
+
+## 总结
+
+MDX 让我们可以：
+- ✅ 使用 Markdown 语法
+- ✅ 嵌入 JSX 组件
+- ✅ 导入和使用外部组件
+- ✅ 创建更丰富的交互式内容

@@ -45,10 +45,10 @@ Updated: 2025-11-07T19:57:00Z
 10. **OG images** - Dynamic generation per post
 
 ## Priority Order (MVP+)
-1. Lighthouse audit & fixes (performance baseline)
-2. MDX support (flexibility for rich content)
-3. Better styling/polish (consider Tailwind utilities)
-4. OG images (social sharing)
+1. ✅ Lighthouse audit & fixes (100/100/96/100 - Excellent!)
+2. ✅ MDX support (DONE - Astro v5 + @astrojs/mdx)
+3. ~~Better styling/polish~~ (Deferred - current CSS is clean and works well)
+4. OG images (dynamic generation for social sharing)
 5. UX enhancements (reading time, back to top, animations)
 6. RSS Feed (deferred - less critical for initial launch)
 
