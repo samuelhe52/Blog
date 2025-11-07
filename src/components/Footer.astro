@@ -9,7 +9,7 @@ const { lang } = Astro.props;
 const currentYear = new Date().getFullYear();
 ---
 
-<footer>
+<footer class="animate">
   <div class="footer-content">
     <div class="footer-info">
       <p>&copy; {currentYear} konakona. All rights reserved.</p>
@@ -44,7 +44,7 @@ const currentYear = new Date().getFullYear();
     margin-top: 4rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border);
-    transition: border-color 0.3s ease-in-out;
+    transition: border-color 0.3s ease-in-out, transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
   }
   
   .footer-content {
