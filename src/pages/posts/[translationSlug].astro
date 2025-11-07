@@ -1,0 +1,27 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LanguageSwitcher from '../../components/LanguageSwitcher.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => data.lang === 'zh-CN');
+  return posts.map((p) => ({ params: { translationSlug: p.data.translationSlug } }));
+}
+
+const { translationSlug } = Astro.params;
+const all = await getCollection('posts');
+const post = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug)!;
+const counterpart = all.find((p) => p.data.lang === 'en' && p.data.translationSlug === translationSlug);
+const { Content } = await post.render();
+const alternates = {
+  'zh-CN': new URL(`/posts/${translationSlug}/`, Astro.site ?? 'https://blog.mydomain.com/').href,
+  ...(counterpart ? { en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.mydomain.com/').href } : {})
+};
+---
+<Layout lang="zh-CN" title={post.data.title} description={post.data.description} alternates={alternates}>
+  <LanguageSwitcher lang="zh-CN" disableEn={!counterpart} />
+  <article>
+    <h1>{post.data.title}</h1>
+    <Content />
+  </article>
+</Layout>
