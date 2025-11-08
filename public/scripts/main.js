@@ -1,4 +1,4 @@
-// Language auto-detection
+// Language auto-detection and redirect
 (function() {
   try {
     const getCookie = (name) => {
@@ -6,9 +6,25 @@
       return match ? decodeURIComponent(match[1]) : '';
     };
     
-    if (!getCookie('lang')) {
-      const nav = (navigator.language || '').toLowerCase();
-      document.cookie = 'lang=' + (nav.startsWith('en') ? 'en' : 'zh-CN') + '; path=/; max-age=31536000';
+    const currentPath = window.location.pathname;
+    const isEnglishPage = currentPath.startsWith('/en');
+    const isHomePage = currentPath === '/' || currentPath === '/en' || currentPath === '/en/';
+    
+    // Only auto-detect and redirect on first visit to homepage
+    if (isHomePage && !getCookie('lang')) {
+      const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      const preferEnglish = browserLang.startsWith('en');
+      
+      // Set cookie based on browser preference
+      const detectedLang = preferEnglish ? 'en' : 'zh-CN';
+      document.cookie = 'lang=' + detectedLang + '; path=/; max-age=31536000';
+      
+      // Redirect if needed
+      if (preferEnglish && !isEnglishPage) {
+        window.location.replace('/en/');
+      } else if (!preferEnglish && isEnglishPage) {
+        window.location.replace('/');
+      }
     }
   } catch(e) {}
 })();
