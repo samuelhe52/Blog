@@ -25,6 +25,7 @@ const pageTitle = title || SITE.title;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/source-han-sans-sc@1.0.0/source-han-sans-sc.min.css" rel="stylesheet">
+    <script src="/scripts/main.js" defer></script>
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={current} />
@@ -177,26 +178,5 @@ const pageTitle = title || SITE.title;
       <slot />
     </main>
     <Footer lang={lang} />
-    <script is:inline>
-      (function(){
-        try{
-          const m=(n)=>{const r=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return r?decodeURIComponent(r[1]):''};
-          if(!m('lang')){
-            const nav=(navigator.language||'').toLowerCase();
-            document.cookie='lang='+(nav.startsWith('en')?'en':'zh-CN')+'; path=/; max-age=31536000';
-          }
-        }catch(e){}
-        
-        // Staggered animation on page load
-        document.addEventListener('DOMContentLoaded', () => {
-          const animateElements = document.querySelectorAll('.animate');
-          animateElements.forEach((element, index) => {
-            setTimeout(() => {
-              element.classList.add('show');
-            }, index * 100);
-          });
-        });
-      })();
-    </script>
   </body>
 </html>
