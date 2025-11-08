@@ -4,6 +4,7 @@ description: "Welcome to my blog."
 date: 2025-11-01
 lang: "en"
 translationSlug: "hello-world"
+author: "konakona"
 ---
 
 Sample content.
