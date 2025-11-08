@@ -25,7 +25,6 @@ const pageTitle = title || SITE.title;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/source-han-sans-sc@1.0.0/source-han-sans-sc.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/source-han-serif-sc@1.0.0/source-han-serif-sc.min.css" rel="stylesheet">
     <script src="/scripts/main.js" defer></script>
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
@@ -59,7 +58,7 @@ const pageTitle = title || SITE.title;
       
       :root[lang="zh-CN"],
       :root[lang="zh-CN"][data-theme="light"] {
-        --font-family: "Source Han Serif SC", "SimSun", serif;
+        --font-family: "Source Han Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         --font-heading: "Source Han Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       }
       
@@ -74,7 +73,7 @@ const pageTitle = title || SITE.title;
       }
       
       :root[lang="zh-CN"][data-theme="dark"] {
-        --font-family: "Source Han Serif SC", "SimSun", serif;
+        --font-family: "Source Han Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         --font-heading: "Source Han Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       }
       
@@ -89,7 +88,7 @@ const pageTitle = title || SITE.title;
         }
         
         :root[lang="zh-CN"]:not([data-theme]) {
-          --font-family: "Source Han Serif SC", "SimSun", serif;
+          --font-family: "Source Han Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
           --font-heading: "Source Han Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         }
       }

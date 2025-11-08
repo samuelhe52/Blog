@@ -4,9 +4,10 @@ interface Props {
   description?: string;
   date?: Date;
   readingTime?: string;
+  lang: 'zh-CN' | 'en';
 }
 
-const { title, description, date, readingTime } = Astro.props;
+const { title, description, date, readingTime, lang } = Astro.props;
 ---
 
 <div class="post-header">
@@ -15,7 +16,7 @@ const { title, description, date, readingTime } = Astro.props;
     <div class="meta">
       {date && (
         <time datetime={date.toISOString()}>
-          {date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
+          {date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
         </time>
       )}
       {readingTime && (
