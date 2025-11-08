@@ -51,6 +51,19 @@ const pageTitle = title || SITE.title;
       </>
     )}
     
+    <script is:inline>
+      // Apply saved theme immediately to prevent flash
+      (function() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        } else if (savedTheme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        // 'auto' or no saved theme = no attribute, uses prefers-color-scheme
+      })();
+    </script>
+    
     <script src="/scripts/main.js" defer></script>
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
