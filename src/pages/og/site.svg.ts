@@ -23,7 +23,7 @@ export async function GET() {
       font-weight="700"
       fill="${textColor}"
     >
-      konakona's Lodge
+      konakona
     </text>
     
     <text

@@ -75,7 +75,7 @@ export async function GET({ props }: any) {
       font-weight="600"
       fill="${accentColor}"
     >
-      konakona's Lodge
+      konakona
     </text>
   </svg>`;
 
