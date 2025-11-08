@@ -50,26 +50,4 @@ const label = lang === 'zh-CN' ? '返回顶部' : 'Back to top';
     }
   }
 </style>
-
-<script>
-  const button = document.getElementById('back-to-top');
-  
-  if (button) {
-    // Show button when scrolled down
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
-        button.classList.add('visible');
-      } else {
-        button.classList.remove('visible');
-      }
-    });
-    
-    // Scroll to top on click
-    button.addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
-  }
-</script>
+<script is:inline src="/scripts/back-to-top.js"></script>
