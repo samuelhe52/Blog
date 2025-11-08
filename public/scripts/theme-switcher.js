@@ -2,26 +2,8 @@
 function setTheme(theme) {
   localStorage.setItem('theme', theme);
   
-  // Disable transitions temporarily
-  const css = document.createElement('style');
-  css.type = 'text/css';
-  css.appendChild(
-    document.createTextNode(
-      `*,
-       *::before,
-       *::after {
-        -webkit-transition: none !important;
-        -moz-transition: none !important;
-        -o-transition: none !important;
-        -ms-transition: none !important;
-        transition: none !important;
-      }`
-    )
-  );
-  document.head.appendChild(css);
-  
-  // Force the browser to acknowledge the style
-  const _ = window.getComputedStyle(css).opacity;
+  // Create a class-based approach for disabling transitions
+  document.documentElement.classList.add('theme-transitioning');
   
   const lightBtn = document.getElementById('theme-light');
   const darkBtn = document.getElementById('theme-dark');
@@ -42,13 +24,10 @@ function setTheme(theme) {
     autoBtn?.classList.add('active');
   }
   
-  // Force reflow
-  const __ = window.getComputedStyle(document.documentElement).opacity;
-  
-  // Re-enable transitions
+  // Remove the class after the browser has painted
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      document.head.removeChild(css);
+      document.documentElement.classList.remove('theme-transitioning');
     });
   });
 }

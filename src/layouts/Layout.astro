@@ -70,6 +70,13 @@ const pageTitle = title || SITE.title;
         color-scheme: light dark;
       }
       
+      /* Disable all transitions when switching themes */
+      :root.theme-transitioning *,
+      :root.theme-transitioning *::before,
+      :root.theme-transitioning *::after {
+        transition: none !important;
+      }
+      
       :root,
       :root[data-theme="light"] {
         --text: #292524;
