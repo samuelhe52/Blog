@@ -14,7 +14,7 @@ const { lang, disableZh, disableEn, toZh, toEn } = Astro.props;
 const homeUrl = lang === 'zh-CN' ? '/' : '/en/';
 ---
 
-<header>
+<header class="animate">
   <div class="header-content">
     <a href={homeUrl} class="site-title">{SITE.title}</a>
     <LanguageSwitcher lang={lang} disableZh={disableZh} disableEn={disableEn} toZh={toZh} toEn={toEn} />

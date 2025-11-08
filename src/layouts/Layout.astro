@@ -96,7 +96,16 @@ const pageTitle = title || SITE.title;
       
       html {
         height: 100%;
-        scrollbar-gutter: stable; /* Reserve space for scrollbar to prevent layout shift */
+      }
+      
+      /* Hide scrollbar but keep scroll functionality */
+      html {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+      }
+      
+      html::-webkit-scrollbar {
+        display: none; /* Chrome/Safari/Opera */
       }
       
       body {
