@@ -171,6 +171,12 @@ const pageTitle = title || SITE.title;
         transform: translateY(0);
       }
     </style>
+  </head>
+  <body>
+    <main class="content">
+      <slot />
+    </main>
+    <Footer lang={lang} />
     <script is:inline>
       (function(){
         try{
@@ -192,11 +198,5 @@ const pageTitle = title || SITE.title;
         });
       })();
     </script>
-  </head>
-  <body>
-    <main class="content">
-      <slot />
-    </main>
-    <Footer lang={lang} />
   </body>
 </html>
