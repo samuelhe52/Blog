@@ -1,4 +1,6 @@
 ---
+import { formatDate } from '../utils/reading-time';
+
 interface Props {
   posts: Array<{
     slug: string;
@@ -22,11 +24,7 @@ const baseUrl = lang === 'zh-CN' ? '/posts' : '/en/posts';
           {post.description && <p class="post-description">{post.description}</p>}
         </div>
         <time datetime={post.date.toISOString()}>
-          {post.date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          })}
+          {formatDate(post.date, lang)}
         </time>
       </a>
     </li>

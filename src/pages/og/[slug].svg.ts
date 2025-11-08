@@ -18,11 +18,20 @@ export async function GET({ props }: any) {
   const textColor = '#e5e5e5';
   const accentColor = '#60a5fa';
 
-  const formattedDate = date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', {
+  const rawDate = date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
+  
+  // Add spaces between numbers and Chinese characters for Chinese dates
+  const formattedDate = lang === 'zh-CN'
+    ? rawDate
+        .replace(/(\d+)(年)/g, '$1 $2 ')
+        .replace(/(\d+)(月)/g, '$1 $2 ')
+        .replace(/(\d+)(日)/g, '$1 $2')
+        .trim()
+    : rawDate;
 
   const svg = `<svg
     xmlns="http://www.w3.org/2000/svg"

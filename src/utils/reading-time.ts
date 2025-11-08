@@ -21,3 +21,22 @@ export function formatReadingTime(minutes: number, lang: 'zh-CN' | 'en'): string
   }
   return `${minutes} min read`;
 }
+
+export function formatDate(date: Date, lang: 'zh-CN' | 'en'): string {
+  const formatted = date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+  
+  // Add spaces between numbers and Chinese characters for Chinese dates
+  if (lang === 'zh-CN') {
+    return formatted
+      .replace(/(\d+)(年)/g, '$1 $2 ')
+      .replace(/(\d+)(月)/g, '$1 $2 ')
+      .replace(/(\d+)(日)/g, '$1 $2')
+      .trim();
+  }
+  
+  return formatted;
+}

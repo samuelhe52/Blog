@@ -1,4 +1,6 @@
 ---
+import { formatDate } from '../utils/reading-time';
+
 interface Props {
   title: string;
   description?: string;
@@ -16,7 +18,7 @@ const { title, description, date, readingTime, lang } = Astro.props;
     <div class="meta">
       {date && (
         <time datetime={date.toISOString()}>
-          {date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          {formatDate(date, lang)}
         </time>
       )}
       {readingTime && (
