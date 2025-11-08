@@ -96,16 +96,7 @@ const pageTitle = title || SITE.title;
       
       html {
         height: 100%;
-      }
-      
-      /* Hide scrollbar but keep scroll functionality */
-      html {
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE/Edge */
-      }
-      
-      html::-webkit-scrollbar {
-        display: none; /* Chrome/Safari/Opera */
+        overflow-y: scroll; /* Always show scrollbar */
       }
       
       body {
