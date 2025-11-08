@@ -1,5 +1,5 @@
 export const SITE = {
-  title: "konakona lodge",
+  title: "konakona",
   author: {
     handle: 'konakona',
     name: 'Samuel He',
