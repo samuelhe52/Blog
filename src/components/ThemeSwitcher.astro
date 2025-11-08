@@ -56,14 +56,41 @@ const autoLabel = lang === 'zh-CN' ? '自动' : 'Auto';
     align-items: center;
     justify-content: center;
   }
+
+  @media (max-width: 640px) {
+    .theme-switcher {
+      gap: 0.15rem;
+    }
+    .theme-switcher button {
+      width: 1.95rem;
+      height: 1.95rem;
+      border-radius: 5px;
+    }
+    .theme-switcher button svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
   
   .theme-switcher button svg {
     stroke: var(--text-muted);
     transition: stroke 0.3s ease-in-out;
   }
+
+  @media (max-width: 640px) {
+    .theme-switcher button svg {
+      stroke-width: 1.4;
+    }
+  }
   
   .theme-switcher button:hover {
     background: var(--code-bg);
+  }
+
+  @media (max-width: 640px) {
+    .theme-switcher button:hover {
+      background: var(--code-bg);
+    }
   }
   
   .theme-switcher button:hover svg {
@@ -72,6 +99,12 @@ const autoLabel = lang === 'zh-CN' ? '自动' : 'Auto';
   
   .theme-switcher button.active {
     background: var(--link);
+  }
+
+  @media (max-width: 640px) {
+    .theme-switcher button.active {
+      box-shadow: 0 0 0 1px var(--link) inset;
+    }
   }
   
   .theme-switcher button.active svg {

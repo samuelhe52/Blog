@@ -97,21 +97,44 @@ const currentYear = new Date().getFullYear();
   
   @media (max-width: 640px) {
     .footer-content {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1.5rem;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 1.25rem;
     }
-    
+
     .footer-info {
+      flex: 1 1 100%;
+      min-width: 0;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
+      align-items: center;
+      gap: 0.5rem;
       width: 100%;
     }
-    
+
     .footer-info p {
       font-size: 0.75rem;
       white-space: normal;
+      width: 100%;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Center theme buttons under content on very narrow widths */
+    .footer-content :global(.theme-switcher) {
+      margin-left: 0;
+      flex-shrink: 0;
+      order: 2;
+    }
+
+    .footer-links {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .footer-links a {
+      padding: 0.25rem;
     }
   }
 </style>
