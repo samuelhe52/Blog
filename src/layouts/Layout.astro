@@ -94,7 +94,12 @@ const pageTitle = title || SITE.title;
       }
       * { box-sizing: border-box; }
       
-      html, body {
+      html {
+        height: 100%;
+        overflow-y: scroll; /* Always show scrollbar to prevent layout shift */
+      }
+      
+      body {
         height: 100%;
       }
       
