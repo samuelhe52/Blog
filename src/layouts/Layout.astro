@@ -6,15 +6,11 @@ import '@fontsource/inter/400.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/lora/400.css';
 import '@fontsource/lora/600.css';
-import '@fontsource/noto-sans-sc/400.css';
-import '@fontsource/noto-sans-sc/500.css';
 
 import inter400 from '@fontsource/inter/files/inter-latin-400-normal.woff2';
 import inter600 from '@fontsource/inter/files/inter-latin-600-normal.woff2';
 import lora400 from '@fontsource/lora/files/lora-latin-400-normal.woff2';
 import lora600 from '@fontsource/lora/files/lora-latin-600-normal.woff2';
-import notoSansSC400 from '@fontsource/noto-sans-sc/files/noto-sans-sc-chinese-simplified-400-normal.woff2';
-import notoSansSC500 from '@fontsource/noto-sans-sc/files/noto-sans-sc-chinese-simplified-500-normal.woff2';
 
 export interface Props {
   lang: 'zh-CN' | 'en';
@@ -44,12 +40,6 @@ const pageTitle = title || SITE.title;
     <link rel="preload" href={inter600} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={lora400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={lora600} as="font" type="font/woff2" crossorigin />
-    {lang === 'zh-CN' && (
-      <>
-        <link rel="preload" href={notoSansSC400} as="font" type="font/woff2" crossorigin />
-        <link rel="preload" href={notoSansSC500} as="font" type="font/woff2" crossorigin />
-      </>
-    )}
     
     <script is:inline>
       // Apply saved theme immediately to prevent flash
@@ -97,8 +87,8 @@ const pageTitle = title || SITE.title;
       
       :root[lang="zh-CN"],
       :root[lang="zh-CN"][data-theme="light"] {
-        --font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-        --font-heading: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        --font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        --font-heading: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       }
       
       :root[data-theme="dark"] {
@@ -112,8 +102,8 @@ const pageTitle = title || SITE.title;
       }
       
       :root[lang="zh-CN"][data-theme="dark"] {
-        --font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-        --font-heading: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        --font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        --font-heading: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       }
       
       @media (prefers-color-scheme: dark) {
@@ -127,8 +117,8 @@ const pageTitle = title || SITE.title;
         }
         
         :root[lang="zh-CN"]:not([data-theme]) {
-          --font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-          --font-heading: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+          --font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+          --font-heading: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         }
       }
       * { box-sizing: border-box; }
