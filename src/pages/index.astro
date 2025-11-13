@@ -21,6 +21,7 @@ const alternates = {
 ---
 
 <Layout lang="zh-CN" description="konakona 的个人博客" alternates={alternates}>
+  <script is:inline src="/scripts/lang-detect.js"></script>
   <Header lang="zh-CN" toZh="/" toEn="/en/" />
   <main class="animate">
     <PostList posts={posts} lang="zh-CN" />

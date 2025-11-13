@@ -7,14 +7,12 @@ translationSlug: "swift-api-client-part-1"
 author: "konakona"
 ---
 
-Web services that utilize RESTful APIs are often the backbone of modern applications, and efficiently interacting with them in a native manner is crucial. That's where API client libraries come into play. In this post, we'll explore how to leverage Swift's powerful features, such as Generics, Codable, and Swift Concurrency, to create a clean, layered, and extensible API client library.
+In this post, we'll explore how to leverage Swift's powerful features, such as Generics, Codable, and Swift Concurrency, to create a clean, layered, and extensible API client library.
 
 In this first part of the series, we will focus on building the foundational layers of our API client:
 
 1. **HTTP Layer**: Generic HTTP transport (reusable for any API)
 2. **API Layer**: Business-specific logic (authentication, encoding/decoding)
-
-This separation of concerns gives us better testability, reusability, and maintainability.
 
 ## Architecture Overview
 
@@ -233,7 +231,7 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
 }
 ```
 
-> **Tip**: You can extend this HTTP layer with logging, or swapping out the networking backend (e.g., using `URLSession`, `Alamofire`, etc.) without affecting the API layer.
+> **Tip**: You can extend this HTTP layer with logging, or swap out the networking backend (e.g., using `URLSession`, `Alamofire`, etc.) without affecting the API layer.
 
 **And that's our HTTP layer! It provides a clean, reusable abstraction over HTTP transport.**
 
@@ -396,7 +394,7 @@ public final class YourAPIClient: APIClient, Sendable {
 }
 ```
 
-With this implementaion of `APIClient`, we now have a reusable layer that can handle any API request defined by the `APIRequest` protocol. It handles authentication, request construction, and JSON decoding, **streamlining the following process of implementing specific API services**.
+With this implementation of `APIClient`, we now have a reusable layer that can handle any API requests defined by the `APIRequest` protocol. It handles authentication, request construction, and JSON decoding, **streamlining the process of implementing specific API services**.
 
 ## What's Next
 
