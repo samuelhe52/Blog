@@ -1,15 +1,15 @@
 ---
-title: "构建 Swift API 客户端库：第一部分"
-description: "学习如何利用 Swift 的 Generics、Codable 和并发，构建整洁、分层、可扩展的 API 客户端。"
+title: "编写 Swift API 客户端库（一）"
+description: "学习如何利用泛型、Swift Concurrency 以及 Codable 协议，优雅高效地编写 Web API 客户端。"
 date: 2025-11-12
 lang: "zh-CN"
 translationSlug: "swift-api-client-part-1"
 author: "konakona"
 ---
 
-RESTful API 驱动的 Web 服务是现代应用的基石，如何以原生方式高效地与其交互至关重要。API 客户端库正是解决这一问题的关键。本文将深入探讨如何利用 Swift 的强大特性——泛型（Generics）、Codable 协议以及 Swift 并发——构建一个清晰、分层、可扩展的 API 客户端库。
+本系列将探讨如何利用泛型（Generics）、Codable 协议以及 Swift Concurrency 等 Swift 特性，高效地编写 Web API 客户端库。
 
-本系列的第一部分将重点讲解如何搭建 API 客户端的基础层：
+本文中，我们将关注于构建 API 客户端库的基础：
 
 1. **HTTP 层**：通用 HTTP 传输层（可复用于任何 API）
 2. **API 层**：业务逻辑层（处理认证、编码/解码等）
@@ -43,21 +43,21 @@ RESTful API 驱动的 Web 服务是现代应用的基石，如何以原生方式
 
 **这种分层架构带来的优势：**
 
-- **可测试性**：每一层都可以通过 mock 或 stub 独立测试
+- **可测试性**：每一层都可以通过创建 mock 或 stub 独立测试
 - **可复用性**：HTTP 层可以跨不同 API 项目复用
-- **可维护性**：清晰的职责分离使代码更易理解和修改
+- **可维护性**：每一层职责单一，便于理解和修改
 
-接下来，让我们自底向上逐层构建。
+接下来，让我们从 HTTP 层开始构建。
 
 ## HTTP 层
 
-HTTP 层负责“纯粹的 HTTP 传输”：发送请求、处理响应并校验状态码。它对具体 API 的认证或业务逻辑一无所知。
+HTTP 层只负责处理 网络底层传输，包括发送请求，处理响应并校验状态码。它不涉及具体 API 的认证机制或业务逻辑。
 
 ### HTTP 基础设施
 
 首先，我们定义 HTTP 请求和响应的基础组件。
 
-#### HTTP 方法枚举
+#### HTTP 请求方法
 
 ```swift
 /// HTTP methods supported by the HTTP client.
@@ -104,9 +104,9 @@ public struct HTTPResponse: Sendable {
 }
 ```
 
-#### HTTP 错误
+#### HTTPError
 
-HTTP 错误代表“传输层失败”：
+`HTTPError` 定义了在传输层发生的错误：
 
 ```swift
 /// Errors that can occur at the HTTP transport layer.
@@ -146,9 +146,9 @@ public enum HTTPError: LocalizedError, Sendable {
 }
 ```
 
-### HTTPClient 实现
+### HTTPClient
 
-虽然可以直接实现一个具体的类，但我们从协议入手，以获得**更好的可测试性和抽象能力**：
+虽然现在我们已经可以直接实现一个具体的类，但为了保持灵活性和可测试性，我们先定义一个协议：
 
 ```swift
 /// Protocol for executing HTTP requests.
@@ -158,7 +158,7 @@ public protocol HTTPClient: Sendable {
 }
 ```
 
-协议不仅便于在测试中进行 mock，还使底层网络实现可以灵活替换。下面是基于 `URLSession` 的实现：
+协议不仅便于在测试中进行 mock，还使传输层的实现可以灵活替换。我们在这里给出一种基于 `URLSession` 的实现：
 
 ```swift
 /// URLSession-based implementation of HTTPClient.
@@ -229,17 +229,17 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
 }
 ```
 
-> **提示**：你可以在 HTTP 层中添加日志记录功能，或替换底层网络实现（如 `URLSession`、`Alamofire` 等），而无需改动 API 层的代码。
+> **提示**：你可以在 HTTP 层中添加 Logging，或替换传输层实现（如 `URLSession`、`Alamofire` 等），而无需改动 API 层的代码。
 
-**至此，我们的 HTTP 层已经完成！它提供了一个简洁、可复用的 HTTP 传输抽象。**
+现在我们将基于这个 HTTP 层，构建 API 层。
 
 ## API 层
 
-API 层构建在 HTTP 层之上，增加了**业务逻辑**：身份认证、请求构建、JSON 编解码，以及 API 特定的错误处理。
+API 层建立在 HTTP 层之上，增加了**具体业务逻辑**：身份认证、HTTP 请求构建、JSON 编解码，以及 API 相关的错误处理。
 
 ### API 基础设施
 
-#### API 配置
+#### APIConfiguration
 
 ```swift
 /// Configuration for the API client.
@@ -271,7 +271,7 @@ public struct APIConfiguration: Sendable {
 }
 ```
 
-#### API 请求协议
+#### APIRequest 协议
 
 ```swift
 /// Protocol defining an API request.
@@ -286,11 +286,11 @@ public protocol APIRequest: Sendable {
 }
 ```
 
-通过这个协议，我们可以使用**关联类型（Associated Types）**定义类型安全的 API 请求，并根据期望的响应类型自动完成 JSON 解码。
+我们可以为每个具体的 API 请求定义相应的响应类型，并创建符合 `APIRequest` 协议的类型。这使得我们能够通过泛型十分方便地实现通用 JSON 解码。
 
-#### API 错误
+#### APIError
 
-API 错误代表“业务层失败”：
+`APIError` 定义了在 API 层可能发生的错误：
 
 ```swift
 /// Errors that can occur at the API layer (business logic).
@@ -309,7 +309,7 @@ public enum APIError: LocalizedError, Sendable {
 }
 ```
 
-> **注意**：HTTP 错误（如 401、404 等）会抛出 `HTTPError`，而非 `APIError`，这样保持了层次间的清晰分离。
+> HTTP 错误（如 401、404 等）应该在 HTTP 层被抛出为 `HTTPError`，然后传递到 API 层进行处理。
 
 ### APIClient 实现
 
@@ -323,7 +323,7 @@ public protocol APIClient: Sendable {
 }
 ```
 
-使用任意 `HTTPClient` 的具体实现如下：
+接下来是符合 `APIClient` 的具体实现，它将能够使用任意类型的 `HTTPClient`：
 
 ```swift
 public final class YourAPIClient: APIClient, Sendable {
@@ -392,10 +392,13 @@ public final class YourAPIClient: APIClient, Sendable {
 }
 ```
 
-通过这个 `APIClient` 实现，我们获得了一个高度可复用的层：它可以处理所有遵循 `APIRequest` 协议的请求，统一负责身份认证、请求构建和 JSON 解码，**从而大幅简化具体业务 Service 的实现**。
+> **提示**: 我们在此处使用了无状态的设计，使得这个 `APIClient` 的实现可以安全地在多线程环境中使用。
+> 我们还将 API 密钥等配置的管理交由用户负责，以提升灵活性和安全性。
+
+`APIClient` 让我们拥有了通用的 API 处理能力：它可以处理所有遵循 `APIRequest` 协议的请求，统一负责身份认证、请求构建和 JSON 解码，**大幅简化了具体业务 (`Service`) 的实现**。
 
 ## 下一步
 
-至此，我们已经为客户端库搭建了坚实的基础。在本系列的下一篇文章中，我们将聚焦于实现具体的 API 服务层，利用 `APIClient` 发起真实的 API 调用。
+至此，我们已经为客户端库搭建了坚实的基础。下一篇文章中，我们将实现具体的 API 业务，他们将利用 `APIClient` 发起真实的 API 调用并向外提供易用的接口。
 
-敬请期待！
+Stay tuned!

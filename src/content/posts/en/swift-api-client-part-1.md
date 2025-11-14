@@ -7,7 +7,7 @@ translationSlug: "swift-api-client-part-1"
 author: "konakona"
 ---
 
-In this post, we'll explore how to leverage Swift's powerful features, such as Generics, Codable, and Swift Concurrency, to create a clean, layered, and extensible API client library.
+In this series of posts, we'll explore how to leverage Swift's powerful features, such as Generics, Codable, and Swift Concurrency, to create a clean, layered, and extensible API client library.
 
 In this first part of the series, we will focus on building the foundational layers of our API client:
 
@@ -394,7 +394,10 @@ public final class YourAPIClient: APIClient, Sendable {
 }
 ```
 
-With this implementation of `APIClient`, we now have a reusable layer that can handle any API requests defined by the `APIRequest` protocol. It handles authentication, request construction, and JSON decoding, **streamlining the process of implementing specific API services**.
+> **Tip**: We designed this `APIClient` to be stateless, making it safe for use in multi-threaded environments.
+> We also delegate the management of configurations like API keys to the user, enhancing flexibility and security.
+
+With the implementation of `APIClient`, we now have a reusable layer that can handle any API requests defined by the `APIRequest` protocol. It handles authentication, request construction, and JSON decoding, **streamlining the process of implementing specific API services**.
 
 ## What's Next
 
