@@ -54,7 +54,7 @@ const pageTitle = title || SITE.title;
       })();
     </script>
     
-    <script src="/scripts/main.js" defer></script>
+    <script is:inline src="/scripts/main.js" defer></script>
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={current} />

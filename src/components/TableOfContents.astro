@@ -18,7 +18,7 @@ const labels = {
   </nav>
 </aside>
 
-<script src="/scripts/table-of-contents.js"></script>
+<script is:inline src="/scripts/table-of-contents.js"></script>
 
 <style is:global>
   .toc {
@@ -29,7 +29,11 @@ const labels = {
     max-height: calc(100vh - 10rem);
     overflow-y: auto;
     opacity: 0.6;
-    transition: opacity 0.2s;
+    transition: opacity 0.3s ease-in-out, color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+  .toc.animate {
+    opacity: 0;
+    animation: tocFadeSlide 0.35s ease-out forwards;
   }
 
   .toc:hover {
@@ -47,6 +51,7 @@ const labels = {
     color: var(--text-muted);
     margin: 0 0 0.75rem 0;
     font-weight: 600;
+    transition: color 0.3s ease-in-out;
   }
 
   .toc-list {
@@ -54,6 +59,7 @@ const labels = {
     padding: 0;
     margin: 0 0 0 -1px !important;
     border-left: 1px solid var(--border-color);
+    transition: border-color 0.3s ease-in-out;
   }
 
   .toc-item {
@@ -74,7 +80,7 @@ const labels = {
     color: var(--text-muted);
     text-decoration: none;
     line-height: 1.4;
-    transition: color 0.2s, border-color 0.2s;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
     border-left: 2px solid transparent;
     margin-left: -1px;
     cursor: pointer;
@@ -113,9 +119,23 @@ const labels = {
   .toc::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 2px;
+    transition: background-color 0.3s ease-in-out;
   }
 
   .toc::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
+  }
+  
+  .toc::-webkit-scrollbar-track {
+    background: transparent;
+    transition: background-color 0.3s ease-in-out;
+  }
+  @keyframes tocItemFade {
+    from { opacity: 0; transform: translateX(6px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes tocFadeSlide {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 0.6; transform: translateY(0); }
   }
 </style>

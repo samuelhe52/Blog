@@ -57,6 +57,12 @@ function generateTOC() {
   });
 
   tocList.appendChild(fragment);
+  // Stagger animate items
+  [...tocList.children].forEach((li,i)=>{
+    li.style.opacity='0';
+    li.style.animation='tocItemFade 0.3s ease-out forwards';
+    li.style.animationDelay=(i*40)+'ms';
+  });
   console.log('TOC: Items added:', tocList.children.length);
 
   // Highlight active section on scroll
