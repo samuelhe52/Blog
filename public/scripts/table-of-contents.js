@@ -59,12 +59,6 @@ function generateTOC() {
   tocList.appendChild(fragment);
   console.log('TOC: Items added:', tocList.children.length);
 
-  // Show TOC with fade-in
-  const toc = document.querySelector('.toc');
-  if (toc) {
-    toc.classList.add('loaded');
-  }
-
   // Highlight active section on scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {

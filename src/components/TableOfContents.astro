@@ -10,7 +10,7 @@ const labels = {
 };
 ---
 
-<aside class="toc" aria-label={labels[lang]}>
+<aside class="toc animate" aria-label={labels[lang]}>
   <nav class="toc-nav">
     <h2 class="toc-title">{labels[lang]}</h2>
     <ul class="toc-list" id="toc-list">
@@ -28,12 +28,8 @@ const labels = {
     width: 200px;
     max-height: calc(100vh - 10rem);
     overflow-y: auto;
-    opacity: 0;
-    transition: opacity 0.6s ease-out;
-  }
-
-  .toc.loaded {
     opacity: 0.6;
+    transition: opacity 0.2s;
   }
 
   .toc:hover {
