@@ -1,0 +1,41 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import FolderView from '../../../components/FolderView.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+import { buildFolderStructure, getAllFolderPaths } from '../../../utils/folders';
+import { getLocalizedFolderName } from '../../../utils/folderLocalization';
+import { SITE } from '../../../site.config';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts', ({ data }) => data.lang === 'en' && !data.draft);
+  const folderPaths = getAllFolderPaths(allPosts, 'en');
+  
+  return folderPaths.map(path => ({
+    params: { folder: path },
+    props: { folderPath: path }
+  }));
+}
+
+const { folderPath } = Astro.props;
+const allPosts = await getCollection('posts', ({ data }) => data.lang === 'en' && !data.draft);
+const structure = buildFolderStructure(allPosts, folderPath);
+
+const folderName = getLocalizedFolderName(folderPath, 'en');
+const title = `${folderName} - konakona's Lodge`;
+const description = `${folderName} folder`;
+
+const alternates = {
+  'zh-CN': new URL(`/folders/${folderPath}/`, SITE.domain).href,
+  en: new URL(`/en/folders/${folderPath}/`, SITE.domain).href
+};
+---
+
+<Layout lang="en" {title} {description} alternates={alternates}>
+  <Header lang="en" toZh={`/folders/${folderPath}/`} toEn={`/en/folders/${folderPath}/`} />
+  <main class="animate">
+    <Breadcrumbs currentPath={folderPath} lang="en" />
+    <FolderView {structure} lang="en" currentPath={folderPath} />
+  </main>
+</Layout>

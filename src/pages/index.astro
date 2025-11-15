@@ -1,18 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
-import PostList from '../components/PostList.astro';
+import FolderView from '../components/FolderView.astro';
 import { getCollection } from 'astro:content';
+import { buildFolderStructure } from '../utils/folders';
 import { SITE } from '../site.config';
 
-const posts = (await getCollection('posts', ({ data }) => data.lang === 'zh-CN' && !data.draft))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .map(p => ({
-    slug: p.data.translationSlug,
-    title: p.data.title,
-    description: p.data.description,
-    date: p.data.date
-  }));
+const allPosts = await getCollection('posts', ({ data }) => data.lang === 'zh-CN' && !data.draft);
+const structure = buildFolderStructure(allPosts, '');
 
 const alternates = {
   'zh-CN': new URL('/', SITE.domain).href,
@@ -24,6 +19,6 @@ const alternates = {
   <script is:inline src="/scripts/lang-detect.js"></script>
   <Header lang="zh-CN" toZh="/" toEn="/en/" />
   <main class="animate">
-    <PostList posts={posts} lang="zh-CN" />
+    <FolderView structure={structure} lang="zh-CN" />
   </main>
 </Layout>
