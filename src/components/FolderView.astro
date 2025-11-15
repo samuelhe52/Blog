@@ -64,7 +64,7 @@ const text = t[lang];
             <a href={`${folderBaseUrl}/${folder.path}/`} class="folder-link">
               <div class="folder-info">
                 <h3 class="folder-name">{getLocalizedFolderName(folder.path, lang)}</h3>
-                <span class="folder-count">{text.postsCount(folder.postCount)}</span>
+                <span class="folder-count">{text.postsCount(folder.postCount)}{folder.folderCount > 0 ? (lang === 'zh-CN' ? ` · ${folder.folderCount} 个子文件夹` : ` · ${folder.folderCount} subfolder${folder.folderCount !== 1 ? 's' : ''}`) : ''}</span>
               </div>
               <span class="folder-arrow">→</span>
             </a>

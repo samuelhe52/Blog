@@ -12,6 +12,7 @@ export interface FolderItem {
   name: string;
   path: string;
   postCount: number;
+  folderCount: number; // number of immediate subfolders
 }
 
 export interface FolderStructure {
@@ -70,6 +71,7 @@ export function buildFolderStructure(
 ): FolderStructure {
   const posts: PostItem[] = [];
   const folderMap = new Map<string, number>();
+  const folderChildMap = new Map<string, Set<string>>(); // direct subfolder -> its immediate child subfolders
   
   for (const entry of entries) {
     const lang = entry.data.lang === 'zh-CN' ? 'zh' : 'en';
@@ -88,14 +90,22 @@ export function buildFolderStructure(
     const subfolder = getImmediateSubfolder(currentFolderPath, folderPath);
     if (subfolder) {
       const subfolderPath = currentFolderPath ? `${currentFolderPath}/${subfolder}` : subfolder;
-      const subfolderPostPath = extractFolderPath(entry.id, lang);
-      
-      // Only count if this post is a direct child of the subfolder
-      if (subfolderPostPath.startsWith(subfolderPath)) {
-        const relativeToSubfolder = subfolderPostPath.slice(subfolderPath.length);
-        // Direct child means no more slashes after removing subfolder path
-        if (relativeToSubfolder === '' || !relativeToSubfolder.slice(1).includes('/')) {
-          folderMap.set(subfolderPath, (folderMap.get(subfolderPath) || 0) + 1);
+      // Count only posts whose folder path matches the subfolder exactly (direct children only)
+      if (folderPath === subfolderPath) {
+        folderMap.set(subfolderPath, (folderMap.get(subfolderPath) || 0) + 1);
+      }
+    }
+
+    // Track child folders for each direct subfolder of current folder
+    if (subfolder) {
+      const directSubfolderPath = currentFolderPath ? `${currentFolderPath}/${subfolder}` : subfolder;
+      // Check if this entry lives in a deeper path under the direct subfolder
+      if (folderPath.startsWith(directSubfolderPath) && folderPath !== directSubfolderPath) {
+        const deeperImmediate = getImmediateSubfolder(directSubfolderPath, folderPath);
+        if (deeperImmediate) {
+          const set = folderChildMap.get(directSubfolderPath) || new Set<string>();
+          set.add(deeperImmediate);
+          folderChildMap.set(directSubfolderPath, set);
         }
       }
     }
@@ -104,7 +114,8 @@ export function buildFolderStructure(
   const folders: FolderItem[] = Array.from(folderMap.entries()).map(([path, count]) => ({
     name: path.split('/').pop() || path,
     path,
-    postCount: count
+    postCount: count,
+    folderCount: (folderChildMap.get(path) || new Set()).size
   }));
   
   posts.sort((a, b) => b.date.getTime() - a.date.getTime());
