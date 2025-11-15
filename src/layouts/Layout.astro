@@ -71,6 +71,7 @@ const pageTitle = title || SITE.title;
     <style is:global>
       :root {
         color-scheme: light dark;
+        --header-offset: 4.25rem;
       }
       
       :root,
@@ -141,7 +142,7 @@ const pageTitle = title || SITE.title;
       body {
         max-width: 45rem;
         margin: 0 auto;
-        padding: 6rem 1rem 0;
+        padding: 0 1rem 0;
         line-height: 1.6;
         font-family: var(--font-family);
         color: var(--text);
@@ -163,7 +164,7 @@ const pageTitle = title || SITE.title;
       
       .content {
         flex: 1;
-        padding-bottom: 2rem;
+        padding: var(--header-offset) 0 2rem;
       }
       
       h1, h2, h3, h4, h5, h6 {

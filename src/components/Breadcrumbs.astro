@@ -1,0 +1,112 @@
+---
+import { getLocalizedFolderName } from '../utils/folderLocalization';
+
+interface Props {
+  currentPath: string;
+  lang: 'zh-CN' | 'en';
+}
+
+const { currentPath, lang } = Astro.props;
+const baseUrl = lang === 'zh-CN' ? '' : '/en';
+const folderBaseUrl = `${baseUrl}/folders`;
+
+const t = {
+  'zh-CN': {
+    home: '首页'
+  },
+  'en': {
+    home: 'Home'
+  }
+};
+
+const text = t[lang];
+
+const pathParts = currentPath ? currentPath.split('/') : [];
+const breadcrumbs: Array<{ name: string; path: string }> = [
+  { name: text.home, path: baseUrl ? baseUrl + '/' : '/' }
+];
+
+let accumulatedPath = '';
+for (const part of pathParts) {
+  accumulatedPath = accumulatedPath ? `${accumulatedPath}/${part}` : part;
+  breadcrumbs.push({
+    name: getLocalizedFolderName(accumulatedPath, lang),
+    path: `${folderBaseUrl}/${accumulatedPath}/`
+  });
+}
+---
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  {breadcrumbs.length > 1 ? (
+    <ol>
+      {breadcrumbs.map((crumb, index) => (
+        <li>
+          {index < breadcrumbs.length - 1 ? (
+            <>
+              <a href={crumb.path}>{crumb.name}</a>
+              <span class="separator">/</span>
+            </>
+          ) : (
+            <span class="current">{crumb.name}</span>
+          )}
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <div class="spacer"></div>
+  )}
+</nav>
+
+<style>
+  .breadcrumbs {
+    margin-bottom: 1.5rem;
+  }
+  
+  .breadcrumbs .spacer {
+    height: 0;
+  }
+  
+  .breadcrumbs ol {
+    list-style: none;
+    padding: 0.75rem 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .breadcrumbs li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .breadcrumbs a {
+    color: var(--link);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--link-hover, var(--link));
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-muted);
+    user-select: none;
+  }
+
+  .current {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  @media (max-width: 640px) {
+    .breadcrumbs {
+      font-size: 0.9rem;
+    }
+  }
+</style>
