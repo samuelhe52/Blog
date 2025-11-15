@@ -10,7 +10,7 @@ const labels = {
 };
 ---
 
-<aside class="toc" aria-label={labels[lang]}>
+<aside class="toc animate" aria-label={labels[lang]}>
   <nav class="toc-nav">
     <h2 class="toc-title">{labels[lang]}</h2>
     <ul class="toc-list" id="toc-list">
@@ -23,14 +23,22 @@ const labels = {
     const article = document.querySelector('article .prose');
     const tocList = document.getElementById('toc-list');
     
-    if (!article || !tocList) return;
+    if (!article || !tocList) {
+      console.log('TOC: Missing article or tocList', { article, tocList });
+      return;
+    }
 
     const headings = article.querySelectorAll('h2, h3');
+    console.log('TOC: Found headings:', headings.length);
+    
     if (headings.length === 0) {
       const toc = document.querySelector('.toc');
       if (toc) toc.style.display = 'none';
       return;
     }
+
+    // Clear existing items (for page transitions)
+    tocList.innerHTML = '';
 
     const fragment = document.createDocumentFragment();
     
@@ -70,6 +78,7 @@ const labels = {
     });
 
     tocList.appendChild(fragment);
+    console.log('TOC: Items added:', tocList.children.length);
 
     // Highlight active section on scroll
     const observer = new IntersectionObserver((entries) => {
@@ -91,7 +100,11 @@ const labels = {
   }
 
   // Run on page load
-  generateTOC();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', generateTOC);
+  } else {
+    generateTOC();
+  }
 
   // Re-run on view transitions
   document.addEventListener('astro:page-load', generateTOC);
@@ -129,9 +142,8 @@ const labels = {
   .toc-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0 0 0 -1px !important;
     border-left: 1px solid var(--border-color);
-    margin-left: -1px;
   }
 
   .toc-item {
