@@ -64,13 +64,13 @@ for (const part of pathParts) {
   
   .breadcrumbs .spacer {
     /* Match vertical rhythm of breadcrumb list when only root */
-    padding: 0.75rem 0;
+    padding: 0 0 0.75rem 0; /* align with new ol padding */
     border-bottom: 1px solid var(--border);
   }
   
   .breadcrumbs ol {
     list-style: none;
-    padding: 0.75rem 0;
+    padding: 0 0 0.75rem 0; /* remove extra top gap; keep bottom spacing */
     margin: 0;
     display: flex;
     flex-wrap: wrap;
