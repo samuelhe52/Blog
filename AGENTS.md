@@ -81,6 +81,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 5. Accessibility: proper lang attributes, alt text, readable contrast.
 6. Security: no secrets committed; deployment uses SSH keys in CI secrets.
 7. **Theme transitions**: All components must include CSS transitions for color, background, and border-color changes (0.3s ease-in-out) to prevent flashing when theme switches via in-page buttons. Match pattern in Layout.astro.
+8. **No inline scripts**: Server has CSP restrictions. All JavaScript must be in external files in /public/scripts/ directory.
 
 ## File Structure Guidelines
 - src/i18n/: en.json, zh.json for UI strings.
