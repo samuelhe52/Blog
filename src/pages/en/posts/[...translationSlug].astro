@@ -1,0 +1,93 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import PostHeader from '../../../components/PostHeader.astro';
+import BackToTop from '../../../components/BackToTop.astro';
+import MissingTranslationNotice from '../../../components/MissingTranslationNotice.astro';
+import { getCollection } from 'astro:content';
+import { calculateReadingTime, formatReadingTime } from '../../../utils/reading-time';
+
+export async function getStaticPaths() {
+  const all = await getCollection('posts', ({ data }) => !data.draft);
+  const slugs = new Set(all.filter(p => p.data.translationSlug).map(p => p.data.translationSlug));
+  return Array.from(slugs).map((slug) => ({ params: { translationSlug: slug } }));
+}
+
+const { translationSlug } = Astro.params;
+const all = await getCollection('posts');
+let post = all.find((p) => p.data.lang === 'en' && p.data.translationSlug === translationSlug);
+const isFallback = !post;
+
+if (!post) {
+  post = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug)!;
+}
+
+const counterpart = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug);
+const { Content } = await post.render();
+
+const readingMinutes = calculateReadingTime(post.body);
+const readingTime = formatReadingTime(readingMinutes, isFallback ? 'zh-CN' : 'en');
+
+// Check if post is in a folder
+const isInFolder = translationSlug.includes('/');
+const parentFolderPath = isInFolder ? translationSlug.substring(0, translationSlug.lastIndexOf('/')) : null;
+
+const alternates = {
+  en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href,
+  ...(counterpart ? { 'zh-CN': new URL(`/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href } : {})
+};
+
+const ogImageUrl = new URL(`/og/${isFallback ? '' : 'en-'}${translationSlug}.svg`, Astro.site ?? 'https://blog.konakona52.com/').href;
+---
+
+<Layout lang="en" title={post.data.title} description={post.data.description} alternates={alternates} ogImage={ogImageUrl}>
+  <Header
+    lang="en"
+    disableZh={!counterpart}
+    toZh={counterpart ? `/posts/${translationSlug}/` : '/'}
+    toEn={`/en/posts/${translationSlug}/`}
+  />
+  <main>
+    <article>
+      {parentFolderPath && (
+        <nav class="parent-folder-nav animate">
+          <a href={`/en/folders/${parentFolderPath}/`} class="back-to-folder">
+            ← Back to folder
+          </a>
+        </nav>
+      )}
+      <div class="animate">
+        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} readingTime={readingTime} lang={isFallback ? 'zh-CN' : 'en'} />
+      </div>
+      {isFallback && <MissingTranslationNotice lang="en" translationUrl={`/posts/${translationSlug}/`} />}
+      <div class="prose animate">
+        <Content />
+      </div>
+    </article>
+  </main>
+  <BackToTop lang="en" />
+</Layout>
+
+<style>
+  .parent-folder-nav {
+    margin-bottom: 1.5rem;
+  }
+
+  .back-to-folder {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .back-to-folder:hover {
+    color: var(--link);
+  }
+
+  .prose {
+    margin-top: 2rem;
+  }
+</style>

@@ -2,7 +2,7 @@ import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
-  return posts.map((post) => ({
+  return posts.filter(p => p.data.translationSlug).map((post) => ({
     params: { slug: `${post.data.lang === 'en' ? 'en-' : ''}${post.data.translationSlug}` },
     props: { post }
   }));

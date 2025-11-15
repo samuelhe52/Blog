@@ -3,28 +3,43 @@ import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
 import FolderView from '../../../components/FolderView.astro';
 import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import MissingTranslationNotice from '../../../components/MissingTranslationNotice.astro';
 import { getCollection } from 'astro:content';
 import { buildFolderStructure, getAllFolderPaths } from '../../../utils/folders';
-import { getLocalizedFolderName } from '../../../utils/folderLocalization';
+import { getLocalizedFolderName, getLocalizedFolderDescription } from '../../../utils/folderMetadata';
 import { SITE } from '../../../site.config';
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection('posts', ({ data }) => data.lang === 'en' && !data.draft);
-  const folderPaths = getAllFolderPaths(allPosts, 'en');
+  const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+  const enPaths = getAllFolderPaths(allPosts.filter(p => p.data.lang === 'en'), 'en');
+  const zhPaths = getAllFolderPaths(allPosts.filter(p => p.data.lang === 'zh-CN'), 'zh-CN');
   
-  return folderPaths.map(path => ({
+  const allUniquePaths = new Set([...enPaths, ...zhPaths]);
+  
+  return Array.from(allUniquePaths).map(path => ({
     params: { folder: path },
     props: { folderPath: path }
   }));
 }
 
 const { folderPath } = Astro.props;
-const allPosts = await getCollection('posts', ({ data }) => data.lang === 'en' && !data.draft);
-const structure = buildFolderStructure(allPosts, folderPath);
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+let enPosts = allPosts.filter(p => p.data.lang === 'en');
+let zhPosts = allPosts.filter(p => p.data.lang === 'zh-CN');
 
+const zhStructure = buildFolderStructure(zhPosts, folderPath);
+const enStructure = buildFolderStructure(enPosts, folderPath);
+const isFallback = enStructure.posts.length === 0 && enStructure.folders.length === 0;
+
+// For display: always use English language for names/descriptions
+// For content: use Chinese if no English content available
 const folderName = getLocalizedFolderName(folderPath, 'en');
-const title = `${folderName} - konakona's Lodge`;
-const description = `${folderName} folder`;
+const folderDescription = getLocalizedFolderDescription(folderPath, 'en');
+const finalStructure = isFallback ? zhStructure : enStructure;
+const contentLang: 'en' | 'zh-CN' = isFallback ? 'zh-CN' : 'en';
+
+const title = `${folderName} - konakona`;
+const description = folderDescription || `${folderName} folder`;
 
 const alternates = {
   'zh-CN': new URL(`/folders/${folderPath}/`, SITE.domain).href,
@@ -36,6 +51,36 @@ const alternates = {
   <Header lang="en" toZh={`/folders/${folderPath}/`} toEn={`/en/folders/${folderPath}/`} />
   <main class="animate">
     <Breadcrumbs currentPath={folderPath} lang="en" />
-    <FolderView {structure} lang="en" currentPath={folderPath} />
+    
+    <div class="folder-header">
+      <h1>{folderName}</h1>
+      {folderDescription && <p class="folder-description">{folderDescription}</p>}
+    </div>
+    
+    {isFallback ? (
+      <MissingTranslationNotice lang="en" translationUrl={`/folders/${folderPath}/`} />
+    ) : (
+      <FolderView structure={finalStructure} lang={contentLang} currentPath={folderPath} />
+    )}
   </main>
 </Layout>
+
+<style>
+  .folder-header {
+    margin-bottom: 2rem;
+  }
+
+  .folder-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    color: var(--text);
+  }
+
+  .folder-description {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+</style>

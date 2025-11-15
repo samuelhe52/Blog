@@ -13,7 +13,7 @@ author: "konakona"
 
 **Pseudocode:**
 
-```pseudocode
+```plaintext
 function minimax(node, depth, maximizingPlayer) is
     if depth = 0 or node is a terminal node then
         return the heuristic value of node
@@ -33,7 +33,7 @@ function minimax(node, depth, maximizingPlayer) is
 
 **Pseudocode:**
 
-```pseudocode
+```plaintext
 function alphabeta(node, depth, α, β, maximizingPlayer) is
     if depth == 0 or node is terminal then
         return the heuristic value of node

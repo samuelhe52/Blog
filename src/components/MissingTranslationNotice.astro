@@ -8,7 +8,7 @@ const strings = await import(`../i18n/${lang === 'zh-CN' ? 'zh' : 'en'}.json`);
 ---
 <aside class="missing-translation-notice">
   <p>
-    ℹ️ {strings.translation_missing}
+    {strings.translation_missing}
     <br />
     <a href={translationUrl}>{strings.view_in_other_language} →</a>
   </p>
@@ -16,35 +16,55 @@ const strings = await import(`../i18n/${lang === 'zh-CN' ? 'zh' : 'en'}.json`);
 
 <style>
   .missing-translation-notice {
-    background: #fef3c7;
-    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+    border-left: 4px solid #fbbf24;
     padding: 1rem 1.25rem;
     margin: 1.5rem 0;
     border-radius: 4px;
+    transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
   .missing-translation-notice p {
     margin: 0;
-    color: #92400e;
+    color: #78350f;
+    transition: color 0.3s ease-in-out;
   }
   .missing-translation-notice a {
-    color: #b45309;
+    color: #ea580c;
     font-weight: 500;
+    transition: color 0.2s ease-in-out;
   }
   .missing-translation-notice a:hover {
-    color: #92400e;
+    color: #c2410c;
   }
+  
+  /* Dark mode when manually set */
+  :root[data-theme="dark"] .missing-translation-notice {
+    background: #451a03;
+    border-left-color: #d97706;
+  }
+  :root[data-theme="dark"] .missing-translation-notice p {
+    color: #fde68a;
+  }
+  :root[data-theme="dark"] .missing-translation-notice a {
+    color: #fbbf24;
+  }
+  :root[data-theme="dark"] .missing-translation-notice a:hover {
+    color: #fde68a;
+  }
+  
+  /* Dark mode when following system preference (auto mode) */
   @media (prefers-color-scheme: dark) {
-    .missing-translation-notice {
+    :root:not([data-theme="light"]) .missing-translation-notice {
       background: #451a03;
       border-left-color: #d97706;
     }
-    .missing-translation-notice p {
+    :root:not([data-theme="light"]) .missing-translation-notice p {
       color: #fde68a;
     }
-    .missing-translation-notice a {
+    :root:not([data-theme="light"]) .missing-translation-notice a {
       color: #fbbf24;
     }
-    .missing-translation-notice a:hover {
+    :root:not([data-theme="light"]) .missing-translation-notice a:hover {
       color: #fde68a;
     }
   }

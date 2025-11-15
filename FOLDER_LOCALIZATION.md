@@ -91,7 +91,7 @@ Localized folder names appear in:
 1. **Homepage folder cards**: Shows "教程" instead of "tutorial"
 2. **Folder page titles**: `<h1>教程</h1>`
 3. **Breadcrumbs**: "首页 / 教程 / 高级"
-4. **Browser title**: "教程 - konakona's Lodge"
+4. **Browser title**: "教程 - konakona"
 5. **Folder list items**: Subfolder names within parent folders
 
 ## URL Structure

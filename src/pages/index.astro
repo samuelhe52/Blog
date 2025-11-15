@@ -6,8 +6,30 @@ import { getCollection } from 'astro:content';
 import { buildFolderStructure } from '../utils/folders';
 import { SITE } from '../site.config';
 
-const allPosts = await getCollection('posts', ({ data }) => data.lang === 'zh-CN' && !data.draft);
-const structure = buildFolderStructure(allPosts, '');
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+const zhPosts = allPosts.filter(p => p.data.lang === 'zh-CN');
+const enPosts = allPosts.filter(p => p.data.lang === 'en');
+
+const zhStructure = buildFolderStructure(zhPosts, '');
+const enStructure = buildFolderStructure(enPosts, '');
+
+// Merge structures: combine unique folders from both languages
+const allFolderPaths = new Set([
+  ...zhStructure.folders.map(f => f.path),
+  ...enStructure.folders.map(f => f.path)
+]);
+
+const mergedFolders = Array.from(allFolderPaths).map(path => {
+  const zhFolder = zhStructure.folders.find(f => f.path === path);
+  const enFolder = enStructure.folders.find(f => f.path === path);
+  // Prefer zh folder info, but use en if zh doesn't exist
+  return zhFolder || enFolder!;
+}).sort((a, b) => a.name.localeCompare(b.name));
+
+const structure = {
+  posts: zhStructure.posts,
+  folders: mergedFolders
+};
 
 const alternates = {
   'zh-CN': new URL('/', SITE.domain).href,

@@ -1,0 +1,23 @@
+# Folder Metadata Configuration
+# Each folder can have:
+#   - name: Display name in Chinese and English
+#   - description: Overview/description for the folder in both languages
+#   - slug: The folder path used in URLs (should match the actual folder structure)
+
+folders:
+  - slug: "missing-semester-notes"
+    name:
+      zh: "MIT Missing Semester 笔记"
+      en: "MIT Missing Semester Notes"
+    description:
+      zh: "MIT Missing Semester 课程笔记，涵盖计算机实用技能"
+      en: "Notes from MIT's Missing Semester course, covering practical computer skills"
+
+  # Example: Add more folders here
+  # - slug: "projects"
+  #   name:
+  #     zh: "项目"
+  #     en: "Projects"
+  #   description:
+  #     zh: "我的个人项目和开源贡献"
+  #     en: "My personal projects and open source contributions"
