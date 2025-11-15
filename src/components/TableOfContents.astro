@@ -1,0 +1,199 @@
+---
+interface Props {
+  lang: 'zh-CN' | 'en';
+}
+
+const { lang } = Astro.props;
+const labels = {
+  'zh-CN': '目录',
+  'en': 'Contents'
+};
+---
+
+<aside class="toc" aria-label={labels[lang]}>
+  <nav class="toc-nav">
+    <h2 class="toc-title">{labels[lang]}</h2>
+    <ul class="toc-list" id="toc-list">
+    </ul>
+  </nav>
+</aside>
+
+<script>
+  function generateTOC() {
+    const article = document.querySelector('article .prose');
+    const tocList = document.getElementById('toc-list');
+    
+    if (!article || !tocList) return;
+
+    const headings = article.querySelectorAll('h2, h3');
+    if (headings.length === 0) {
+      const toc = document.querySelector('.toc');
+      if (toc) toc.style.display = 'none';
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    
+    headings.forEach((heading) => {
+      const level = heading.tagName.toLowerCase();
+      const text = heading.textContent || '';
+      const id = heading.id || text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+      
+      if (!heading.id) {
+        heading.id = id;
+      }
+
+      const li = document.createElement('li');
+      li.className = `toc-item toc-${level}`;
+      
+      const a = document.createElement('a');
+      a.href = `#${id}`;
+      a.textContent = text;
+      a.className = 'toc-link';
+      
+      // Add smooth scroll on click
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const headerHeight = 80; // Approximate header height with padding
+        const elementPosition = heading.getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = elementPosition - headerHeight;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+        history.pushState(null, '', `#${id}`);
+      });
+      
+      li.appendChild(a);
+      fragment.appendChild(li);
+    });
+
+    tocList.appendChild(fragment);
+
+    // Highlight active section on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.id;
+        const link = tocList.querySelector(`a[href="#${id}"]`);
+        
+        if (entry.isIntersecting) {
+          tocList.querySelectorAll('.toc-link').forEach(l => l.classList.remove('active'));
+          link?.classList.add('active');
+        }
+      });
+    }, {
+      rootMargin: '-100px 0px -66%',
+      threshold: 0
+    });
+
+    headings.forEach((heading) => observer.observe(heading));
+  }
+
+  // Run on page load
+  generateTOC();
+
+  // Re-run on view transitions
+  document.addEventListener('astro:page-load', generateTOC);
+</script>
+
+<style is:global>
+  .toc {
+    position: fixed;
+    top: 8rem;
+    right: 2rem;
+    width: 200px;
+    max-height: calc(100vh - 10rem);
+    overflow-y: auto;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .toc:hover {
+    opacity: 1;
+  }
+
+  .toc-nav {
+    font-size: 0.85rem;
+  }
+
+  .toc-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-left: 1px solid var(--border-color);
+    margin-left: -1px;
+  }
+
+  .toc-item {
+    margin: 0;
+  }
+
+  .toc-h2 .toc-link {
+    padding: 0.25rem 0 0.25rem 0;
+  }
+
+  .toc-h3 .toc-link {
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  .toc-link {
+    display: block;
+    color: var(--text-muted);
+    text-decoration: none;
+    line-height: 1.4;
+    transition: color 0.2s, border-color 0.2s;
+    border-left: 2px solid transparent;
+    margin-left: -1px;
+    cursor: pointer;
+  }
+
+  .toc-link:hover {
+    color: var(--text);
+  }
+
+  .toc-link.active {
+    color: var(--link);
+    border-left-color: var(--link);
+  }
+
+  /* Add scroll padding to account for fixed header */
+  html {
+    scroll-padding-top: 5rem;
+  }
+
+  /* Hide on smaller screens */
+  @media (max-width: 1200px) {
+    .toc {
+      display: none;
+    }
+  }
+
+  /* Custom scrollbar */
+  .toc::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .toc::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .toc::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+  }
+
+  .toc::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+</style>

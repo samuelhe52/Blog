@@ -4,6 +4,7 @@ import Header from '../../components/Header.astro';
 import PostHeader from '../../components/PostHeader.astro';
 import BackToTop from '../../components/BackToTop.astro';
 import MissingTranslationNotice from '../../components/MissingTranslationNotice.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -61,6 +62,7 @@ const ogImageUrl = new URL(`/og/${isFallback ? 'en-' : ''}${translationSlug}.svg
       </div>
     </article>
   </main>
+  <TableOfContents lang="zh-CN" />
   <BackToTop lang="zh-CN" />
 </Layout>
 
