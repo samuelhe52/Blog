@@ -3,28 +3,19 @@ interface Props {
   title: string;
   description?: string;
   date?: Date;
-  readingTime?: string;
   lang: 'zh-CN' | 'en';
 }
 
-const { title, description, date, readingTime, lang } = Astro.props;
+const { title, description, date, lang } = Astro.props;
 ---
 
 <div class="post-header">
   <h1>{title}</h1>
-  {(date || readingTime) && (
+  {date && (
     <div class="meta">
-      {date && (
-        <time datetime={date.toISOString()}>
-          {date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-        </time>
-      )}
-      {readingTime && (
-        <>
-          &bull;
-          <span class="reading-time">{readingTime}</span>
-        </>
-      )}
+      <time datetime={date.toISOString()}>
+        {date.toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+      </time>
     </div>
   )}
   {description && <p class="description">{description}</p>}
@@ -46,9 +37,6 @@ const { title, description, date, readingTime, lang } = Astro.props;
     margin-bottom: 1rem;
   }
   time {
-    display: inline;
-  }
-  .reading-time {
     display: inline;
   }
   .description {
