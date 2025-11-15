@@ -227,6 +227,8 @@ const pageTitle = title || SITE.title;
         opacity: 1;
         transform: translateY(0);
       }
+      /* Top spacing below fixed header only when no breadcrumbs */
+      main.animate:not(:has(.breadcrumbs)) { margin-top: 0.75rem; }
     </style>
   </head>
   <body>
