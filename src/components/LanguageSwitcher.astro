@@ -6,7 +6,7 @@ interface Props {
   toZh?: string;
   toEn?: string;
 }
-const { lang, disableZh = false, disableEn = false, toZh = '/', toEn = '/en/' } = Astro.props;
+const { lang, disableZh = false, disableEn = false, toZh = '/zh/', toEn = '/en/' } = Astro.props;
 ---
 <nav class="language-switcher">
   <button id="to-zh" data-target={toZh} disabled={lang === 'zh-CN' || disableZh} class:list={['lang-btn', { 'active': lang === 'zh-CN', 'unavailable': disableZh && lang !== 'zh-CN' }]}>
