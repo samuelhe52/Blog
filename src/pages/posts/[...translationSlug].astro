@@ -1,10 +1,4 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import PostHeader from '../../components/PostHeader.astro';
-import BackToTop from '../../components/BackToTop.astro';
-import MissingTranslationNotice from '../../components/MissingTranslationNotice.astro';
-import TableOfContents from '../../components/TableOfContents.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -14,78 +8,6 @@ export async function getStaticPaths() {
 }
 
 const { translationSlug } = Astro.params;
-const all = await getCollection('posts');
-let post = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug);
-const isFallback = !post;
-
-if (!post) {
-  post = all.find((p) => p.data.lang === 'en' && p.data.translationSlug === translationSlug)!;
-}
-
-const counterpart = all.find((p) => p.data.lang === 'en' && p.data.translationSlug === translationSlug);
-const { Content } = await post.render();
-
-// Check if post is in a folder
-const isInFolder = translationSlug.includes('/');
-const parentFolderPath = isInFolder ? translationSlug.substring(0, translationSlug.lastIndexOf('/')) : null;
-
-const alternates = {
-  'zh-CN': new URL(`/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href,
-  ...(counterpart ? { en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href } : {})
-};
-
-const ogImageUrl = new URL(`/og/${isFallback ? 'en-' : ''}${translationSlug}.svg`, Astro.site ?? 'https://blog.konakona52.com/').href;
+// Redirect /posts/* to /zh/posts/*
+return Astro.redirect(`/zh/posts/${translationSlug}/`, 301);
 ---
-
-<Layout lang="zh-CN" title={post.data.title} description={post.data.description} alternates={alternates} ogImage={ogImageUrl}>
-  <Header
-    lang="zh-CN"
-    disableEn={!counterpart}
-    toZh={`/posts/${translationSlug}/`}
-    toEn={counterpart ? `/en/posts/${translationSlug}/` : '/en/'}
-  />
-  <main>
-    <article>
-      {parentFolderPath && (
-        <nav class="parent-folder-nav animate">
-          <a href={`/folders/${parentFolderPath}/`} class="back-to-folder">
-            ← 返回文件夹
-          </a>
-        </nav>
-      )}
-      <div class="animate">
-        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang={isFallback ? 'en' : 'zh-CN'} />
-      </div>
-      {isFallback && <MissingTranslationNotice lang="zh-CN" translationUrl={`/en/posts/${translationSlug}/`} />}
-      <div class="prose animate">
-        <Content />
-      </div>
-    </article>
-  </main>
-  <TableOfContents lang="zh-CN" />
-  <BackToTop lang="zh-CN" />
-</Layout>
-
-<style>
-  .parent-folder-nav {
-    margin-bottom: 1.5rem;
-  }
-
-  .back-to-folder {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: color 0.2s;
-  }
-
-  .back-to-folder:hover {
-    color: var(--link);
-  }
-
-  .prose {
-    margin-top: 2rem;
-  }
-</style>
