@@ -1,7 +1,7 @@
 ---
 title: "Building a Swift API Client Library: Part 2"
 description: "Learn how to build a clean, layered API client in Swift using powerful features like Generics, Codable, and Swift Concurrency."
-date: 2025-11-16
+date: 2025-11-20
 lang: "en"
 translationSlug: "swift-api-client-part-2"
 author: "konakona"
@@ -11,7 +11,7 @@ In the [previous post](/en/posts/swift-api-client-part-1/), we laid the groundwo
 
 ## Overview & Goals
 
-In this post, it's time we turn the generic HTTPClient/APIClient from Part 1 into thin, focused service layers which expose cohesive service APIs that app code can depend on. We'll first introduce a hypothetical `UserService` that interacts with a user management API, demonstrating best practices for designing a service layer, and then discuss testing strategies for our library.
+In this post, it's time we turn the generic HTTPClient/APIClient from Part 1 into thin, focused service layers which expose cohesive service APIs that app code can depend on. We'll introduce a hypothetical `UserService` that interacts with a user management API, demonstrating best practices for designing a service layer, and then discuss testing strategies for our library.
 
 ## UserService Design
 
@@ -116,7 +116,7 @@ Pagination is widely used in web APIs, so we create a generic `Page<T>` model to
 
 Now we have models that can be used as responses for our requests!
 
-### Concrete Service Class
+### UserService Implementation
 
 We now go on to implement the `UserService` itself. Notice that we don't define a `UserServiceProtocol`. In many Swift projects, developers instinctively create protocols for every service to enable mocking. However, since we already have a protocol-based `APIClient` (from Part 1), we can mock the *network layer* instead of the *service layer*. This saves us from maintaining protocol definitions for every service we define, and still preserves testability.
 
@@ -229,7 +229,7 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
 }
 ```
 
-### Writing Unit Tests
+### Unit Tests
 
 Now we can write deterministic tests. We verify that `UserService` calls the correct endpoint and returns the expected model.
 
@@ -300,6 +300,6 @@ In **Part 2**, we built upon that foundation to create a clean, user-friendly se
 - Unify everything under a single `MyServiceClient`.
 - Verify our logic with both unit and integration tests.
 
-This layered architecture might seem like a lot of boilerplate for a small app, but it pays dividends as your project grows. By separating *how* a request is sent from *what* the request is, you gain the flexibility to swap out networking stacks, mock responses for testing, and add new endpoints with minimal friction.
+This layered architecture might seem like a lot of boilerplate for a small app, but it pays dividends as your project grows. By separating *how* a request is sent and *how* the request is handled from *what* the request is, you gain the flexibility to swap out networking stacks, mock responses for testing, and add new endpoints with minimal friction.
 
-I hope this series has given you a solid template for your next Swift networking layer. Happy coding!
+I hope this series can be a source of inspiration for building your own Swift API clients. Happy coding!

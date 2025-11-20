@@ -401,4 +401,4 @@ public final class YourAPIClient: APIClient, Sendable {
 
 至此，我们已经为客户端库搭建了坚实的基础。下一篇文章中，我们将实现具体的 API 业务，他们将利用 `APIClient` 发起真实的 API 调用并向外提供易用的接口。
 
-Stay tuned!
+[阅读第 2 部分：编写服务层](/zh/posts/swift-api-client-part-2/)
