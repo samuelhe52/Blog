@@ -167,6 +167,8 @@ const labels = {
       transition: color 0.2s ease-in-out;
     }
     .toc-close:hover { color: var(--text); }
+    /* Override desktop animation on mobile to keep hidden until open */
+    .toc.animate:not(.open) { animation: none; opacity:0; transform: translateX(110%); }
   }
 
   /* Hide FAB on wide screens */
