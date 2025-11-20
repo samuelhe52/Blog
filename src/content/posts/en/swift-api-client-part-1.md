@@ -7,9 +7,11 @@ translationSlug: "swift-api-client-part-1"
 author: "konakona"
 ---
 
-In this series of posts, we'll explore how to leverage Swift's powerful features, such as Generics, Codable, and Swift Concurrency, to create a clean, layered, and extensible API client library.
+In this two-part series, we'll explore how to leverage Swift's powerful features, such as Generics, Codable, and Swift Concurrency, to create a clean, layered, and extensible API client library.
 
-In this first part of the series, we will focus on building the foundational layers of our API client:
+## Overview & Goals
+
+In this first part, we will focus on building the foundational layers of our API client — networking and API abstraction.
 
 1. **HTTP Layer**: Generic HTTP transport (reusable for any API)
 2. **API Layer**: Business-specific logic (authentication, encoding/decoding)
@@ -328,7 +330,8 @@ public protocol APIClient: Sendable {
 Now the implementation that uses any `HTTPClient`:
 
 ```swift
-public final class YourAPIClient: APIClient, Sendable {
+// Implementation of APIClient with token-based authentication.
+public final class TokenAuthAPIClient: APIClient, Sendable {
     // HTTPClient for transport
     private let httpClient: any HTTPClient
     // API configuration for base URL, API key, etc.
@@ -401,6 +404,6 @@ With the implementation of `APIClient`, we now have a reusable layer that can ha
 
 ## What's Next
 
-So far, we have built a solid foundation for our library. In the next part of this series, we focus on implementing specific API services that utilize `APIClient` to perform real API calls.
+So far, we have built a solid foundation for our library. In the next part, we focus on implementing specific API services that utilize `APIClient` to perform real API calls.
 
-Stay tuned!
+[Read Part 2: Building the Service Layer](/en/posts/swift-api-client-part-2/)

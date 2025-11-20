@@ -9,7 +9,7 @@ author: "konakona"
 
 本系列将探讨如何利用泛型（Generics）、Codable 协议以及 Swift Concurrency 等 Swift 特性，高效地编写 Web API 客户端库。
 
-本文中，我们将关注于构建 API 客户端库的基础：
+本文中，我们将关注于构建 API 客户端的基础层 —— 网络传输层和 API 抽象层。
 
 1. **HTTP 层**：通用 HTTP 传输层（可复用于任何 API）
 2. **API 层**：业务逻辑层（处理认证、编码/解码等）

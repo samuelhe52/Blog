@@ -1,0 +1,81 @@
+---
+import type { Locale } from '../utils/postLinks';
+import { buildPostUrl, getPostByTranslationSlug } from '../utils/postLinks';
+
+export interface Props {
+  translationSlug: string;
+  text?: string;
+  variant?: 'inline' | 'card';
+}
+
+const { translationSlug, text, variant = 'inline' } = Astro.props as Props;
+
+// Infer current locale from URL: /en/... => en, otherwise zh-CN
+const currentLang: Locale = Astro.url.pathname.startsWith('/en/') ? 'en' : 'zh-CN';
+const { entry, lang } = await getPostByTranslationSlug(translationSlug, currentLang);
+
+const href = buildPostUrl(translationSlug, currentLang);
+const title = entry?.data.title ?? translationSlug;
+const crossLang = entry && lang !== currentLang ? lang : null;
+---
+
+{variant === 'inline' && (
+  <a href={href} class={`post-link ${crossLang ? 'cross-lang' : ''}`} title={title}>
+    {text ?? title}
+    {crossLang && <span class="lang-pill">{crossLang === 'en' ? 'EN' : 'ZH'}</span>}
+  </a>
+)}
+
+{variant === 'card' && (
+  <a href={href} class={`post-card animate ${crossLang ? 'cross-lang' : ''}`} aria-label={title}>
+    <div class="post-card-title">{title}</div>
+    {crossLang && <div class="post-card-note">{crossLang === 'en' ? 'English version only' : '仅有中文版本'}</div>}
+  </a>
+)}
+
+<style>
+  .post-link {
+    color: var(--link);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--link-muted, currentColor);
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+  .post-link:hover {
+    color: var(--link-hover, var(--link));
+    border-bottom-color: var(--link-hover, var(--link));
+  }
+  .lang-pill {
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.35rem;
+    font-size: 0.72em;
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    color: var(--text-muted);
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+
+  .post-card {
+    display: block;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    text-decoration: none;
+    color: var(--text);
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease-out;
+  }
+  .post-card:hover {
+    border-color: var(--link);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transform: translateY(-1px);
+  }
+  .post-card-title {
+    font-weight: 600;
+  }
+  .post-card-note {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: color 0.3s ease-in-out;
+  }
+</style>

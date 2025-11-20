@@ -10,12 +10,12 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.10",
+    "@astrojs/mdx": "^4.3.11",
     "@astrojs/rss": "^4.0.13",
     "@astrojs/sitemap": "^3.6.0",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/lora": "^5.2.8",
-    "astro": "^5.15.4"
+    "astro": "^5.15.9"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
