@@ -13,13 +13,10 @@ const labels = {
 <aside class="toc animate" aria-label={labels[lang]}>
   <nav class="toc-nav">
     <h2 class="toc-title">{labels[lang]}</h2>
-    <button class="toc-close" aria-label="Close" type="button">×</button>
     <ul class="toc-list" id="toc-list">
     </ul>
   </nav>
 </aside>
-<button class="toc-fab" aria-label={labels[lang]} aria-expanded="false" type="button">{labels[lang]}</button>
-<div class="toc-backdrop" aria-hidden="true"></div>
 
 <script is:inline src="/scripts/table-of-contents.js"></script>
 
@@ -103,77 +100,11 @@ const labels = {
     scroll-padding-top: 5rem;
   }
 
-  /* Mobile / narrow screen overlay styles */
+  /* Hide on smaller screens */
   @media (max-width: 1200px) {
     .toc {
-      top: 0;
-      right: 0;
-      width: 260px;
-      max-height: 100vh;
-      padding: 1rem 1rem 2rem;
-      background: var(--bg);
-      box-shadow: 0 0 0 1px var(--border-color), 0 8px 24px rgba(0,0,0,0.25);
-      transform: translateX(110%);
-      opacity: 0;
-      border-radius: 0;
-      transition: transform 0.35s ease, opacity 0.35s ease, background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
-      z-index: 1002;
-      display: block;
+      display: none;
     }
-    .toc.open {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    .toc-fab {
-      position: fixed;
-      bottom: 5rem;
-      right: 1.25rem;
-      background: var(--bg);
-      color: var(--text);
-      border: 1px solid var(--border-color);
-      padding: 0.6rem 0.9rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-radius: 999px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, opacity 0.3s ease-in-out;
-      z-index: 1001;
-    }
-    .toc-fab:hover {
-      background: var(--hover-bg, var(--bg-alt));
-    }
-    .toc-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
-    }
-    .toc-backdrop.open { opacity: 1; pointer-events: auto; }
-    .toc-close {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.75rem;
-      background: transparent;
-      border: none;
-      font-size: 1.25rem;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: color 0.2s ease-in-out;
-    }
-    .toc-close:hover { color: var(--text); }
-    /* Override desktop animation on mobile to keep hidden until open */
-    .toc.animate:not(.open) { animation: none; opacity:0; transform: translateX(110%); }
-  }
-
-  /* Hide FAB on wide screens */
-  @media (min-width: 1201px) {
-    .toc-fab, .toc-backdrop, .toc-close { display: none; }
   }
 
   /* Custom scrollbar */
