@@ -93,3 +93,41 @@ if (document.readyState === 'loading') {
 
 // Re-run on view transitions
 document.addEventListener('astro:page-load', generateTOC);
+
+// Responsive overlay / FAB behavior
+(function initTocOverlay(){
+  const toc = document.querySelector('.toc');
+  const fab = document.querySelector('.toc-fab');
+  const backdrop = document.querySelector('.toc-backdrop');
+  const closeBtn = document.querySelector('.toc-close');
+  if (!toc || !fab || !backdrop || !closeBtn) return;
+  const OPEN_CLASS = 'open';
+  function open() {
+    toc.classList.add(OPEN_CLASS);
+    backdrop.classList.add(OPEN_CLASS);
+    fab.setAttribute('aria-expanded','true');
+    // Prevent body scroll
+    document.documentElement.style.overflow='hidden';
+  }
+  function close() {
+    toc.classList.remove(OPEN_CLASS);
+    backdrop.classList.remove(OPEN_CLASS);
+    fab.setAttribute('aria-expanded','false');
+    document.documentElement.style.overflow='';
+  }
+  fab.addEventListener('click', ()=>{
+    if (toc.classList.contains(OPEN_CLASS)) { close(); } else { open(); }
+  });
+  backdrop.addEventListener('click', close);
+  closeBtn.addEventListener('click', close);
+  // Close on ESC
+  window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') close(); });
+  function handleResize(){
+    if (window.innerWidth >= 1200) {
+      // Ensure overlay classes cleared & scrolling restored
+      close();
+    }
+  }
+  window.addEventListener('resize', handleResize);
+  handleResize();
+})();
