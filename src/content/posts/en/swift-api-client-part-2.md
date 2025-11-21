@@ -7,17 +7,15 @@ translationSlug: "swift-api-client-part-2"
 author: "konakona"
 ---
 
-In the [previous post](/en/posts/swift-api-client-part-1/), we laid the groundwork for our Swift API client library by defining `HTTPClient` and `APIClient`. Now, we'll dive into how to create specific API clients that leverage these foundational components to interact with specific web APIs.
+In the [previous post](/en/posts/swift-api-client-part-1/), we laid the groundwork for our Swift API client library by defining `HTTPClient` and `APIClient`. Now, we'll dive into how to leverage these components to create clean, focused service layers.
 
-## Overview & Goals
-
-In this post, it's time we turn the generic HTTPClient/APIClient from Part 1 into thin, focused service layers which expose cohesive service APIs that app code can depend on. We'll introduce a hypothetical `UserService` that interacts with a user management API, demonstrating best practices for designing a service layer, and then discuss testing strategies for our library.
+For demonstration purposes, we'll introduce a hypothetical `UserService` that interacts with a user management API, demonstrating best practices for designing a service layer; and then we discuss testing strategies for our library.
 
 ## UserService Design
 
 ### Endpoints & APIRequest types
 
-In our architecture, every API endpoint corresponds to a specific `struct` that conforms to the `APIRequest` protocol. This design pattern separates the *definition* of a request from its *execution*.
+In our architecture, every API endpoint corresponds to a specific struct that conforms to the `APIRequest` protocol. This design pattern separates the *definition* of a request from its *execution*.
 
 These request structs are lightweight and declarative. They don't perform network calls themselves; they simply hold the data required to make one (path, method, parameters). This leaves the heavy lifting of authentication, URL construction, and JSON decoding to the shared `APIClient`.
 
@@ -66,13 +64,15 @@ struct ListUsersRequest: APIRequest {
 }
 ```
 
+> **Tip**: The definition of the `APIRequest` protocol can be found in the previous post.
+
 By keeping the request logic isolated in these structs, our service code becomes incredibly clean, as we'll see later.
 
 ### Models & CodingKeys
 
 Next, we define the data models that match our API responses. We use Swift's `Codable` protocol to handle JSON serialization and deserialization automatically.
 
-A common friction point is that Swift follows `camelCase` naming conventions, while many web APIs use `snake_case`. We bridge this gap using `CodingKeys`. This allows us to keep our Swift code idiomatic (e.g., `avatarURL`) while correctly mapping to the API's JSON keys (e.g., `avatar_url`).
+A common pain point about mapping JSON to native structs is that Swift follows `camelCase` naming conventions, while many web APIs use `snake_case`. We can bridge this gap using `CodingKeys`. This allows us to keep our Swift code idiomatic (e.g., `avatarURL`) while correctly mapping to the API's JSON keys (e.g., `avatar_url`).
 
 > **Tip**: Foundation's `JSONDecoder` is versatile and provides functionality to automatically convert snake_case to camelCase via its `keyDecodingStrategy`. While we could use a customized serializer to handle this globally, configuring that is beyond the scope of this post, so we'll stick to explicit `CodingKeys` here.
 
@@ -118,7 +118,7 @@ Now we have models that can be used as responses for our requests!
 
 ### UserService Implementation
 
-We now go on to implement the `UserService` itself. Notice that we don't define a `UserServiceProtocol`. In many Swift projects, developers instinctively create protocols for every service to enable mocking. However, since we already have a protocol-based `APIClient` (from Part 1), we can mock the *network layer* instead of the *service layer*. This saves us from maintaining protocol definitions for every service we define, and still preserves testability.
+We now go on to implement the `UserService` class. Notice that we don't define a `UserServiceProtocol`. In many Swift projects, developers instinctively create protocols for every service to enable mocking. However, since we already have a protocol-based `APIClient` (from Part 1), we can mock the *network layer* instead of the *service layer*. This saves us from maintaining protocol definitions for every service we define, and still preserves testability.
 
 ```swift
 public final class UserService: Sendable {
@@ -147,7 +147,7 @@ public final class UserService: Sendable {
 
 ## The Client Entry Point
 
-To make our library easy to use, we provide a single entry point: the `MyServiceClient`. This class manages the configuration and holds instances of all our services. This pattern aids discoverability—users just type `client.` and see all available services.
+To make our library easy to use, we provide a single entry point: the `MyServiceClient` class. This class manages the configuration and holds instances of all our services. This pattern aids discoverability—users just type `client.` and see all available services.
 
 ```swift
 public final class MyServiceClient: Sendable {
@@ -192,7 +192,7 @@ public final class MyServiceClient: Sendable {
 
 ## Testing the Service
 
-Testing is critical for an API client. We want to ensure our requests are built correctly and our response parsing works, without hitting the real API.
+Testing is critical for an API client. We want to ensure our requests are built correctly and our response parsing works. There are two main types of tests we can and should write: **unit tests and integration tests.**
 
 ### Mocking the APIClient
 
@@ -201,11 +201,14 @@ Since our services depend on `APIClient`, we can inject a mock that captures req
 ```swift
 final class MockAPIClient: APIClient, @unchecked Sendable {
     private var mockResponse: Any?
-    private var lastRequest: String?
+    private(set) var lastPath: String?
+    private(set) var lastQueryItems: [URLQueryItem]?
     private var mockError: Error?
 
     func perform<Request: APIRequest>(_ request: Request) async throws -> Request.Response {
-        lastRequest = request.path
+        lastPath = request.path
+        lastQueryItems = request.queryItems
+        
         if let error = mockError {
             throw error
         }
@@ -222,36 +225,62 @@ final class MockAPIClient: APIClient, @unchecked Sendable {
     func setMockError(_ error: Error) {
         self.mockError = error
     }
-
-    func getLastRequest() -> String? {
-        return lastRequest
-    }
 }
 ```
 
 ### Unit Tests
 
-Now we can write deterministic tests. We verify that `UserService` calls the correct endpoint and returns the expected model.
+To keep our tests organized, we should create a `Suite` for each service. Since Swift Testing runs tests in parallel by default, we should create a fresh `MockAPIClient` instance inside each test case to ensure isolation.
+
+We verify that `UserService` calls the correct endpoint and returns the expected model.
 
 ```swift
-@Test("List users sends correct parameters")
-func testListUsers() async throws {
-    let mock = MockAPIClient()
-    mock.setMockResponse(Page<User>(page: 1, results: [], totalPages: 1, totalResults: 0))
+@Suite("UserService Tests")
+struct UserServiceTests {
+    @Test("List users sends correct parameters")
+    func listUsers() async throws {
+        let mock = MockAPIClient()
+        let service = UserService(apiClient: mock)
+        
+        mock.setMockResponse(Page<User>(page: 1, results: [], totalPages: 1, totalResults: 0))
+        
+        _ = try await service.listUsers(page: 2, query: "swift")
+        
+        #expect(mock.lastPath == "/v1/users")
+        
+        let items = try #require(mock.lastQueryItems)
+        #expect(items.contains { $0.name == "page" && $0.value == "2" })
+        #expect(items.contains { $0.name == "q" && $0.value == "swift" })
+    }
     
-    let service = UserService(apiClient: mock)
-    _ = try await service.listUsers(page: 2, query: "swift")
-    
-    // Verify the request path/query was correct (implementation details of MockAPIClient may vary)
-    #expect(mock.getLastRequest() == "/v1/users")
+    @Test("Get user returns correct user")
+    func getUser() async throws {
+        let mock = MockAPIClient()
+        let service = UserService(apiClient: mock)
+        
+        let user = User(
+            id: "123", 
+            name: "Swift", 
+            email: "swift@example.com", 
+            avatarURL: nil, 
+            createdAt: 0, 
+            updatedAt: 0
+        )
+        mock.setMockResponse(user)
+        
+        let response = try await service.getUser(id: "123")
+        
+        #expect(response.id == "123")
+        #expect(mock.lastPath == "/v1/users/123")
+    }
 }
 ```
 
 ### Integration Tests
 
-While unit tests are great for verifying logic, nothing beats hitting the real API to ensure your client actually works with the server. However, integration tests come with challenges: they are slower, require network access, and need valid credentials.
+While unit tests are great for verifying logic, nothing beats hitting the real API to ensure your client actually works with the server. This is where integration tests come in. However, integration tests come with challenges: they are slower, require network access, and need valid credentials.
 
-To handle credentials safely, we can read them from environment variables. This prevents accidental commits of API keys.
+To handle credentials safely, we can read them from environment variables. This prevents accidental VCS commits of API keys.
 
 ```swift
 struct IntegrationTestConfig {
@@ -265,22 +294,43 @@ struct IntegrationTestConfig {
 }
 ```
 
-Then, we can write a test that uses the real network. Note that we use the real `URLSession` based client here, not the mock.
+Then, we can write a test that uses the real network. Note that we should be using the real `URLSession`-based client here, not the mock.
+
+Also, **disabling parallel execution for integration tests is strongly recommended**. Unlike isolated unit tests, integration tests often share external resources (like a database on a staging server). Running them in parallel can cause race conditions (e.g., one test deleting a user while another tries to fetch it), leading to flaky tests. In Swift Testing, we can enforce this using the `.serialized` trait.
+
+Furthermore, we should create a separate integration test Suite for each service. This allows us to check the configuration and initialize the `APIClient` once in the `init`, reusing the instance across multiple test cases.
 
 ```swift
-@Test("Real API: List Users")
-func testLiveFetch() async throws {
-    // Skip if no API key is present (e.g. in CI without secrets)
-    try #require(!IntegrationTestConfig.apiKey.isEmpty)
-    
-    let client = MyServiceClient(
-        baseURL: IntegrationTestConfig.baseURL, 
-        apiKey: IntegrationTestConfig.apiKey
-    )
-    
-    let page = try await client.users.listUsers(page: 1)
-    
-    #expect(!page.results.isEmpty)
+@Suite("UserService Integration Tests", .serialized)
+struct UserServiceIntegrationTests {
+    let client: MyServiceClient
+
+    init() throws {
+        // Skip if no API key is present (e.g. in CI without secrets)
+        try #require(!IntegrationTestConfig.apiKey.isEmpty)
+        
+        self.client = MyServiceClient(
+            baseURL: IntegrationTestConfig.baseURL, 
+            apiKey: IntegrationTestConfig.apiKey
+        )
+    }
+
+    @Test("List Users")
+    func listUsers() async throws {
+        let page = try await client.users.listUsers(page: 1)
+        #expect(!page.results.isEmpty)
+    }
+
+    @Test("Get User")
+    func getUser() async throws {
+        // First get a user ID from the list
+        let page = try await client.users.listUsers(page: 1)
+        let firstUser = try #require(page.results.first)
+        
+        // Then verify we can fetch specific details
+        let user = try await client.users.getUser(id: firstUser.id)
+        #expect(user.id == firstUser.id)
+    }
 }
 ```
 
@@ -300,6 +350,6 @@ In **Part 2**, we built upon that foundation to create a clean, user-friendly se
 - Unify everything under a single `MyServiceClient`.
 - Verify our logic with both unit and integration tests.
 
-This layered architecture might seem like a lot of boilerplate for a small app, but it pays dividends as your project grows. By separating *how* a request is sent and *how* the request is handled from *what* the request is, you gain the flexibility to swap out networking stacks, mock responses for testing, and add new endpoints with minimal friction.
+This layered architecture might seem like a lot of boilerplate for a small app, but it pays dividends as your project grows. By separating *how* a request is sent/handled from *what* the request is, you gain the flexibility to swap out networking stacks, mock responses for testing, and add new endpoints with minimal effort.
 
 I hope this series can be a source of inspiration for building your own Swift API clients. Happy coding!
