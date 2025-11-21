@@ -23,5 +23,5 @@ export async function getPostByTranslationSlug(translationSlug: string, preferre
 
 export function buildPostUrl(translationSlug: string, lang: Locale): string {
   if (lang === 'en') return `/en/posts/${translationSlug}/`;
-  return `/posts/${translationSlug}/`;
+  return `/zh/posts/${translationSlug}/`;
 }

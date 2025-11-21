@@ -11,7 +11,7 @@ interface Props {
 const { structure, lang, currentPath = '' } = Astro.props;
 const baseUrl = lang === 'zh-CN' ? '' : '/en';
 const folderBaseUrl = `${baseUrl}/folders`;
-const postsUrl = lang === 'zh-CN' ? '/posts' : '/en/posts';
+const postsUrl = lang === 'zh-CN' ? '/zh/posts' : '/en/posts';
 
 const t = {
   'zh-CN': {

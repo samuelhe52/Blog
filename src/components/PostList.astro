@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { posts, lang } = Astro.props;
-const baseUrl = lang === 'zh-CN' ? '/posts' : '/en/posts';
+const baseUrl = lang === 'zh-CN' ? '/zh/posts' : '/en/posts';
 ---
 
 <ul class="post-list">
