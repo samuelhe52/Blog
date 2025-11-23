@@ -1,34 +1,23 @@
-// Auto-detect browser language on first visit (root page only)
+// Redirect root visitors based purely on browser language.
 (function() {
   const path = window.location.pathname;
-  const isChineseLanding = path === '/' || path === '/zh/' || path === '/zh';
+  if (path !== '/' && path !== '/index.html') return;
 
-  // Only run on the Chinese landing route (root currently redirects to /zh/)
-  if (!isChineseLanding) return;
-
-  const redirectToEnglish = () => {
-    window.location.href = '/en/';
+  const preference = () => {
+    const languages = navigator.languages && navigator.languages.length
+      ? navigator.languages
+      : [navigator.language || ''];
+    for (const raw of languages) {
+      const lang = (raw || '').trim().toLowerCase();
+      if (!lang) continue;
+      if (lang.startsWith('zh')) return '/zh/';
+      if (lang.startsWith('en')) return '/en/';
+    }
+    return '/en/';
   };
 
-  // Check if user has a language preference cookie
-  const langCookie = document.cookie.split('; ').find(row => row.startsWith('lang='));
-
-  if (!langCookie) {
-    // No preference set - detect from browser
-    const browserLang = navigator.language || navigator.userLanguage || '';
-    const primaryLang = browserLang.split('-')[0].toLowerCase();
-
-    // If browser prefers English, redirect to /en/
-    if (primaryLang === 'en') {
-      redirectToEnglish();
-    }
-    // Otherwise stay on Chinese (default - no action needed)
-  } else {
-    // User has a preference - respect it
-    const lang = langCookie.split('=')[1];
-    if (lang === 'en') {
-      redirectToEnglish();
-    }
-    // If lang === 'zh-CN', stay on root (no action needed)
+  const target = preference();
+  if (target && target !== path) {
+    window.location.replace(target);
   }
 })();

@@ -1,4 +1,46 @@
 ---
-// Redirect root to /zh
-return Astro.redirect('/zh/', 301);
+const zhLink = '/zh/';
+const enLink = '/en/';
 ---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>konakona</title>
+		<meta name="robots" content="noindex, nofollow" />
+		<meta name="description" content="Redirecting to your preferred language" />
+		<link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+		<script src="/scripts/lang-detect.js" defer></script>
+		<style>
+			body {
+				font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+				min-height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 0;
+				background: #fafaf9;
+				color: #292524;
+			}
+			.notice {
+				text-align: center;
+				padding: 2rem;
+			}
+			.notice a {
+				color: #2563eb;
+				margin: 0 0.5rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="notice">
+			<p>Detecting your preferred language…</p>
+			<p>
+				<a href={zhLink}>中文入口</a>·
+				<a href={enLink}>English entry</a>
+			</p>
+		</div>
+	</body>
+</html>
+
