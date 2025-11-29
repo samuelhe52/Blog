@@ -61,7 +61,7 @@ In the paper, he also proposes a few methods and insights on the learning proces
 
 Turing's paper is remarkably prescient, anticipating many of the challenges and approaches that would later become central to the field of artificial intelligence. **He is truly a fucking genius in every sense of the word.** This paper made me feel like that all that we have achieved in AI so far is really just following the path that Turing laid out more than 70 years ago. We cracked engineering problems, built faster hardware, and developed new algorithms, which Turing had no way of foreseeing due to the technological limitations of his time, but he did foresee or he did hold a firm belief that these challenges would be dealt with eventually, and that the core ideas he presented would remain relevant. He didn't know how; but he knew we would.
 
-I'm out of words to express how impressive this is. All the engineering feats we have accomplished in AI so far are just tracing Turing's footsteps, and guess what? 70 years later, no one can argue that he was wrong. Because we are now living in the future he predicted.
+I'm out of words to express how impressive this is. All the engineering feats we have accomplished in AI so far are just tracing Turing's footsteps, and guess what? 70 years later, no one can argue that he was wrong. **Because we are now living in the future he predicted.**
 
 He wasn't just arguing "machines can think."
 
