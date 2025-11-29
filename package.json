@@ -15,7 +15,9 @@
     "@astrojs/sitemap": "^3.6.0",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/lora": "^5.2.8",
-    "astro": "^5.15.9"
+    "astro": "^5.15.9",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

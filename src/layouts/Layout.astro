@@ -41,6 +41,9 @@ const pageTitle = title || SITE.title;
     <link rel="preload" href={lora400} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={lora600} as="font" type="font/woff2" crossorigin />
     
+    <!-- KaTeX CSS for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+    
     <script is:inline>
       // Apply saved theme immediately to prevent flash
       (function() {
@@ -189,6 +192,17 @@ const pageTitle = title || SITE.title;
         border-radius: 3px;
         transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
       }
+      
+      /* Hide MathML (screen readers only) - backup if KaTeX CSS fails */
+      .katex-mathml {
+        position: absolute;
+        clip: rect(1px, 1px, 1px, 1px);
+        padding: 0;
+        border: 0;
+        height: 1px;
+        width: 1px;
+        overflow: hidden;
+      }
       pre {
         background: var(--code-bg);
         padding: 1rem;
@@ -215,6 +229,7 @@ const pageTitle = title || SITE.title;
         color: var(--text-muted);
         transition: border-color 0.3s ease-in-out, color 0.3s ease-in-out;
       }
+      
       
       /* Staggered fade-in animation (Nano style) */
       .animate {
