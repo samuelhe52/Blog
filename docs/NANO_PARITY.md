@@ -1,7 +1,9 @@
 # Nano Feature Parity Checklist
+
 Updated: 2025-11-07T19:57:00Z
 
 ## Astro Nano Claims (from README)
+
 - ✅ 100/100 Lighthouse performance
 - ✅ Responsive
 - ✅ Accessible
@@ -9,8 +11,8 @@ Updated: 2025-11-07T19:57:00Z
 - ✅ Typesafe
 - ✅ Minimal style
 - ✅ Light/Dark Theme
-- ⚠️  Animated UI
-- ⚠️  Tailwind styling
+- ⚠️ Animated UI
+- ⚠️ Tailwind styling
 - ✅ Auto generated sitemap
 - ❌ Auto generated RSS Feed
 - ✅ Markdown support
@@ -19,6 +21,7 @@ Updated: 2025-11-07T19:57:00Z
 ## Our Current Status
 
 ### ✅ Implemented
+
 1. **Bilingual support** (zh-CN default, English /en/)
 2. **SEO-friendly** - canonical, hreflang, meta description, OG tags
 3. **Sitemap** - Combined bilingual with alternates
@@ -39,6 +42,7 @@ Updated: 2025-11-07T19:57:00Z
 18. **RSS Feeds** - Separate feeds per language (/rss.xml, /en/rss.xml)
 
 ### ❌ Missing (Need to Add)
+
 1. **RSS Feed** - Auto-generated per language
 2. **MDX Support** - For components in markdown
 3. **Tailwind** - Optional, but gives us utilities
@@ -51,6 +55,7 @@ Updated: 2025-11-07T19:57:00Z
 10. **OG images** - Dynamic generation per post
 
 ## Priority Order (MVP+)
+
 1. ✅ Lighthouse audit & fixes (100/100/96/100 - Excellent!)
 2. ✅ MDX support (DONE - Astro v5 + @astrojs/mdx)
 3. ~~Better styling/polish~~ (Deferred - current CSS is clean and works well)
@@ -59,6 +64,7 @@ Updated: 2025-11-07T19:57:00Z
 6. ✅ RSS Feed (DONE - Separate feeds per language)
 
 ## Implementation Notes
+
 - Keep bilingual as first priority
 - Don't break existing translation switching
 - Maintain minimal dependencies

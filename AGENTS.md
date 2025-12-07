@@ -1,13 +1,17 @@
 # Agents Guide
+
 Timestamp: 2025-11-07T19:58:00.000Z
 
 ## Purpose
+
 This file tells any assisting agent (automation, AI, scripts) EXACTLY how to approach this bilingual Astro blog project.
 
 ## High-Level Vision
+
 Minimalist, performant bilingual (Chinese default, English secondary) static blog using Astro with custom minimal theme inspired by Astro Nano; clean SEO, translation pairing, dynamic OG images; future-friendly (search, typed i18n later).
 
 ## Author Preferences
+
 - Explanations: patient, plain language; avoid heavy jargon unless clarified.
 - Implementation: clear directory structure, small focused components, minimal client JS.
 - Internationalization: Chinese default (no prefix), English under /en/.
@@ -20,12 +24,15 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Dependencies: Keep minimal, avoid complex tooling unless necessary.
 
 ## Author Info
+
 - Site title: konakona
 - Author: konakona (Samuel He)
-- Contact: samuelhe52@outlook.com
+- Contact: <samuelhe52@outlook.com>
 
 ## Core Decisions
+
 (Updated 2025-11-07T19:58:00.000Z)
+
 - **Theme approach**: Custom minimal theme (NOT using Astro Nano package due to dependency complexity). Goal is feature parity with Nano while maintaining bilingual-first design. See NANO_PARITY.md for checklist.
 - Default locale: Chinese (no /zh prefix). English under /en/.
 - translationSlug identical across languages (English string).
@@ -45,6 +52,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Styling: Custom CSS with CSS variables (not Tailwind yet, may add later for utilities).
 
 ## Current Deliverables (MVP Complete)
+
 - ✅ Astro initialized with bilingual structure.
 - ✅ Content collections: src/content/posts/{zh,en}/.
 - ✅ translationSlug in frontmatter to pair posts.
@@ -59,21 +67,25 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - ✅ robots.txt.
 
 ## Next Priorities (See NANO_PARITY.md)
+
 1. Lighthouse audit & optimization
 2. MDX support for rich content
 3. Better styling/polish
 4. Dynamic OG images
 5. UX enhancements (reading time, animations)
 6. RSS Feed (deferred)
+
 - Combined sitemap (both locales; alternates only when translation exists).
 - GitHub Actions workflow (build & rsync deploy to Nginx VM with TLS).
 
 ## Non-MVP (Deferred)
+
 - Search (multilingual index strategy).
 - Typed i18n (typesafe-i18n or TS modules).
 - Advanced OG image styling variants.
 
 ## Implementation Principles for Agents
+
 1. Respect consolidated decisions above; never change without explicit user instruction.
 2. Keep changes minimal and incremental; avoid large refactors without need.
 3. Prefer build-time solutions (static generation over client JS).
@@ -84,6 +96,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 8. **No inline scripts**: Server has CSP restrictions. All JavaScript must be in external files in /public/scripts/ directory.
 
 ## File Structure Guidelines
+
 - src/i18n/: en.json, zh.json for UI strings.
 - src/layouts/Layout.astro: central metadata + language logic.
 - src/components/LanguageSwitcher.{astro|tsx}: cookie logic + disabled state.
@@ -92,6 +105,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - scripts/ or lib/ for sitemap and OG generation utilities.
 
 ## Agent Action Checklist (MVP Setup)
+
 1. Create Astro project & install dependencies (@astrojs/i18n).
 2. Scaffold content directories & sample bilingual post pair with translationSlug.
 3. Implement Layout with canonical + hreflang + OG tags.
@@ -102,11 +116,14 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 8. Provide Nginx server block example (not auto-applied here).
 
 ## Communication Style
+
 When asking for clarification: list concise numbered questions.
 When presenting code: minimize extraneous comments; only clarify non-obvious logic.
 
 ## Reference Plan
+
 Project phases detailed in PROJECT_PLAN.md (kept separately for task sequencing).
 
 ## Updating This File
+
 Append new sections under "Updates" with timestamps. Do not erase historical decisions.

@@ -12,13 +12,13 @@ The `FOLDER_NAMES` object in `src/utils/folderLocalization.ts` maps folder paths
 
 ```typescript
 export const FOLDER_NAMES: Record<string, FolderLocalization> = {
-  'tutorial': {
-    en: 'tutorial',
-    zh: '教程'
+  tutorial: {
+    en: "tutorial",
+    zh: "教程",
   },
-  'tutorial/advanced': {
-    en: 'advanced',
-    zh: '高级'
+  "tutorial/advanced": {
+    en: "advanced",
+    zh: "高级",
   },
 };
 ```
@@ -44,17 +44,18 @@ Edit `src/utils/folderLocalization.ts`:
 
 ```typescript
 export const FOLDER_NAMES: Record<string, FolderLocalization> = {
-  'tutorial': {
-    en: 'tutorial',
-    zh: '教程'
+  tutorial: {
+    en: "tutorial",
+    zh: "教程",
   },
-  'tutorial/advanced': {
-    en: 'advanced',
-    zh: '高级'
+  "tutorial/advanced": {
+    en: "advanced",
+    zh: "高级",
   },
-  'projects': {           // ← Add this
-    en: 'projects',
-    zh: '项目'
+  projects: {
+    // ← Add this
+    en: "projects",
+    zh: "项目",
   },
 };
 ```
@@ -69,17 +70,19 @@ For nested folders, use the full path as the key:
 
 ```typescript
 export const FOLDER_NAMES: Record<string, FolderLocalization> = {
-  'tutorial': {
-    en: 'tutorial',
-    zh: '教程'
+  tutorial: {
+    en: "tutorial",
+    zh: "教程",
   },
-  'tutorial/advanced': {              // Full path
-    en: 'advanced',
-    zh: '高级'
+  "tutorial/advanced": {
+    // Full path
+    en: "advanced",
+    zh: "高级",
   },
-  'tutorial/advanced/patterns': {     // Even deeper nesting
-    en: 'patterns',
-    zh: '设计模式'
+  "tutorial/advanced/patterns": {
+    // Even deeper nesting
+    en: "patterns",
+    zh: "设计模式",
   },
 };
 ```
@@ -102,6 +105,7 @@ Localized folder names appear in:
 - English: `/en/folders/tutorial/`
 
 This ensures:
+
 - Clean, predictable URLs
 - No encoding issues
 - Easy linking between languages
@@ -113,45 +117,45 @@ Complete example for a tutorial series with projects:
 ```typescript
 export const FOLDER_NAMES: Record<string, FolderLocalization> = {
   // Tutorials
-  'tutorial': {
-    en: 'tutorial',
-    zh: '教程'
+  tutorial: {
+    en: "tutorial",
+    zh: "教程",
   },
-  'tutorial/basics': {
-    en: 'basics',
-    zh: '基础'
+  "tutorial/basics": {
+    en: "basics",
+    zh: "基础",
   },
-  'tutorial/advanced': {
-    en: 'advanced',
-    zh: '高级'
+  "tutorial/advanced": {
+    en: "advanced",
+    zh: "高级",
   },
-  
+
   // Projects
-  'projects': {
-    en: 'projects',
-    zh: '项目'
+  projects: {
+    en: "projects",
+    zh: "项目",
   },
-  'projects/web': {
-    en: 'web',
-    zh: '网页开发'
+  "projects/web": {
+    en: "web",
+    zh: "网页开发",
   },
-  'projects/mobile': {
-    en: 'mobile',
-    zh: '移动开发'
+  "projects/mobile": {
+    en: "mobile",
+    zh: "移动开发",
   },
-  
+
   // Blog
-  'blog': {
-    en: 'blog',
-    zh: '博客'
+  blog: {
+    en: "blog",
+    zh: "博客",
   },
-  'blog/tech': {
-    en: 'tech',
-    zh: '技术'
+  "blog/tech": {
+    en: "tech",
+    zh: "技术",
   },
-  'blog/life': {
-    en: 'life',
-    zh: '生活'
+  "blog/life": {
+    en: "life",
+    zh: "生活",
   },
 };
 ```
@@ -159,6 +163,7 @@ export const FOLDER_NAMES: Record<string, FolderLocalization> = {
 ## Fallback Behavior
 
 If a folder is not in the mapping:
+
 - The last segment of the path is used as the display name
 - Example: `notes/2025/january` → displays "january"
 

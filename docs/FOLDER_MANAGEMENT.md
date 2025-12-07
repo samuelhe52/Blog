@@ -13,7 +13,8 @@ Location: `src/content/folders.yaml`
 ### Step 1: Create the folder structure
 
 Create your posts in the appropriate language folders:
-```
+
+```plaintext
 src/content/posts/
   zh/
     your-folder-name/
@@ -39,9 +40,10 @@ Open `src/content/folders.yaml` and add an entry:
     en: "Description of this folder in English, shown on the folder page"
 ```
 
-### Step 3: That's it!
+### Step 3: That's it
 
 The build system will automatically:
+
 - Generate folder pages for both languages
 - Show the correct name and description based on language
 - Handle translation fallbacks if posts only exist in one language
@@ -99,6 +101,7 @@ For nested folders (folders within folders), use forward slashes in the slug:
 ## What Happens If You Don't Add Metadata?
 
 If you create a folder but don't add it to `folders.yaml`, the system will:
+
 - Use the folder slug as the display name (with basic capitalization)
 - Not show any description
 - Still work, but won't look as polished
@@ -106,11 +109,13 @@ If you create a folder but don't add it to `folders.yaml`, the system will:
 ## Translation Fallback Behavior
 
 ### Folder with Posts in Both Languages
+
 - Chinese site shows Chinese posts
 - English site shows English posts
 - No fallback notice
 
 ### Folder with Posts in One Language Only
+
 - Both language sites will show the available content
 - A notice appears: "此内容暂无中文翻译" (Chinese) or "This content is not yet available in English"
 - User can click to view in the original language
@@ -126,6 +131,7 @@ If you create a folder but don't add it to `folders.yaml`, the system will:
 ## Maintenance
 
 To update folder metadata:
+
 1. Edit `src/content/folders.yaml`
 2. Run `npm run build` or `npm run dev`
 3. Changes apply immediately (no code changes needed!)
@@ -133,14 +139,17 @@ To update folder metadata:
 ## Troubleshooting
 
 ### Folder not showing correct name
+
 - Check that `slug` matches your actual folder path exactly
 - Verify YAML syntax (proper indentation, colons, quotes)
 
 ### Description not appearing
+
 - Ensure both `zh` and `en` descriptions are provided
 - Check for YAML syntax errors
 
 ### Build errors
+
 - Validate YAML syntax using an online YAML validator
 - Check for special characters that need escaping
 - Ensure proper indentation (use spaces, not tabs)

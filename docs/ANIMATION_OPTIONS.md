@@ -1,9 +1,11 @@
 # Animation Options
 
 ## Option 1: No animation (remove it entirely)
+
 Clean and simple - instant load
 
 ## Option 2: Slide-in from left (subtle)
+
 ```css
 @keyframes slideIn {
   from {
@@ -22,6 +24,7 @@ body > * {
 ```
 
 ## Option 3: Scale + fade (modern feel)
+
 ```css
 @keyframes scaleIn {
   from {
@@ -40,6 +43,7 @@ body > * {
 ```
 
 ## Option 4: Just fade (minimal)
+
 ```css
 @keyframes fadeIn {
   from {
