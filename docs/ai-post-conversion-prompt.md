@@ -21,6 +21,7 @@ Use this prompt verbatim with an AI agent to convert one or more Markdown files 
 6. Reconstruct the file with YAML frontmatter containing only the required fields in this order: `title`, `description`, `date`, `lang`, `translationSlug`, `author`.
 7. Body starts immediately after frontmatter. All sections should begin at `##` or lower; keep relative heading hierarchy.
 8. Output the full transformed markdown ready to save at the correct path under `src/content/posts/{lang}/`.
+9. Fix links to other markdown files: convert relative `.md` references to site URLs with trailing slashes that match the generated permalinks.
 
 ### Example header (realistic)
 
