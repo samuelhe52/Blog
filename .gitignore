@@ -3,3 +3,4 @@ node_modules
 .astro
 .DS_Store
 dist
+tmp
