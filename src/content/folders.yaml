@@ -13,6 +13,14 @@ folders:
       zh: "MIT Missing Semester 课程笔记，涵盖计算机实用技能"
       en: "Notes from MIT's Missing Semester course, covering practical computer skills"
 
+  - slug: "cs50-ai-notes"
+    name:
+      zh: "CS50 AI 笔记"
+      en: "CS50 AI Notes"
+    description:
+      zh: "Harvard CS50 Introduction to AI 课程的讲义与项目笔记"
+      en: "Notes from Harvard CS50 Introduction to AI lectures and projects"
+
   # Example: Add more folders here
   # - slug: "projects"
   #   name:
