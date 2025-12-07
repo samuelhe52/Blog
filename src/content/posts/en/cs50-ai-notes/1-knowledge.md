@@ -221,4 +221,4 @@ The key to solving problems with inference (mimicking human reasoning) is to rep
 
 Combining knowledge representation with inference allows AI systems to make logical decisions based on known facts, or validate new information.
 
-Project: [Minesweeper AI](/en/posts/cs50-ai-notes/minesweeper-ai)
+Project: [Minesweeper AI](/en/posts/cs50-ai-notes/minesweeper-ai/)

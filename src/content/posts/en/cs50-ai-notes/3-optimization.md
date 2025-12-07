@@ -225,3 +225,5 @@ To put it more generally, MAC is an idea of integrating search and inference (li
 ## Summary
 
 To solve optimization problems, it is really important to correctly formulate the problem and to figure out the correct way to interpret it, which algorithm to use, and which heuristics to apply. The implementation details are often less important than choosing an optimal overall approach to the problem.
+
+Project: [Crossword Generator](/en/posts/cs50-ai-notes/crossword-generator/)
