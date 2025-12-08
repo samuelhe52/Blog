@@ -19,7 +19,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - OG images: per-post dynamic generation; site-level image non-localized.
 - UI strings: start with JSON (/src/i18n/{zh,en}.json); may migrate to typed TS later.
 - Language switcher: global (site-wide preference), always visible; disable target if translation missing.
-- Persistence: cookie stores chosen language; initial auto-detect from browser.
+- Language detection: instant redirect at root (/) based on browser language; English fallback for unsupported locales.
 - SEO: self-canonical per page; hreflang only for existing translations (zh-CN, en).
 - Dependencies: Keep minimal, avoid complex tooling unless necessary.
 
@@ -39,7 +39,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Fallback: show available language; switcher always visible; disable target if missing translation.
 - Sitemap: single combined sitemap with hreflang alternates.
 - RSS: Planned - separate feeds per language.
-- Language switcher: site-wide language preference via cookie; auto-detect on first visit.
+- Language detection: instant redirect at root (/) via inline script; checks browser languages for zh/en, defaults to English for unsupported locales.
 - Locale codes: hreflang zh-CN & en; og:locale zh_CN default, en_US alternate.
 - OG images: Planned dynamic generation per-post.
 - Canonicals: self per page; hreflang only for existing translations.
@@ -93,7 +93,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 5. Accessibility: proper lang attributes, alt text, readable contrast.
 6. Security: no secrets committed; deployment uses SSH keys in CI secrets.
 7. **Theme transitions**: All components must include CSS transitions for color, background, and border-color changes (0.3s ease-in-out) to prevent flashing when theme switches via in-page buttons. Match pattern in Layout.astro.
-8. **No inline scripts**: Server has CSP restrictions. All JavaScript must be in external files in /public/scripts/ directory.
+8. **No inline scripts**: Server has CSP restrictions. All JavaScript must be in external files in /public/scripts/ directory. **Exception**: The root index.astro uses an inline script for instant language redirect (runs before body renders).
 
 ## File Structure Guidelines
 
