@@ -61,7 +61,7 @@ Combining these inferences allows the AI to deduce new knowledge about the board
     - For **each pair of sentences** in the knowledge base, check if one is a subset of the other. If so, derive a new sentence and add it to the knowledge base if it's not already present.
     - When performing these inferences, we may end up marking new cells as safe or mines, which in turn may allow further inferences. Therefore, we repeat this process until no new information can be inferred. In other words, we only break out of the loop when nothing changes in an iteration.
 
-Finally, the AI can make a move based on the recorded safe cells and mines. The full implementation can be found on [Github](https://github.com/samuelhe52/cs50-ai/blob/main/1-Knowledge/minesweeper/minesweeper.py).
+Finally, the AI can make a move based on the recorded safe cells and mines.
 
 Notice that despite the logical reasoning is complete and rigiorous, the minesweeper game itself may require guessing in certain situations where the knowledge base does not provide enough information to make a safe move. In such cases, the AI will have to make a random move among the remaining unrevealed cells.
 

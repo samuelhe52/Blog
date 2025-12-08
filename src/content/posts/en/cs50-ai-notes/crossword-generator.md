@@ -9,6 +9,8 @@ author: "konakona"
 
 ## Overview
 
+[CS50 - Crossword - Introduction to Artificial Intelligence with Python](https://cs50.harvard.edu/ai/projects/3/crossword/)
+
 We provide a crossword generator implementation that models the puzzle as a constraint satisfaction problem (CSP) and solves it with backtracking plus consistency pruning.
 
 ## Representation
