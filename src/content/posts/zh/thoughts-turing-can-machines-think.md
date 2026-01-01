@@ -38,9 +38,7 @@ author: "konakona"
 
 接着，图灵强调了一个事实：离散机器可以以任意精度**模拟连续过程**。不管你认为大脑里的那些连续过程有多复杂、多不稳定，只要给机器足够的资源，它就能在数字世界里把这些过程近似出来。换句话说，“连续 vs. 离散”更多是**建模方式的差异**，而不是**可实现行为种类的本质鸿沟**。
 
-如果你想要表面上的混乱、丰富的随机性，或者对初始条件极度敏感的行为，这些也完全可以在离散机器里出现：要么通过模拟一个混沌的连续系统，要么直接在离散状态空间里设计类似的动力学规则。两种方式都能得到同样不透明、同样难以由人类直觉预测的演化过程。
-
-所以，图灵真正想澄清是：**数字计算机的“离散性”本身，并不会使它无法表现出混沌的、创造性的、甚至看起来“有自由意志”的行为。** 一旦你允许规模的扩大以及机器的学习过程，以及加入适量的随机性，离散系统和连续系统之间的清晰界限就会崩塌。
+所以，图灵真正想澄清是：**数字计算机的“离散性”本身，并不会使它无法表现出混沌的、创造性的、甚至看起来“有自由意志”的行为。** 一旦你允许规模的扩大以及机器的学习过程，以及加入适量的随机性，离散系统和连续系统之间的界限就会崩塌。
 
 这为图灵后面的主张搭好了基础：从物理和数学的层面上看，不存在根本的、写死在物理规则里的障碍阻止机器最终表现出和人类心智同样丰富的行为表现。
 
@@ -53,7 +51,7 @@ author: "konakona"
 - 这个 child machine 拥有一套人类可以理解、可以编程控制的基础能力；
 - 然后通过与环境的交互、试错、奖励与惩罚等机制，逐步“长大”，最终逼近 adult machine。
 
-在图灵的年代，有人会质疑：机器的运行逻辑是写死的，怎么可能“改变自己”？图灵的回应是：**学习过程本身也可以被写进程序**。我们可以让机器在一定约束内，修改自己那些“非本质的”“临时性的”规则；真正的“宪法级”原则比较稳定，而具体的子规则则可以根据经验不断被推翻和重写。
+在图灵的年代，有人质疑：机器的运行逻辑是写死的，怎么可能“改变自己”？图灵的回应是，他区分了机器的**核心规则**和**灵活规则**：前者是机器的基本运作框架，不会轻易改变；但后者则可以通过学习过程进行调整和优化。换句话说，我们可以让机器在一定约束内，修改自己那些“非本质的”“临时性的”规则；真正的“宪法级”原则比较稳定，而具体的子规则则可以根据经验不断被推翻和重写。
 
 他用美国宪法做类比：
 
@@ -69,7 +67,7 @@ author: "konakona"
 
 ## 一点感受
 
-Turing's paper is remarkably prescient, anticipating many of the challenges and approaches that would later become central to the field of artificial intelligence. **He is truly a fucking genius in every sense of the word.** This paper made me feel like that all that we have achieved in AI so far is really just following the path that Turing laid out more than 70 years ago. We cracked engineering problems, built faster hardware, and developed new algorithms, which Turing had no way of foreseeing due to the technological limitations of his time, but he did foresee or he did hold a firm belief that these challenges would be dealt with eventually, and that the core ideas he presented would remain relevant. He didn't know how; but he knew we would.
+Turing's paper is remarkably prescient, anticipating many of the challenges and approaches that would later become central to the field of artificial intelligence. **He is truly a genius in every sense of the word.** This paper made me feel like that all that we have achieved in AI so far is really just following the path that Turing laid out more than 70 years ago. We cracked engineering problems, built faster hardware, and developed new algorithms, which Turing had no way of foreseeing due to the technological limitations of his time, but he did foresee or he did hold a firm belief that these challenges would be dealt with eventually, and that the core ideas he presented would remain relevant. He didn't know how; but he knew we would.
 
 I'm out of words to express how impressive this is. All the engineering feats we have accomplished in AI so far are just tracing Turing's footsteps, and guess what? 70 years later, no one can argue that he was wrong. **Because we are now living in the future he predicted.**
 
