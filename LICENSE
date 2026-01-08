@@ -1,0 +1,26 @@
+# Dual License
+
+This repository contains both code and content, each licensed separately:
+
+## Code License (MIT)
+
+All source code, including but not limited to:
+- Astro components (`src/components/`, `src/layouts/`)
+- TypeScript/JavaScript files (`src/utils/`, `src/pages/`)
+- Configuration files (`astro.config.mjs`, `tsconfig.json`)
+- Build scripts and workflows (`.github/workflows/`)
+- Styling and assets (`public/`, CSS files)
+
+is licensed under the **MIT License**. See [LICENSE-CODE](LICENSE-CODE) for details.
+
+## Content License (CC BY 4.0)
+
+All blog content, including but not limited to:
+- Markdown/MDX files in `src/content/posts/`
+- Images and media used in blog posts
+
+is licensed under the **Creative Commons Attribution 4.0 International License (CC BY 4.0)**. See [LICENSE-CONTENT](LICENSE-CONTENT) for details.
+
+---
+
+Copyright (c) 2026 Samuel He
