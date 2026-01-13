@@ -88,7 +88,7 @@ $$
 \mathbf{W}^T \Sigma \mathbf{W} = \Lambda
 $$
 
-where $\Lambda$ is a diagonal matrix of eigenvalues and the columns of $\mathbf{W}$ are the corresponding eigenvectors. Again, it might not be clear why the fact that $\Lambda$ can be diagonalized is important, but it will become clear as we proceed.
+where $\Lambda$ is a diagonal matrix of eigenvalues and the columns of $\mathbf{W}$ are the corresponding eigenvectors. Again, it might not be clear why the fact that $\Sigma$ can be diagonalized is important, but it will become clear as we proceed.
 
 ## Finding All Principal Components at Once
 
