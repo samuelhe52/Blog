@@ -5,7 +5,6 @@ import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
 import PostHeader from '../../../components/PostHeader.astro';
 import BackToTop from '../../../components/BackToTop.astro';
-import MissingTranslationNotice from '../../../components/MissingTranslationNotice.astro';
 import TableOfContents from '../../../components/TableOfContents.astro';
 import { SITE } from '../../../site.config';
 
@@ -68,7 +67,6 @@ const ogImageUrl = new URL(`/og/${post.data.translationSlug}.svg`, SITE.domain).
       <div class="animate">
         <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang="zh-CN" />
       </div>
-      {!hasEnTranslation && <MissingTranslationNotice lang="zh-CN" translationUrl={`/en/posts/${post.data.translationSlug}/`} />}
       <div class="prose animate">
         <Content />
       </div>
