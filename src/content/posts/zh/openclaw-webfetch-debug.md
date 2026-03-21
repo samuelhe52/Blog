@@ -1,5 +1,5 @@
 ---
-title: "一次 web_fetch 故障排查"
+title: "一次 OpenClaw web_fetch 故障排查"
 description: "proxychains4 的 DNS 劫持和 OpenClaw 的 SSRF 保护撞在一起，导致 web_fetch 彻底罢工。"
 date: 2026-03-19
 lang: "zh-CN"
