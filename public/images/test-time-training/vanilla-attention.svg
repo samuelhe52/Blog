@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="300" viewBox="32 0 650 300" role="img" aria-labelledby="title desc">
+  <title id="title">Vanilla softmax attention computation</title>
+  <desc id="desc">Q is multiplied by K transpose, normalized with softmax, multiplied by V, and produces O.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 7 3.5 L 0 7 z" fill="#171717"/>
+    </marker>
+    <style>
+      .label { font-family: Georgia, 'Times New Roman', serif; fill: #171717; }
+      .symbol { font-size: 42px; font-style: italic; font-weight: 600; }
+      .shape { font-size: 24px; font-style: italic; }
+      .block { fill: #f3f3f1; stroke: #171717; stroke-width: 3; stroke-linejoin: round; }
+      .arrow { stroke: #171717; stroke-width: 3.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect x="33.5" y="1.5" width="647" height="297" fill="white"/>
+
+  <text class="label symbol" x="72" y="142">Q</text>
+  <text class="label shape" x="57" y="178">N × d</text>
+  <path class="arrow" d="M 134 148 H 208"/>
+
+  <path class="block" d="M 228 80 L 310 42 L 310 254 L 228 220 Z"/>
+  <text class="label symbol" x="249" y="141">K<tspan baseline-shift="super" font-size="60%">⊤</tspan></text>
+  <text class="label shape" x="242" y="176">d × N</text>
+
+  <rect class="block" x="324" y="42" width="56" height="212" rx="10"/>
+  <text class="label" x="0" y="0" text-anchor="middle" dominant-baseline="middle" transform="translate(352 148) rotate(90)" style="font-size: 29px; font-weight: 600;">softmax</text>
+
+  <path class="block" d="M 395 42 L 477 80 L 477 220 L 395 254 Z"/>
+  <text class="label symbol" x="421" y="141">V</text>
+  <text class="label shape" x="409" y="176">N × d</text>
+
+  <path class="arrow" d="M 486 148 H 586"/>
+  <text class="label symbol" x="610" y="142">O</text>
+  <text class="label shape" x="595" y="178">N × d</text>
+</svg>

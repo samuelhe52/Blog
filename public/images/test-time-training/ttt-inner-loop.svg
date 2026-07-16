@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1157" height="550" viewBox="0 0 1157 550" role="img" aria-labelledby="title desc">
+  <title id="title">Test-time training inner loop</title>
+  <desc id="desc">Keys pass through an inner model to predict values. The loss between predicted and target values is backpropagated to update the model weights, which are then used to transform queries into outputs.</desc>
+  <defs>
+    <linearGradient id="top-block-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="48%" stop-color="#fffdf7"/>
+      <stop offset="100%" stop-color="#ffd985"/>
+    </linearGradient>
+    <marker id="arrow-black" markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 6 3 L 0 6 z" fill="#0f0f0f"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 6 3 L 0 6 z" fill="#ef1010"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="6" markerHeight="6" refX="5.5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 6 3 L 0 6 z" fill="#c45b12"/>
+    </marker>
+    <style>
+      .math { font-family: Georgia, 'Times New Roman', serif; fill: #111111; }
+      .symbol { font-size: 43px; font-style: italic; font-weight: 600; }
+      .shape { font-size: 28px; font-style: italic; }
+      .legend { font-family: Georgia, 'Times New Roman', serif; fill: #171717; font-size: 34px; }
+      .forward { fill: none; stroke: #0f0f0f; stroke-width: 3; marker-end: url(#arrow-black); }
+      .backward { fill: none; stroke: #ef1010; stroke-width: 3; marker-end: url(#arrow-red); }
+      .module { fill: none; stroke: #171717; stroke-width: 4; stroke-dasharray: 1 8; stroke-linecap: round; }
+      .block { stroke: #171717; stroke-width: 3.5; }
+    </style>
+  </defs>
+
+  <rect width="1157" height="550" fill="#ffffff"/>
+
+  <!-- Key input -->
+  <text class="math symbol" x="92" y="104" text-anchor="middle">K</text>
+  <text class="math shape" x="92" y="146" text-anchor="middle">N × d</text>
+  <path class="forward" d="M 136 109 H 209"/>
+
+  <!-- Inner model used to fit K to V -->
+  <rect class="module" x="220" y="57" width="338" height="193" rx="38"/>
+  <path class="forward" d="M 220 109 H 268"/>
+  <rect class="block" x="268" y="81" width="49" height="145" fill="url(#top-block-fill)"/>
+  <path class="forward" d="M 317 109 H 363"/>
+  <rect class="block" x="363" y="81" width="49" height="145" fill="url(#top-block-fill)"/>
+  <path class="forward" d="M 412 109 H 459"/>
+  <rect class="block" x="459" y="81" width="49" height="145" fill="url(#top-block-fill)"/>
+  <path class="forward" d="M 508 109 H 558"/>
+
+  <!-- Prediction and loss -->
+  <path class="forward" d="M 565 109 H 641"/>
+  <text class="math symbol" x="680" y="104" text-anchor="middle">V̂</text>
+  <text class="math shape" x="680" y="146" text-anchor="middle">N × d</text>
+  <path class="forward" d="M 721 109 H 801"/>
+  <circle cx="843" cy="109" r="32" fill="#ffffff" stroke="#111111" stroke-width="3.5"/>
+  <text class="math" x="843" y="122" text-anchor="middle" font-size="43" font-style="italic">ℒ</text>
+
+  <!-- Target value input -->
+  <text class="math symbol" x="1001" y="104" text-anchor="middle">V</text>
+  <text class="math shape" x="1001" y="146" text-anchor="middle">N × d</text>
+  <path class="forward" d="M 965 109 H 886"/>
+
+  <!-- Backpropagation path -->
+  <path class="backward" d="M 843 144 V 198 H 511"/>
+  <path class="backward" d="M 459 198 H 415"/>
+  <path class="backward" d="M 363 198 H 319"/>
+
+  <!-- Updated weights transfer -->
+  <text x="128" y="271" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-style="italic" font-weight="600" fill="#c45b12">W<tspan baseline-shift="super" font-size="62%">*</tspan></text>
+  <path d="M 247 237 C 198 244 196 286 246 310" fill="none" stroke="#c45b12" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+
+  <!-- Query input and model with updated weights -->
+  <text class="math symbol" x="92" y="363" text-anchor="middle">Q</text>
+  <text class="math shape" x="92" y="404" text-anchor="middle">N × d</text>
+  <path class="forward" d="M 136 370 H 209"/>
+
+  <rect class="module" x="220" y="273" width="338" height="193" rx="38"/>
+  <path class="forward" d="M 220 370 H 268"/>
+  <rect class="block" x="268" y="297" width="49" height="145" fill="#ffdc91"/>
+  <path class="forward" d="M 317 370 H 363"/>
+  <rect class="block" x="363" y="297" width="49" height="145" fill="#ffdc91"/>
+  <path class="forward" d="M 412 370 H 459"/>
+  <rect class="block" x="459" y="297" width="49" height="145" fill="#ffdc91"/>
+  <path class="forward" d="M 508 370 H 558"/>
+
+  <!-- Output -->
+  <path class="forward" d="M 565 370 H 641"/>
+  <text class="math symbol" x="680" y="363" text-anchor="middle">O</text>
+  <text class="math shape" x="680" y="404" text-anchor="middle">N × d</text>
+
+  <!-- Legend -->
+  <path class="forward" d="M 796 287 H 857"/>
+  <text class="legend" x="874" y="299">Inner Forward</text>
+  <path class="backward" d="M 857 357 H 796"/>
+  <text class="legend" x="874" y="369">Inner Backward</text>
+  <text x="802" y="437" font-family="Georgia, 'Times New Roman', serif" font-size="39" font-style="italic" font-weight="600" fill="#c45b12">W<tspan baseline-shift="super" font-size="62%">*</tspan></text>
+  <text class="legend" x="874" y="437">Updated Weights</text>
+</svg>

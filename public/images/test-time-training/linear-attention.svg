@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="300" viewBox="90 0 640 300" role="img" aria-labelledby="title desc">
+  <title id="title">Linear attention computation</title>
+  <desc id="desc">Q is multiplied by the precomputed K transpose V summary and produces O.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 7 3.5 L 0 7 z" fill="#171717"/>
+    </marker>
+    <style>
+      .label { font-family: Georgia, 'Times New Roman', serif; fill: #171717; }
+      .symbol { font-size: 42px; font-style: italic; font-weight: 600; }
+      .shape { font-size: 24px; font-style: italic; }
+      .block { fill: #e7e7e7; stroke: #171717; stroke-width: 3; }
+      .arrow { stroke: #171717; stroke-width: 3.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect x="91.5" y="1.5" width="637" height="297" fill="white"/>
+
+  <text class="label symbol" x="132" y="142">Q</text>
+  <text class="label shape" x="117" y="178">N × d</text>
+  <path class="arrow" d="M 194 148 H 314"/>
+
+  <rect class="block" x="332" y="74" width="160" height="152"/>
+  <text class="label symbol" x="412" y="139" text-anchor="middle">K<tspan baseline-shift="super" font-size="60%">⊤</tspan>V</text>
+  <text class="label shape" x="412" y="177" text-anchor="middle">d × d</text>
+
+  <path class="arrow" d="M 502 148 H 622"/>
+  <text class="label symbol" x="648" y="142">O</text>
+  <text class="label shape" x="633" y="178">N × d</text>
+</svg>
