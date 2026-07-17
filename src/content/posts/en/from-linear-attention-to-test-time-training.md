@@ -104,7 +104,7 @@ One possible answer is to use a **neural network**. Self-supervised learning can
 
 The connection between attention and an inner learner was introduced in [*Learning to (Learn at Test Time)*](https://arxiv.org/abs/2310.13807) and was further developed in [*Learning to (Learn at Test Time): RNNs with Expressive Hidden States*](https://arxiv.org/abs/2407.04620).
 
-## The Test Time Training Paradigm
+## The Test-Time Training Paradigm
 
 TTT treats the key-value pairs as a small dataset. At inference time, an *inner model* is optimized to map $K$ to $V$ using a loss $\mathcal{L}(\hat{V}, V)$, thereby compressing the current sequence into its parameters. The queries $Q$ are then fed to this adapted model to produce $O$. Because this optimization happens during inference, it is called *test-time training*.
 

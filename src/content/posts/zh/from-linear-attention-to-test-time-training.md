@@ -1,6 +1,6 @@
 ---
-title: "从线性注意力到 Test Time Training"
-description: "线性注意力如何将上下文压缩为固定大小的状态，以及测试时训练（Test Time Training）如何用一个能够从每条序列中学习的模型，取代这种人工设计的状态。"
+title: "从线性注意力到 Test-Time Training"
+description: "线性注意力如何将上下文压缩为固定大小的状态，以及测试时训练（Test-Time Training）如何用一个能够从每条序列中学习的模型，取代这种人工设计的状态。"
 date: 2026-07-17
 lang: "zh-CN"
 translationSlug: "from-linear-attention-to-test-time-training"
@@ -104,7 +104,7 @@ $$
 
 这一想法最早在论文 [*Learning to (Learn at Test Time)*](https://arxiv.org/abs/2310.13807) 中提出，随后在 [*Learning to (Learn at Test Time): RNNs with Expressive Hidden States*](https://arxiv.org/abs/2407.04620) 中得到了进一步发展。
 
-## Test Time Training 范式
+## Test-Time Training 范式
 
 TTT 将键值对视为一个小型数据集，在推理时，一个*内部模型*对损失函数 $\mathcal{L}(\hat{V}, V)$ 进行优化，学习从 $K$ 到 $V$ 的映射，从而将当前序列压缩进模型参数。随后，$Q$ 作为输入传递给这个在推理时训练的模型，得到 $O$。由于这种优化发生在推理过程中，因此称为*测试时训练*。
 
