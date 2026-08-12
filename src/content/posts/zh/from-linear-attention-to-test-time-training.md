@@ -1,11 +1,15 @@
 ---
 title: "从线性注意力到 Test-Time Training"
-description: "线性注意力如何将上下文压缩为固定大小的状态，以及测试时训练（Test-Time Training）如何用一个能够从每条序列中学习的模型，取代这种人工设计的状态。"
+description: "线性注意力将标准注意力的平方复杂度降低为线性，这很好。但我们能做得更好吗？"
 date: 2026-07-17
 lang: "zh-CN"
 translationSlug: "from-linear-attention-to-test-time-training"
 author: "konakona"
 ---
+
+> 本文基于 CVPR 2026 论文 [ViT$^3$: Unlocking Test-Time Training in Vision](https://arxiv.org/abs/2512.01643)。
+
+在这篇文章中，我们将探讨注意力机制与序列建模之间的联系，以及这种联系如何引出一种名为**测试时训练（TTT）**的新范式。首先，让我们简要回顾标准的 softmax 注意力与线性注意力。
 
 ## Softmax 注意力
 
@@ -48,7 +52,7 @@ $$
 
 其中，$S \in \mathbb{R}^{r \times d_v}$、$z \in \mathbb{R}^{r}$ 和 $o_i \in \mathbb{R}^{d_v}$。计算出 $S$ 和 $z$ 后，求一个输出 token $o_i$ 的成本为 $O(r d_v)$，因此计算全部输出 $O$ 的成本为 $O(N r d_v)$。在常见的 $r = d_v = d$ 情况下，这一复杂度变为 $O(Nd^2)$：相对于序列长度 $N$ 呈线性增长。
 
-Linear Attention 出自论文 [*Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention*](https://arxiv.org/abs/2006.16236)。
+Linear Attention 出自论文 [_Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention_](https://arxiv.org/abs/2006.16236)。
 
 ## 因果线性注意力
 
@@ -102,7 +106,7 @@ $$
 
 一种可能的答案是使用**神经网络**。自监督学习可以将大型训练集编码进模型权重，同时捕捉数据中有用的结构与关系。这一思路引出了**测试时训练**（Test-Time Training, TTT）的概念。
 
-这一想法最早在论文 [*Learning to (Learn at Test Time)*](https://arxiv.org/abs/2310.13807) 中提出，随后在 [*Learning to (Learn at Test Time): RNNs with Expressive Hidden States*](https://arxiv.org/abs/2407.04620) 中得到了进一步发展。
+这一想法最早在论文 [_Learning to (Learn at Test Time)_](https://arxiv.org/abs/2310.13807) 中提出，随后在 [_Learning to (Learn at Test Time): RNNs with Expressive Hidden States_](https://arxiv.org/abs/2407.04620) 中得到了进一步发展。
 
 ## Test-Time Training 范式
 

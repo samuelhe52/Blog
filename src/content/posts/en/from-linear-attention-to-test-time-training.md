@@ -1,11 +1,15 @@
 ---
 title: "From Linear Attention to Test-Time Training"
-description: "How linear attention compresses context into a fixed-size state, and how test-time training replaces that hand-designed state with a model that learns from each sequence."
+description: "Linear attention reduces the quadratic cost of standard attention to linear, which is great. But can we do better?"
 date: 2026-07-17
 lang: "en"
 translationSlug: "from-linear-attention-to-test-time-training"
 author: "konakona"
 ---
+
+> This blog post is based on the CVPR 2026 paper [ViT$^3$: Unlocking Test-Time Training in Vision](https://arxiv.org/abs/2512.01643).
+
+In this post, we explore the connection between attention and sequence modeling, and how it leads to a new paradigm called **test-time training (TTT)**. First, let's start with a brief review of standard softmax attention and linear attention.
 
 ## Softmax Attention
 
@@ -19,7 +23,7 @@ where the softmax is applied row-wise. Computing all pairwise query-key scores i
 
 ## Linear Attention
 
-*Linear attention* replaces the softmax similarity with a factorized kernel. It uses a feature map $\phi: \mathbb{R}^{d_k} \to \mathbb{R}^{r}$, applied row-wise to $Q$ and $K$, to define
+_Linear attention_ replaces the softmax similarity with a factorized kernel. It uses a feature map $\phi: \mathbb{R}^{d_k} \to \mathbb{R}^{r}$, applied row-wise to $Q$ and $K$, to define
 
 $$
 \kappa(q_i, k_j) = \phi(q_i)^T \phi(k_j), \quad \forall i,j.
@@ -48,7 +52,7 @@ Here, $S$ is a fixed-size summary of the key-value pairs, while $z$ acts as a no
 
 Here, $S \in \mathbb{R}^{r \times d_v}$, $z \in \mathbb{R}^{r}$, and $o_i \in \mathbb{R}^{d_v}$. Once $S$ and $z$ have been computed, evaluating one output costs $O(r d_v)$. Computing all outputs therefore costs $O(N r d_v)$. In the common case $r = d_v = d$, this becomes $O(Nd^2)$: linear in the sequence length $N$.
 
-This kernel-based formulation is described in [*Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention*](https://arxiv.org/abs/2006.16236).
+This kernel-based formulation is described in [_Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention_](https://arxiv.org/abs/2006.16236).
 
 ## Causal Linear Attention
 
@@ -84,7 +88,7 @@ where $Q$ can be viewed as an input to the linear layer $K^T$, followed by a sof
 
 <img src="/images/test-time-training/vanilla-attention.svg" alt="Softmax attention as a two-layer MLP: Q is multiplied by K transpose, normalized with softmax, and multiplied by V to produce O." width="650" height="300" loading="lazy" decoding="async" style="display: block; max-width: 100%; height: auto; margin: 2rem auto;" />
 
-For linear attention, we can consider the simplest *unnormalized* form, and deliberately omitting the feature map. By associativity, we have
+For linear attention, we can consider the simplest _unnormalized_ form, and deliberately omitting the feature map. By associativity, we have
 
 $$
 O = (QK^T)V = Q(K^TV).
@@ -102,11 +106,11 @@ Sequence modelling can therefore be viewed as a compression problem: build a com
 
 One possible answer is to use a **neural network**. Self-supervised learning can encode a large training set in model weights while capturing useful structures and relationships in the data. This idea leads to the concept of **Test-Time Training (TTT)**.
 
-The connection between attention and an inner learner was introduced in [*Learning to (Learn at Test Time)*](https://arxiv.org/abs/2310.13807) and was further developed in [*Learning to (Learn at Test Time): RNNs with Expressive Hidden States*](https://arxiv.org/abs/2407.04620).
+The connection between attention and an inner learner was introduced in [_Learning to (Learn at Test Time)_](https://arxiv.org/abs/2310.13807) and was further developed in [_Learning to (Learn at Test Time): RNNs with Expressive Hidden States_](https://arxiv.org/abs/2407.04620).
 
 ## The Test-Time Training Paradigm
 
-TTT treats the key-value pairs as a small dataset. At inference time, an *inner model* is optimized to map $K$ to $V$ using a loss $\mathcal{L}(\hat{V}, V)$, thereby compressing the current sequence into its parameters. The queries $Q$ are then fed to this adapted model to produce $O$. Because this optimization happens during inference, it is called *test-time training*.
+TTT treats the key-value pairs as a small dataset. At inference time, an _inner model_ is optimized to map $K$ to $V$ using a loss $\mathcal{L}(\hat{V}, V)$, thereby compressing the current sequence into its parameters. The queries $Q$ are then fed to this adapted model to produce $O$. Because this optimization happens during inference, it is called _test-time training_.
 
 <img src="/images/test-time-training/ttt-inner-loop.svg" alt="The test-time training paradigm: keys pass through an inner model to predict values, the loss updates the model weights, and the updated model maps queries to outputs." width="1157" height="550" loading="lazy" decoding="async" style="display: block; max-width: 100%; height: auto; margin: 2rem auto;" />
 
@@ -128,7 +132,7 @@ $$
 
 ### The Outer Loop
 
-During ordinary training, the *outer loop* optimizes the task loss, but in order to do so, it must also "optimize" the inner loop. It learns the projections that produce $Q$, $K$, and $V$, sometimes along with the inner-model initialization $W_0$ — these all affect the inner-loop optimization.
+During ordinary training, the _outer loop_ optimizes the task loss, but in order to do so, it must also "optimize" the inner loop. It learns the projections that produce $Q$, $K$, and $V$, sometimes along with the inner-model initialization $W_0$ — these all affect the inner-loop optimization.
 
 At deployment, outer-loop parameters are frozen, while the inner model is adapted to each new sequence at test time. The outer loop is therefore, in some sense, a meta-learning objective: it learns parameters that make the inner-loop adaptation more effective.
 
