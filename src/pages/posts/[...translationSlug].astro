@@ -8,6 +8,6 @@ export async function getStaticPaths() {
 }
 
 const { translationSlug } = Astro.params;
-// Redirect /posts/* to /zh/posts/*
-return Astro.redirect(`/zh/posts/${translationSlug}/`, 301);
+// Redirect /posts/* to /en/posts/*
+return Astro.redirect(`/en/posts/${translationSlug}/`, 301);
 ---
