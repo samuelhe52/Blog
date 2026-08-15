@@ -1,5 +1,5 @@
 ---
-title: "NITP"
+title: "NITP: Next Implicit Token Prediction for LLM Pre-training"
 description: "在输出空间和隐空间中同时预测下一个 token。"
 date: 2026-08-13
 lang: "zh-CN"

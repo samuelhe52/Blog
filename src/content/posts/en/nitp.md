@@ -1,5 +1,5 @@
 ---
-title: "NITP"
+title: "NITP: Next Implicit Token Prediction for LLM Pre-training"
 description: "Predicting the next token in both the output space and the hidden space."
 date: 2026-08-13
 lang: "en"
