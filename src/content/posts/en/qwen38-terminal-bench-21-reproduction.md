@@ -71,7 +71,7 @@ Both workers serve the SGLang router over the private network. Harbor talks only
 The final experiment used the following serving and sampling config:
 
 | Parameter                      |                         Value |
-| ------------------------------ | ----------------------------: |
+| ------------------------------ | ----------------------------- |
 | GPU                            |         16× A100-SXM4-40GB    |
 | TP × DP                        |          4 × 2 per machine    |
 | Inference replicas             |                             4 |

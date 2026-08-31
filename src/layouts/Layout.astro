@@ -230,6 +230,69 @@ const pageTitle = title || SITE.title;
         transition: border-color 0.3s ease-in-out, color 0.3s ease-in-out;
       }
 
+      .prose table {
+        width: 100%;
+        max-width: 100%;
+        margin: 1.5rem 0;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        background: var(--bg);
+        box-shadow: 0 1px 2px color-mix(in srgb, var(--text) 6%, transparent);
+        font-family: var(--font-heading);
+        font-size: 0.925rem;
+        line-height: 1.5;
+        transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      }
+
+      .prose th,
+      .prose td {
+        padding: 0.7rem 0.85rem;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        vertical-align: top;
+        transition: color 0.3s ease-in-out, background 0.3s ease-in-out, border-color 0.3s ease-in-out;
+      }
+
+      .prose th {
+        background: color-mix(in srgb, var(--code-bg) 84%, var(--bg));
+        font-weight: 600;
+      }
+
+      .prose tbody tr:nth-child(even) td {
+        background: color-mix(in srgb, var(--code-bg) 36%, transparent);
+      }
+
+      .prose tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .prose th[align="right"],
+      .prose td[align="right"] {
+        text-align: right;
+      }
+
+      .prose table code {
+        white-space: nowrap;
+      }
+
+      @media (hover: hover) {
+        .prose tbody tr:hover td {
+          background: color-mix(in srgb, var(--code-bg) 64%, transparent);
+        }
+      }
+
+      @media (max-width: 40rem) {
+        .prose table {
+          display: block;
+          overflow-x: auto;
+          scrollbar-width: thin;
+          scrollbar-color: var(--border) transparent;
+        }
+      }
+
       .prose img {
         display: block;
         max-width: 100%;
