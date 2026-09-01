@@ -216,15 +216,7 @@ const labels = lang === 'zh-CN'
   }
 
   .toc-dialog::backdrop {
-    background: color-mix(in srgb, #000 30%, transparent);
-  }
-
-  .toc-dialog[open]::backdrop {
-    animation: tocBackdropIn 0.2s ease-out both;
-  }
-
-  .toc-dialog[open].is-closing::backdrop {
-    animation: tocBackdropOut 0.18s ease-in both;
+    background: transparent;
   }
 
   .toc-dialog-header {
@@ -325,10 +317,6 @@ const labels = lang === 'zh-CN'
     .toc-dialog[open].is-closing {
       animation-name: tocSheetOut;
     }
-
-    .toc-dialog::backdrop {
-      background: color-mix(in srgb, #000 48%, transparent);
-    }
   }
 
   @media (prefers-color-scheme: dark) {
@@ -344,8 +332,7 @@ const labels = lang === 'zh-CN'
   @media (prefers-reduced-motion: reduce) {
     .toc-desktop.animate,
     .toc-item,
-    .toc-dialog,
-    .toc-dialog::backdrop {
+    .toc-dialog {
       animation: none !important;
     }
 
@@ -410,15 +397,5 @@ const labels = lang === 'zh-CN'
   @keyframes tocSheetOut {
     from { opacity: 1; transform: translateY(0); }
     to { opacity: 0; transform: translateY(0.75rem); }
-  }
-
-  @keyframes tocBackdropIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes tocBackdropOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
   }
 </style>
