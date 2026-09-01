@@ -1,16 +1,17 @@
 // Back to top button
 (function() {
   const button = document.getElementById('back-to-top');
+  const tocToggle = document.getElementById('toc-toggle');
   
   if (button) {
-    // Show button when scrolled down
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
-        button.classList.add('visible');
-      } else {
-        button.classList.remove('visible');
-      }
-    });
+    const updateVisibility = () => {
+      const isVisible = window.scrollY > 300;
+      button.classList.toggle('visible', isVisible);
+      tocToggle?.classList.toggle('back-to-top-visible', isVisible);
+    };
+
+    updateVisibility();
+    window.addEventListener('scroll', updateVisibility, { passive: true });
     
     // Scroll to top on click
     button.addEventListener('click', () => {
