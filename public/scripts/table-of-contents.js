@@ -67,6 +67,9 @@ function generateTOC() {
   const openDialog = () => {
     dialog.classList.remove('is-closing');
     dialog.showModal();
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
 
   const createItem = (heading, index, isDialog) => {
