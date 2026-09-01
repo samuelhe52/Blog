@@ -6,6 +6,9 @@
   "english": "English",
   "chinese": "中文",
   "posts": "文章",
+  "copy_code": "复制",
+  "copied_code": "已复制",
+  "copy_failed": "复制失败",
   "translation_missing": "此内容暂无英文翻译",
   "view_in_other_language": "查看英文版本"
 }

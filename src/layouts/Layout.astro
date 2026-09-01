@@ -2,6 +2,8 @@
 import { SITE } from '../site.config';
 import Footer from '../components/Footer.astro';
 import Toast from '../components/Toast.astro';
+import en from '../i18n/en.json';
+import zh from '../i18n/zh.json';
 
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/600.css';
@@ -25,6 +27,7 @@ const { lang, title, description, canonical, alternates, ogImage } = Astro.props
 const site = SITE.domain;
 const current = canonical || Astro.url.toString();
 const pageTitle = title || SITE.title;
+const strings = lang === 'zh-CN' ? zh : en;
 ---
 <!DOCTYPE html>
 <html lang={lang}>
@@ -59,6 +62,7 @@ const pageTitle = title || SITE.title;
     </script>
     
     <script is:inline src="/scripts/main.js" defer></script>
+    <script is:inline src="/scripts/code-copy.js" defer></script>
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={current} />
@@ -86,6 +90,9 @@ const pageTitle = title || SITE.title;
         --link: #2563eb;
         --border: #e7e5e4;
         --code-bg: #f5f5f4;
+        --code-block-bg: #f6f8fa;
+        --code-block-header-bg: #eef1f4;
+        --code-block-border: #d8dee4;
         --code-inline-bg: #dbeafe;
         --code-inline-text: #1e3a8a;
         --font-family: "Lora", "Georgia", serif;
@@ -106,6 +113,9 @@ const pageTitle = title || SITE.title;
         --link: #60a5fa;
         --border: #292524;
         --code-bg: #292524;
+        --code-block-bg: #24292e;
+        --code-block-header-bg: #292e33;
+        --code-block-border: #3b4148;
         --code-inline-bg: #1e293b;
         --code-inline-text: #93c5fd;
       }
@@ -123,6 +133,9 @@ const pageTitle = title || SITE.title;
           --link: #60a5fa;
           --border: #292524;
           --code-bg: #292524;
+          --code-block-bg: #24292e;
+          --code-block-header-bg: #292e33;
+          --code-block-border: #3b4148;
           --code-inline-bg: #1e293b;
           --code-inline-text: #93c5fd;
         }
@@ -191,9 +204,20 @@ const pageTitle = title || SITE.title;
         color: var(--code-inline-text);
         padding: 0.2em 0.4em;
         border-radius: 3px;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
         transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
       }
-      
+
+      .prose code[data-copyable-inline="true"]:hover {
+        background: color-mix(in srgb, var(--code-inline-bg) 92%, var(--link));
+      }
+
+      .prose code[data-copyable-inline="true"] {
+        cursor: copy;
+        outline: none;
+      }
+
       /* Hide MathML (screen readers only) - backup if KaTeX CSS fails */
       .katex-mathml {
         position: absolute;
@@ -206,7 +230,7 @@ const pageTitle = title || SITE.title;
       }
       pre {
         background: var(--code-bg);
-        padding: 1rem;
+        padding: 0.75rem;
         border-radius: 6px;
         overflow-x: auto;
         margin: 1rem 0;
@@ -216,6 +240,108 @@ const pageTitle = title || SITE.title;
         background: none;
         color: inherit;
         padding: 0;
+      }
+
+      .code-block {
+        margin: 1rem 0;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--code-block-bg);
+        transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+      }
+
+      .code-block-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 1.8rem;
+        padding: 0.2rem 0.4rem 0.2rem 0.65rem;
+        border-bottom: 1px solid var(--code-block-border);
+        background: var(--code-block-header-bg);
+        transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+      }
+
+      .code-block-language {
+        color: var(--text-muted);
+        font: 600 0.65rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        transition: color 0.3s ease-in-out;
+      }
+
+      .code-block pre {
+        margin: 0;
+        border-radius: 0 0 8px 8px;
+      }
+
+      .astro-code,
+      .astro-code span {
+        color: var(--shiki-light);
+      }
+
+      .astro-code {
+        background-color: var(--code-block-bg) !important;
+      }
+
+      :root[data-theme="dark"] .astro-code,
+      :root[data-theme="dark"] .astro-code span {
+        color: var(--shiki-dark);
+      }
+
+      :root[data-theme="dark"] .astro-code {
+        background-color: var(--shiki-dark-bg) !important;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme]) .astro-code,
+        :root:not([data-theme]) .astro-code span {
+          color: var(--shiki-dark);
+        }
+
+        :root:not([data-theme]) .astro-code {
+          background-color: var(--shiki-dark-bg) !important;
+        }
+      }
+
+      .code-block-copy {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        min-height: 1.4rem;
+        padding: 0.15rem 0.3rem;
+        border: 0;
+        border-radius: 0.3rem;
+        background: transparent;
+        color: var(--text-muted);
+        font: 600 0.6875rem/1 var(--font-heading);
+        cursor: pointer;
+        transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+      }
+
+      .code-block-copy:hover {
+        background: color-mix(in srgb, var(--bg) 58%, transparent);
+        color: var(--text);
+      }
+
+      .code-block-copy:focus-visible {
+        outline: 2px solid var(--link);
+        outline-offset: 2px;
+      }
+
+      .code-block-copy svg {
+        width: 0.8rem;
+        height: 0.8rem;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .code-block-copy {
+          transition-duration: 0.01ms;
+        }
       }
       hr {
         border: none;
@@ -317,7 +443,11 @@ const pageTitle = title || SITE.title;
       header + * { margin-top: 1rem; }
     </style>
   </head>
-  <body>
+  <body
+    data-copy-label={strings.copy_code}
+    data-copied-label={strings.copied_code}
+    data-copy-failed-label={strings.copy_failed}
+  >
     <main class="content">
       <slot />
     </main>
