@@ -4,39 +4,74 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-const labels = {
-  'zh-CN': '目录',
-  'en': 'Contents'
-};
+const labels = lang === 'zh-CN'
+  ? {
+      title: '目录',
+      open: '打开目录',
+      close: '关闭目录'
+    }
+  : {
+      title: 'Contents',
+      open: 'Open contents',
+      close: 'Close contents'
+    };
 ---
 
-<aside class="toc animate" aria-label={labels[lang]}>
+<aside class="toc toc-desktop animate" aria-label={labels.title}>
   <nav class="toc-nav">
-    <h2 class="toc-title">{labels[lang]}</h2>
-    <ul class="toc-list" id="toc-list">
-    </ul>
+    <h2 class="toc-title">{labels.title}</h2>
+    <ul class="toc-list" id="toc-list"></ul>
   </nav>
 </aside>
+
+<button
+  class="toc-toggle"
+  id="toc-toggle"
+  type="button"
+  aria-label={labels.open}
+  title={labels.open}
+  aria-haspopup="dialog"
+  aria-controls="toc-dialog"
+>
+  <svg aria-hidden="true" viewBox="0 0 24 24">
+    <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"></path>
+  </svg>
+</button>
+
+<dialog class="toc-dialog" id="toc-dialog" aria-labelledby="toc-dialog-title">
+  <div class="toc-dialog-header">
+    <h2 class="toc-dialog-title" id="toc-dialog-title">{labels.title}</h2>
+    <button class="toc-close" id="toc-close" type="button" aria-label={labels.close}>
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M6 6l12 12M18 6 6 18"></path>
+      </svg>
+    </button>
+  </div>
+  <nav class="toc-dialog-nav" aria-label={labels.title}>
+    <ul class="toc-list toc-dialog-list" id="toc-dialog-list"></ul>
+  </nav>
+</dialog>
 
 <script is:inline src="/scripts/table-of-contents.js"></script>
 
 <style is:global>
-  .toc {
+  .toc-desktop {
     position: fixed;
     top: 8rem;
-    right: 2rem;
+    right: max(2rem, calc(50vw - 37rem));
     width: 200px;
     max-height: calc(100vh - 10rem);
     overflow-y: auto;
     opacity: 0.6;
     transition: opacity 0.3s ease-in-out, color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
-  .toc.animate {
+
+  .toc-desktop.animate {
     opacity: 0;
     animation: tocFadeSlide 0.35s ease-out forwards;
   }
 
-  .toc:hover {
+  .toc-desktop:hover {
     opacity: 1;
   }
 
@@ -45,29 +80,33 @@ const labels = {
   }
 
   .toc-title {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    margin: 0 0 0.75rem;
     color: var(--text-muted);
-    margin: 0 0 0.75rem 0;
+    font-size: 0.85rem;
     font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     transition: color 0.3s ease-in-out;
   }
 
   .toc-list {
-    list-style: none;
+    margin: 0 !important;
     padding: 0;
-    margin: 0 0 0 -1px !important;
-    border-left: 1px solid var(--border-color);
-    transition: border-color 0.3s ease-in-out;
+    list-style: none;
   }
 
   .toc-item {
     margin: 0;
   }
 
+  .toc-desktop .toc-item {
+    opacity: 0;
+    animation: tocItemFade 0.3s ease-out forwards;
+    animation-delay: var(--toc-delay);
+  }
+
   .toc-h2 .toc-link {
-    padding: 0.25rem 0 0.25rem 0;
+    padding: 0.25rem 0;
   }
 
   .toc-h3 .toc-link {
@@ -78,12 +117,10 @@ const labels = {
   .toc-link {
     display: block;
     color: var(--text-muted);
-    text-decoration: none;
     line-height: 1.4;
-    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
-    border-left: 2px solid transparent;
-    margin-left: -1px;
+    text-decoration: none;
     cursor: pointer;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
 
   .toc-link:hover {
@@ -92,50 +129,292 @@ const labels = {
 
   .toc-link.active {
     color: var(--link);
-    border-left-color: var(--link);
   }
 
-  /* Add scroll padding to account for fixed header */
+  .toc-toggle {
+    position: fixed;
+    z-index: 1000;
+    right: 2rem;
+    bottom: calc(6rem + env(safe-area-inset-bottom));
+    left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 3rem;
+    min-width: 3rem;
+    max-width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    appearance: none;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #1f2937;
+    font: 600 0.875rem/1 var(--font-heading);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(0.5rem) scale(0.92);
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out, opacity 0.2s ease-in-out, transform 0.2s ease-in-out, visibility 0s linear 0.2s;
+  }
+
+  .toc-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+  }
+
+  .toc-toggle:focus-visible,
+  .toc-close:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 3px;
+  }
+
+  .toc-toggle svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 1.8;
+  }
+
+  .toc-dialog {
+    position: fixed;
+    inset: calc(var(--header-offset) + 0.75rem) 1rem 1rem auto;
+    width: min(24rem, calc(100% - 2rem));
+    max-width: none;
+    height: auto;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--bg);
+    box-shadow: 0 18px 60px color-mix(in srgb, #000 35%, transparent);
+    color: var(--text);
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+
+  .toc-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    animation: tocDrawerIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .toc-dialog[open].is-closing {
+    pointer-events: none;
+    animation: tocDrawerOut 0.18s ease-in both;
+  }
+
+  .toc-dialog::backdrop {
+    background: color-mix(in srgb, #000 30%, transparent);
+  }
+
+  .toc-dialog[open]::backdrop {
+    animation: tocBackdropIn 0.2s ease-out both;
+  }
+
+  .toc-dialog[open].is-closing::backdrop {
+    animation: tocBackdropOut 0.18s ease-in both;
+  }
+
+  .toc-dialog-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1rem 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: border-color 0.3s ease-in-out;
+  }
+
+  .toc-dialog-title {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .toc-close {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--code-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+
+  .toc-close:hover {
+    color: var(--text);
+  }
+
+  .toc-close svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 1.8;
+  }
+
+  .toc-dialog-nav {
+    min-height: 0;
+    padding: 0.75rem 1.25rem 1.25rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .toc-dialog-list .toc-link {
+    padding: 0.55rem 0 0.55rem 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .toc-dialog-list .toc-h3 .toc-link {
+    padding-left: 2rem;
+    font-size: 0.875rem;
+  }
+
   html {
     scroll-padding-top: 5rem;
   }
 
-  /* Hide on smaller screens */
   @media (max-width: 1200px) {
-    .toc {
+    .toc-desktop {
       display: none;
+    }
+
+    .toc-toggle {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      transition-delay: 0s;
+    }
+
+    .toc-toggle:hover {
+      transform: translateY(-2px) scale(1);
     }
   }
 
-  /* Custom scrollbar */
-  .toc::-webkit-scrollbar {
+  @media (max-width: 48rem) {
+    .toc-dialog {
+      inset: auto 0.75rem max(0.75rem, env(safe-area-inset-bottom));
+      width: auto;
+      max-height: min(70vh, 40rem);
+      max-height: min(70dvh, 40rem);
+      border-radius: 1rem;
+    }
+
+    .toc-dialog[open] {
+      animation-name: tocSheetIn;
+    }
+
+    .toc-dialog[open].is-closing {
+      animation-name: tocSheetOut;
+    }
+
+    .toc-dialog::backdrop {
+      background: color-mix(in srgb, #000 48%, transparent);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .toc-toggle {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .toc-toggle:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toc-desktop.animate,
+    .toc-item,
+    .toc-dialog,
+    .toc-dialog::backdrop {
+      animation: none !important;
+    }
+
+    .toc-dialog,
+    .toc-toggle {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  .toc-desktop {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .toc-desktop::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toc-dialog-nav::-webkit-scrollbar {
     width: 4px;
   }
 
-  .toc::-webkit-scrollbar-track {
+  .toc-dialog-nav::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .toc::-webkit-scrollbar-thumb {
-    background: var(--border-color);
+  .toc-dialog-nav::-webkit-scrollbar-thumb {
     border-radius: 2px;
+    background: var(--border);
     transition: background-color 0.3s ease-in-out;
   }
 
-  .toc::-webkit-scrollbar-thumb:hover {
+  .toc-dialog-nav::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
   }
-  
-  .toc::-webkit-scrollbar-track {
-    background: transparent;
-    transition: background-color 0.3s ease-in-out;
-  }
+
   @keyframes tocItemFade {
     from { opacity: 0; transform: translateX(6px); }
     to { opacity: 1; transform: translateX(0); }
   }
+
   @keyframes tocFadeSlide {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 0.6; transform: translateY(0); }
+  }
+
+  @keyframes tocDrawerIn {
+    from { opacity: 0; transform: translateX(1.25rem); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes tocDrawerOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(1rem); }
+  }
+
+  @keyframes tocSheetIn {
+    from { opacity: 0; transform: translateY(1rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes tocSheetOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(0.75rem); }
+  }
+
+  @keyframes tocBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes tocBackdropOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
   }
 </style>
