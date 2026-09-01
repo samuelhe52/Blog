@@ -68,7 +68,7 @@ Both workers serve the SGLang router over the private network. Harbor talks only
 
 ### Final 6× run parameters
 
-The final experiment used the following serving and sampling config:
+`6x` means `agent_timeout_multiplier=6`. This setting addresses agent timeouts caused by Qwen 3.8-27B's severe overthinking. The final experiment used the following serving and sampling config:
 
 | Parameter                      |                         Value |
 | ------------------------------ | ----------------------------- |
@@ -89,7 +89,7 @@ The final experiment used the following serving and sampling config:
 | `top_k`                        |                       Not set |
 | Harbor trial concurrency       |                            25 |
 | Terminus agent concurrency     |                            20 |
-| Agent timeout multiplier       |                             6 |
+| **Agent timeout multiplier**   |                         **6** |
 | Agent setup timeout multiplier |                             5 |
 
 ### Prerequisites
@@ -944,6 +944,22 @@ For anomalous tasks—reward = 0, no-reward, any timeout, or any error—we sepa
 
 The sections below summarize some of the specific pitfalls we encountered. Many of them have already appeared in the reproduction procedure above.
 
+### Agent overthinking caused many timeouts
+
+#### Symptom
+
+Across several experiments with a 3× timeout, Qwen3.8-27B showed obvious overthinking. Some tasks kept generating long reasoning traces until the agent timeout expired. In an extreme case, the agent made only two tool calls in almost an hour.
+
+#### Timeout adjustment
+
+**We increased `agent_timeout_multiplier` from 3 to 6.** Many tasks still timed out under this setting, but the score was consistently close to the official report in our testing.
+
+Note that agent timeout and final reward are two separate dimensions. The verifier may still run after an agent timeout and can even return reward 1.
+
+For `pytorch-model-recovery`, the verifier passed the first four tests, then exhausted its 900-second budget while installing and loading several GB of PyTorch/CUDA dependencies for the last test. The agent had already produced a TorchScript model and completed its own test, reducing MSE from `1.551031` to `0.016358`. The available evidence supports the conclusion that the implementation might already have satisfied the final test, but the verifier did not finish. It can therefore be listed separately in the analysis as a possible infrastructure contribution.
+
+The verifier for `torch-tensor-parallelism` also exhausted its budget during dependency downloads, before pytest even started. However, the trajectory showed that the implementation itself lacked the required cross-rank communication: Column Parallel did not perform `all_gather`, and Row Parallel did not perform `all_reduce`. Even with more verifier time, this implementation should not pass.
+
 ### Task containers missing `tmux` and `asciinema`
 
 #### Symptom
@@ -1019,22 +1035,6 @@ kill -TERM HARBOR_PID
 ```
 
 Then wait for Harbor to exit on its own. This lets it save results for a later resume and properly clean up task containers, Docker Compose projects, and networks.
-
-### Agent overthinking caused many timeouts
-
-#### Symptom
-
-Across several experiments with a 3× timeout, Qwen3.8-27B showed obvious overthinking. Some tasks kept generating long reasoning traces until the agent timeout expired. In an extreme case, the agent made only two tool calls in almost an hour.
-
-#### Timeout adjustment
-
-We increased `agent_timeout_multiplier` from 3 to 6. Many tasks still timed out, but the score under this setting was consistently close to the official report in our testing.
-
-Note that agent timeout and final reward are two separate dimensions. The verifier may still run after an agent timeout and can even return reward 1.
-
-For `pytorch-model-recovery`, the verifier passed the first four tests, then exhausted its 900-second budget while installing and loading several GB of PyTorch/CUDA dependencies for the last test. The agent had already produced a TorchScript model and completed its own test, reducing MSE from `1.551031` to `0.016358`. The available evidence supports the conclusion that the implementation might already have satisfied the final test, but the verifier did not finish. It can therefore be listed separately in the analysis as a possible infrastructure contribution.
-
-The verifier for `torch-tensor-parallelism` also exhausted its budget during dependency downloads, before pytest even started. However, the trajectory showed that the implementation itself lacked the required cross-rank communication: Column Parallel did not perform `all_gather`, and Row Parallel did not perform `all_reduce`. Even with more verifier time, this implementation should not pass.
 
 ### TB 2.1 shares the evaluation environment between the agent and verifier, and the verifier cannot be rerun after cleanup
 

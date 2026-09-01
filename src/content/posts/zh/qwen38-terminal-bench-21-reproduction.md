@@ -68,7 +68,7 @@ Terminal-Bench 2.1（下称 TB）的任务使用 Harbor 的格式定义，并依
 
 ### 最终 6× run 参数
 
-最终实验使用以下 serving 和 sampling 配置：
+`6x` 指 `agent_timeout_multiplier=6`，此配置是为了解决 Qwen 3.8-27B 严重的 overthinking 导致的 agent 超时问题。最终实验使用以下 serving 和 sampling 配置：
 
 | 参数                           |                    值 |
 | ------------------------------ | --------------------- |
@@ -89,7 +89,7 @@ Terminal-Bench 2.1（下称 TB）的任务使用 Harbor 的格式定义，并依
 | `top_k`                        |                未设置 |
 | Harbor trial concurrency       |                    25 |
 | Terminus agent concurrency     |                    20 |
-| Agent timeout multiplier       |                     6 |
+| **Agent timeout multiplier**   |                 **6** |
 | Agent setup timeout multiplier |                     5 |
 
 ### 前置条件
@@ -944,6 +944,22 @@ tmux send-keys -t tb21-docker-proxy-bridge C-c
 
 以下总结一些具体踩过的坑，其中许多在上面的复现流程中已经提到过。
 
+### Agent overthinking 导致大量 timeout
+
+#### 表现
+
+在几次 3× timeout 实验中，Qwen3.8-27B 都出现了明显的 overthinking。部分任务持续生成很长的 reasoning，直到耗尽 agent timeout。极端情况下，agent 在近一小时内居然只执行了两次 tool call。
+
+#### Timeout 调整
+
+**把 `agent_timeout_multiplier` 从 3 提高到 6**。虽然该参数下仍有许多 task timeout，但实测该参数下的分数能稳定接近官方 report 了。
+
+需要注意，agent timeout 和最终 reward 是两个不同维度。Agent 超时后 verifier 仍可能运行，甚至可能得到 reward 1。
+
+`pytorch-model-recovery` 的 verifier 已经通过前四项测试，最后在安装和加载数 GB PyTorch/CUDA 依赖时耗尽 900 秒预算。Agent 已经生成 TorchScript model 并完成自测，MSE 从 `1.551031` 降到 `0.016358`。现有证据支持“实现可能已经满足最后一项测试，但 verifier 没有跑完”，因此可以在分析中单独列为可能的 infrastructure contribution。
+
+`torch-tensor-parallelism` 的 verifier 同样在依赖下载阶段耗尽预算，甚至还没有开始执行 pytest。但 trajectory 显示实现本身缺少必要的跨-rank communication：Column Parallel 没有执行 `all_gather`，Row Parallel 没有执行 `all_reduce`。即使给 verifier 更多时间，这个实现也不应通过。
+
 ### Task containers 缺少 `tmux` 和 `asciinema`
 
 #### 表现
@@ -1019,22 +1035,6 @@ kill -TERM HARBOR_PID
 ```
 
 然后等待 Harbor 自己退出，这样才能保证它自动保存结果以待 resume，正确清理 task containers、Docker Compose project 和 networks。
-
-### Agent overthinking 导致大量 timeout
-
-#### 表现
-
-在几次 3× timeout 实验中，Qwen3.8-27B 都出现了明显的 overthinking。部分任务持续生成很长的 reasoning，直到耗尽 agent timeout。极端情况下，agent 在近一小时内居然只执行了两次 tool call。
-
-#### Timeout 调整
-
-把 `agent_timeout_multiplier` 从 3 提高到 6。该参数下仍有许多 task timeout，但实测该参数下的分数能稳定接近官方 report 了。
-
-需要注意，agent timeout 和最终 reward 是两个不同维度。Agent 超时后 verifier 仍可能运行，甚至可能得到 reward 1。
-
-`pytorch-model-recovery` 的 verifier 已经通过前四项测试，最后在安装和加载数 GB PyTorch/CUDA 依赖时耗尽 900 秒预算。Agent 已经生成 TorchScript model 并完成自测，MSE 从 `1.551031` 降到 `0.016358`。现有证据支持“实现可能已经满足最后一项测试，但 verifier 没有跑完”，因此可以在分析中单独列为可能的 infrastructure contribution。
-
-`torch-tensor-parallelism` 的 verifier 同样在依赖下载阶段耗尽预算，甚至还没有开始执行 pytest。但 trajectory 显示实现本身缺少必要的跨-rank communication：Column Parallel 没有执行 `all_gather`，Row Parallel 没有执行 `all_reduce`。即使给 verifier 更多时间，这个实现也不应通过。
 
 ### TB 2.1 agent 和 verifier 共用评测环境，且清理后无法重新运行 verifier
 
