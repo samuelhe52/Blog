@@ -1,0 +1,36 @@
+<div class="site-toast" data-site-toast role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script is:inline src="/scripts/toast.js"></script>
+
+<style>
+  .site-toast {
+    position: fixed;
+    z-index: 1100;
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+    left: 50%;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    box-shadow: 0 6px 24px color-mix(in srgb, #000 18%, transparent);
+    color: var(--text);
+    font: 600 0.8rem/1 var(--font-heading);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 0.5rem);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, opacity 0.2s ease-out, transform 0.2s ease-out;
+  }
+
+  .site-toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-toast {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>

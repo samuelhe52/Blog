@@ -1,6 +1,7 @@
 ---
 import { SITE } from '../site.config';
 import Footer from '../components/Footer.astro';
+import Toast from '../components/Toast.astro';
 
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/600.css';
@@ -320,6 +321,7 @@ const pageTitle = title || SITE.title;
     <main class="content">
       <slot />
     </main>
+    <Toast />
     <Footer lang={lang} />
   </body>
 </html>
