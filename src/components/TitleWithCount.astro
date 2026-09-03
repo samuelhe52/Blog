@@ -1,0 +1,74 @@
+---
+import en from '../i18n/en.json';
+import zh from '../i18n/zh.json';
+
+interface Props {
+  id: string;
+  title: string;
+  count: number;
+  lang: 'zh-CN' | 'en';
+}
+
+const { id, title, count, lang } = Astro.props;
+const strings = lang === 'zh-CN' ? zh : en;
+const countText = (count === 1 ? strings.post_count_one : strings.post_count_other)
+  .replace('{count}', String(count));
+---
+
+<span class="title-with-count">
+  <button type="button" class="title-trigger" data-post-count aria-expanded="false" aria-controls={id}>
+    {title}
+  </button>
+  <span id={id} class="post-count">{countText}</span>
+</span>
+
+<script is:inline src="/scripts/title-post-count.js" defer></script>
+
+<style>
+  .title-with-count {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.65rem;
+    max-width: 100%;
+  }
+
+  .title-trigger {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+
+  .title-trigger:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  .post-count {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease-in-out, visibility 0.15s ease-in-out, color 0.3s ease-in-out;
+  }
+
+  .title-trigger[aria-expanded="true"] + .post-count {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-count {
+      transition: none;
+    }
+  }
+</style>

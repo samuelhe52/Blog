@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import FolderView from '../../components/FolderView.astro';
+import TitleWithCount from '../../components/TitleWithCount.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import MissingTranslationNotice from '../../components/MissingTranslationNotice.astro';
 import { getCollection } from 'astro:content';
@@ -53,7 +54,9 @@ const alternates = {
     <Breadcrumbs currentPath={folderPath} lang="zh-CN" />
     
     <div class="folder-header">
-      <h1>{folderName}</h1>
+      <h1>
+        <TitleWithCount id="folder-post-count" title={folderName} count={zhStructure.posts.length} lang="zh-CN" />
+      </h1>
       {folderDescription && <p class="folder-description">{folderDescription}</p>}
     </div>
     

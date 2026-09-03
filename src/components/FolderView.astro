@@ -1,5 +1,6 @@
 ---
 import type { FolderStructure } from '../utils/folders';
+import TitleWithCount from './TitleWithCount.astro';
 import { getLocalizedFolderName, getLocalizedFolderDescription } from '../utils/folderMetadata';
 
 interface Props {
@@ -30,7 +31,9 @@ const text = t[lang];
 <div class="folder-view">
   {structure.posts.length > 0 && (
     <section class="posts-section">
-      <h2 class="section-title">{text.posts}</h2>
+      <h2 class="section-title">
+        <TitleWithCount id="section-post-count" title={text.posts} count={structure.posts.length} lang={lang} />
+      </h2>
       <ul class="post-list">
         {structure.posts.map((post) => (
           <li class="post-item">

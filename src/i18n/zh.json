@@ -6,6 +6,8 @@
   "english": "English",
   "chinese": "中文",
   "posts": "文章",
+  "post_count_one": "{count} 篇",
+  "post_count_other": "{count} 篇",
   "copy_code": "复制",
   "copied_code": "已复制",
   "copy_failed": "复制失败",

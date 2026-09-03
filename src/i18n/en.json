@@ -6,6 +6,8 @@
   "english": "English",
   "chinese": "Chinese",
   "posts": "Posts",
+  "post_count_one": "{count} post",
+  "post_count_other": "{count} posts",
   "copy_code": "Copy",
   "copied_code": "Copied",
   "copy_failed": "Copy failed",
