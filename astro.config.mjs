@@ -5,7 +5,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
-  site: 'https://blog.konakona52.com',
+  site: 'https://blog.konakona.dev',
   trailingSlash: 'always',
   markdown: {
     remarkPlugins: [remarkMath],

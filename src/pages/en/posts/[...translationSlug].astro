@@ -30,11 +30,11 @@ const isInFolder = translationSlug.includes('/');
 const parentFolderPath = isInFolder ? translationSlug.substring(0, translationSlug.lastIndexOf('/')) : null;
 
 const alternates = {
-  en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href,
-  ...(counterpart ? { 'zh-CN': new URL(`/zh/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona52.com/').href } : {})
+  en: new URL(`/en/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona.dev/').href,
+  ...(counterpart ? { 'zh-CN': new URL(`/zh/posts/${translationSlug}/`, Astro.site ?? 'https://blog.konakona.dev/').href } : {})
 };
 
-const ogImageUrl = new URL(`/og/${isFallback ? '' : 'en-'}${translationSlug}.svg`, Astro.site ?? 'https://blog.konakona52.com/').href;
+const ogImageUrl = new URL(`/og/${isFallback ? '' : 'en-'}${translationSlug}.svg`, Astro.site ?? 'https://blog.konakona.dev/').href;
 ---
 
 <Layout lang="en" title={post.data.title} description={post.data.description} alternates={alternates} ogImage={ogImageUrl}>

@@ -46,7 +46,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Deployment: custom VM with Nginx + Let's Encrypt.
 - CI/CD: GitHub Actions automated build & rsync deploy.
 - URL style: trailing slash enforced.
-- Domain: blog.konakona52.com root (no base path).
+- Domains: konakona.dev and blog.konakona.dev both serve the same build directly; blog.konakona.dev is the canonical URL, while blog.konakona52.com and konakona52.com redirect to it.
 - UI strings: JSON for now; may migrate to TS later.
 - Search: planned later (multilingual); defer in MVP.
 - Styling: Custom CSS with CSS variables (not Tailwind yet, may add later for utilities).
