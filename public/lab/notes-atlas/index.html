@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f2f4f3; --surface:#ffffff; --ink:#1b2029; --muted:#5f6673; --line:#d9dedc;
+  --ai:#3a4fd6; --lang:#c24569; --cs:#b87a12; --eng:#1f8a78; --misc:#848a96;
+  --tile-ink:#ffffff;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#12151b; --surface:#1a1e26; --ink:#e8ebf0; --muted:#9aa2b0; --line:#2b313c;
+    --ai:#6f80f2; --lang:#e0708f; --cs:#d9a13d; --eng:#3fb49f; --misc:#8e95a2; --tile-ink:#0e1116;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#12151b; --surface:#1a1e26; --ink:#e8ebf0; --muted:#9aa2b0; --line:#2b313c;
+  --ai:#6f80f2; --lang:#e0708f; --cs:#d9a13d; --eng:#3fb49f; --misc:#8e95a2; --tile-ink:#0e1116;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2{font-family:var(--display);font-weight:700;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(34px,6vw,56px);line-height:1.02}
+h2{font-size:clamp(22px,3vw,28px);line-height:1.15}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:62ch;color:var(--muted);font-size:17px}
+section{display:flex;flex-direction:column;gap:18px}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+.sec-head p{max-width:65ch;color:var(--muted)}
+
+/* hero */
+header{display:flex;flex-direction:column;gap:22px}
+.split{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;height:18px;border-radius:3px;overflow:hidden;gap:2px}
+.bar span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px}
+.legend b{font-family:var(--mono);font-weight:500}
+.dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:7px;vertical-align:0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{border-top:2px solid var(--ink);padding-top:8px}
+.stat .v{font-family:var(--display);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .k{font-size:13px;color:var(--muted)}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* treemap */
+.tm{position:relative;width:100%;height:560px;border-radius:6px;overflow:hidden;background:var(--line)}
+@media (max-width:640px){.tm{height:720px}}
+.tile{position:absolute;border:0;padding:8px 9px;color:var(--tile-ink);text-align:left;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;font:inherit;outline-offset:-3px;transition:filter .15s}
+.tile:hover{filter:brightness(1.08) saturate(1.05)}
+.tile:focus-visible{outline:3px solid var(--ink)}
+.tile.sel{outline:3px solid var(--ink);z-index:2}
+.tile .nm{font-family:var(--display);font-weight:700;font-size:15px;line-height:1.1}
+.tile .ct{font-family:var(--mono);font-size:11px;opacity:.85}
+.tile.sm .nm{font-size:11px}.tile.sm .ct{display:none}
+.tile.xs .nm{display:none}
+.detail{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.detail-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+.detail-head h3{font-family:var(--display);font-size:22px;margin:0}
+.detail-head .meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;padding:3px 9px;border-radius:3px;background:var(--bg);border:1px solid var(--line)}
+
+/* heatmap */
+.hm-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table.hm{border-collapse:separate;border-spacing:3px;padding:10px;min-width:calc(190px + var(--cols) * 44px);width:100%;table-layout:fixed}
+.hm th{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);text-align:center;padding-bottom:4px}
+.hm th.yr{color:var(--ink)}
+.hm td.lab{font-size:13px;white-space:nowrap;padding-right:10px;text-align:right}
+.hm td.grp{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:12px;text-align:right;padding-right:10px}
+.hm td.c{height:22px;border-radius:3px;background:var(--bg);position:relative}
+.hm td.c span{position:absolute;inset:0;border-radius:3px}
+.hm-key{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-family:var(--mono)}
+.hm-key i{display:inline-block;width:16px;height:12px;border-radius:2px;background:var(--ink)}
+
+/* trajectory */
+.phases{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}
+@media (max-width:860px){.phases{grid-template-columns:1fr}}
+.phase{padding:14px 14px 16px 0;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+@media (min-width:861px){.phase{border-bottom:0;padding-right:16px}.phase+.phase{padding-left:16px;border-left:1px solid var(--line)}}
+.phase .when{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.phase h4{font-family:var(--display);font-size:18px;line-height:1.15;margin:0}
+.phase p{font-size:14px;color:var(--muted)}
+.phase .swatches{display:flex;gap:4px}
+.phase .swatches span{width:18px;height:5px;border-radius:2px}
+.phase.now h4::after{content:"now";font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-left:8px;padding:2px 6px;border-radius:3px;background:var(--ai);color:var(--tile-ink);vertical-align:3px}
+
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">samuelhe52/notes · Oct 2025 – Sep 2026</div>
+    <h1>Notes Atlas</h1>
+    <p class="lede">What 317 Markdown notes show about what's being studied. More than half the writing is machine learning, and it has been moving from textbook deep learning toward LLM post-training and agent RL.</p>
+    <div class="stats" id="stats"></div>
+    <div class="split">
+      <div class="bar" id="bar" role="img" aria-label="Share of words by domain"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Where the writing goes</div>
+      <h2>Tile size is the word count</h2>
+      <p>Each tile is one topic folder, and its area is how many words its notes contain. Select a tile to see the notes inside it.</p>
+    </div>
+    <div class="tm" id="tm"></div>
+    <div class="detail" id="detail" aria-live="polite"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">When it was written</div>
+      <h2>Month by month</h2>
+      <p>Lines added to each topic per month, taken from the repo's git history. Darker cells mean more writing that month. Topics with fewer than 100 lines in total are left out.</p>
+    </div>
+    <div class="hm-scroll"><table class="hm" id="hm"></table></div>
+    <div class="hm-key"><span>less</span><i style="opacity:.12"></i><i style="opacity:.35"></i><i style="opacity:.6"></i><i style="opacity:1"></i><span>more lines added</span></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">Trajectory</div>
+      <h2>Five overlapping phases</h2>
+      <p>Read left to right. Each phase is named after the topics that got the most writing during those months.</p>
+    </div>
+    <div class="phases" id="phases"></div>
+  </section>
+
+  <footer>Built from the repository on 28 Sep 2026. Word counts cover every <code>.md</code> file; monthly activity counts lines added in git commits, so a note written in one long paragraph counts as few lines.</footer>
+</div>
+
+<script>
+const LEAVES = [{"id": "ML/CMU Advanced NLP S2026", "name": "CMU Adv. NLP", "c": "ai", "n": 6, "w": 2042, "t": ["Fine-Tuning", "Llama 2", "Prompting", "Scaling Laws & ICL", "Tokenizer", "Transformer Improvements"]}, {"id": "ML/Data Preprocessing", "name": "Data Prep", "c": "ai", "n": 1, "w": 558, "t": ["Pandas"]}, {"id": "ML/Foundation", "name": "Model Foundations", "c": "ai", "n": 23, "w": 18642, "t": ["Activation Functions", "Codebook Learning", "Contrastive Learning", "DDPM", "DM+Conditional Generation", "Diffusion Model", "EMA", "Flow Matching", "GDN", "K-means", "LLM RL", "LoRA", "MoE", "PEFT", "Posterior Collapse", "RL Basics", "RoPE", "Test Time Training", "U-Net", "VAE", "VAE Variants", "ViT3", "llm-ppo-cold-start"]}, {"id": "ML/Harvard CS50 Intro to AI", "name": "CS50 AI", "c": "ai", "n": 9, "w": 11672, "t": ["0-Search", "1-Knowledge", "2-Uncertainty", "3-Optimization", "4-Learning", "5-Neural Networks", "6-Language", "Crossword Generator", "MinesweeperAI"]}, {"id": "ML/LLM", "name": "LLM Training & Agents", "c": "ai", "n": 16, "w": 16320, "t": ["DS V4.1 Flash", "Distributed Training", "From Self-Distillation to Self-Practice", "LLM Tech Report", "Metrics", "NITP", "SDFT", "SDPO", "SFT & KD & OPD", "Speculative Decoding", "mimo-v2.6-rl", "qwen-tb-2.1-repro-en", "qwen-tb-2.1-repro-zh", "search-agent-4-datasets", "slime ABC", "training-inference-mismatch-rl"]}, {"id": "ML/Multimodal", "name": "Multimodal", "c": "ai", "n": 1, "w": 645, "t": ["CLIP"]}, {"id": "ML/Other", "name": "ML Misc", "c": "ai", "n": 7, "w": 5317, "t": ["Optuna", "Ray Tune", "Turing-Can-Machines-Think", "gnn-intro", "rl-rlhf-ppo-optim", "why-hidden-layers-work", "why-train-kernels"]}, {"id": "ML/RecSys", "name": "RecSys", "c": "ai", "n": 17, "w": 9786, "t": ["BERT4Rec", "BPR", "BSARec", "CL4SRec", "Datasets", "DiffRec", "DiffuRec", "DuoRec", "Experiments", "GCE-GNN", "GRID", "LC-Rec", "LETTER", "NCF", "SID", "TIGER", "XSimGCL"]}, {"id": "ML/Torch", "name": "PyTorch", "c": "ai", "n": 11, "w": 4820, "t": ["Autograd", "DataLoader", "Datasets", "Einstein Summation", "Load & Save", "Loss Functions", "NN", "Optimizers", "Parameters", "TensorOps", "Training"]}, {"id": "ML/d2l", "name": "Dive into Deep Learning", "c": "ai", "n": 55, "w": 41343, "t": ["Attention & Transformer › Attention Advanced", "Attention & Transformer › Attention Basics", "Attention & Transformer › Pretraining", "Attention & Transformer › Sinusoidal Rationale", "Attention & Transformer › Transformer", "Attention & Transformer › ViT", "Builder's Guide › README", "Hparams Optimization › Experiment", "Hparams Optimization › HPO", "Introduction › 1-Introduction", "Linear NNs Classification › Classifier Generalization", "Linear NNs Classification › Environment & Distribution Shift", "Linear NNs Classification › Logistic Regression", "Linear NNs Classification › Softmax Regression", "Linear NNs Regression › Generalization", "Linear NNs Regression › Linear Regression", "Linear NNs Regression › Weight Decay", "Modern Conv NNs › Batch Normalization", "Modern Conv NNs › Modern CNNs - Part 1", "Modern Conv NNs › Modern CNNs - Part 2", "Modern RNNs › Beam Search", "Modern RNNs › Bidirectional RNNs", "Modern RNNs › Deep RNNs", "Modern RNNs › GRU", "Modern RNNs › LSTM", "Modern RNNs › Machine Translation", "Multilayer Perceptrons › Dropout", "Multilayer Perceptrons › Generalization in Deep Learning", "Multilayer Perceptrons › MLP", "Multilayer Perceptrons › Numerical Stability & Initialization", "Optimization › Advanced Optimizers", "Optimization › LR Scheduling", "Optimization › Momentum", "Optimization › Optimization Intro", "Preliminaries › Autograd", "Preliminaries › Autograd Impl", "Preliminaries › Common Gradients", "Preliminaries › PCA", "Preliminaries › PCA.zh", "Preliminaries › Probability", "Recommender System › LightGCN", "Recommender System › RecBole", "Recommender System › RecSys ABC", "Recommender System › RecSys Models", "Recommender System › SASRec", "Traditional Conv NNs › Convolution Basics", "Traditional Conv NNs › Convolution Deeper", "Traditional Conv NNs › LeNet", "Traditional RNNs › BPTT", "Traditional RNNs › Gradient Clipping", "Traditional RNNs › Language Model", "Traditional RNNs › RNN Basics", "Traditional RNNs › RNN Implementation", "Traditional RNNs › Sequences", "Traditional RNNs › Text Sequence"]}, {"id": "Data Structures & Algorithms", "name": "Data Structures & Algorithms", "c": "cs", "n": 30, "w": 15437, "t": ["Bellman & Floyd & Dijkstra", "Bidirectional BFS", "Circular Queue", "Dijkstra & A*", "Dutch National Flag Algorithm", "External Sorting", "Fibonacci Heap", "GAs", "Hash Collision Handling", "Hash Maps", "Heap", "KMP", "Linked Lists", "Matmul Combinations", "Optimizations", "Priority Queue", "Quicksort & Quickselect", "RPN", "Search", "Skip List", "Sorting", "String Rotation", "TopSort & Key Paths", "Trees", "Trie", "Union Find", "Virtual Indexing", "Weighted Events Sel", "Wiggle Sort II", "Word Ladder"]}, {"id": "Discrete Math", "name": "Discrete Math", "c": "cs", "n": 13, "w": 10717, "t": ["0-Questions", "1-Set Theory", "2-Propositional Logic", "3-Predicate Logic", "4-Binary Relation", "5-Special Relation", "6-Functions", "7-Graph Theory", "8-Trees", "9-Special Graphs", "PC", "Proof Techniques", "final"]}, {"id": "Digital Logic", "name": "Digital Logic", "c": "cs", "n": 1, "w": 3948, "t": ["digital_logic_key_takeaways"]}, {"id": "Computer Organizationa & Architechture", "name": "Computer Organization", "c": "cs", "n": 3, "w": 2279, "t": ["1-Preliminary", "2-Representations", "3-Arithmetic"]}, {"id": "OS", "name": "OS", "c": "cs", "n": 3, "w": 784, "t": ["README", "function-calls", "process-startup"]}, {"id": "Computer Graphics", "name": "Computer Graphics", "c": "cs", "n": 3, "w": 1115, "t": ["Geometric Transformations", "Graphics Primitives", "Rasterization"]}, {"id": "Database", "name": "Database", "c": "cs", "n": 2, "w": 3395, "t": ["flat-file-database", "relational-database"]}, {"id": "Network & Web", "name": "Network & Web", "c": "cs", "n": 4, "w": 6086, "t": ["CSS", "HTML", "Javascript", "Network"]}, {"id": "C", "name": "C", "c": "lang", "n": 11, "w": 4712, "t": ["Bitwise Operators", "File Operations", "Format Specifiers", "General", "Headers", "Safe Input", "Storage Classes", "String Operations", "Trivial", "Variable Arguments", "What Are Arrays?"]}, {"id": "CPP", "name": "C++", "c": "lang", "n": 10, "w": 5323, "t": ["Class", "ConditionVariables", "General", "Lambdas", "MapAndReduce", "Mutexes", "Pointers", "Threading", "UniqueLock", "Vector"]}, {"id": "Java", "name": "Java", "c": "lang", "n": 16, "w": 8823, "t": ["Arrays", "Basics", "Build Tools", "Data Structure", "Design Patterns", "Enum", "Error Handling", "Generics", "IO", "Interface", "Javadoc", "Numbers & Math", "OOP", "Packages", "Reflection", "Strings"]}, {"id": "Rust", "name": "Rust", "c": "lang", "n": 9, "w": 6679, "t": ["00-Roadmap", "01-Basics", "02-Toolchain, Cargo & Modules", "03-Ownership", "04-Structs, Enums & Pattern Matching", "05-Collections, Strings & Iterators", "06-Generics & Traits", "07-Error Handling & Testing", "08-Concurrency & Async Rust"]}, {"id": "Swift & iOS", "name": "Swift & iOS", "c": "lang", "n": 10, "w": 3810, "t": ["Abstract Classes vs Protocols", "Custom Containers", "Immutability & Value Semantics", "Layout Tips", "Screenshot Privacy", "Security Scoped Resources", "Send-Keywords", "Swift Concurrency", "SwiftData", "ViewModel Lifecycle"]}, {"id": "Python", "name": "Python", "c": "lang", "n": 3, "w": 1294, "t": ["Generators", "Iterators & Iterables", "Toolchain"]}, {"id": "Qt", "name": "Qt", "c": "lang", "n": 5, "w": 4577, "t": ["Model-View Architecture", "QThread & Threading", "Qt Concurrent", "Signals & Slots", "Widget-based UI"]}, {"id": "Matlab", "name": "Matlab", "c": "lang", "n": 3, "w": 4087, "t": ["Plotting", "Syntax", "cheatsheet"]}, {"id": "LaTeX", "name": "LaTeX", "c": "lang", "n": 2, "w": 3232, "t": ["LaTeX Basics", "Math Typesetting"]}, {"id": "Missing Semester", "name": "Missing Semester", "c": "lang", "n": 4, "w": 2774, "t": ["Linux", "Security & Cryptography", "Shell", "Snippets"]}, {"id": "Backend", "name": "Backend", "c": "eng", "n": 17, "w": 9998, "t": ["Annotations", "App Config", "App Config", "FastAPI Overview", "HDFS CLI", "Hadoop Basics", "Hadoop Setup", "MapReduce", "Persistence & DTOs", "Pydantic", "Runtime Model", "SQLAlchemy Basics", "Spring Annotations", "Spring Boot Integration", "Spring Boot Overview", "Uvicorn", "Wiring"]}, {"id": "Refactoring", "name": "Refactoring", "c": "eng", "n": 2, "w": 1131, "t": ["Refactoring", "Writing Tests"]}, {"id": "paper-summaries", "name": "Paper Summaries", "c": "ai", "n": 6, "w": 10848, "t": ["From self distillation to self practice › analytical synthesis", "From self distillation to self practice › reading guide", "Rufus air open llm post training recipe › analytical synthesis", "Rufus air open llm post training recipe › reading guide", "Self distillation enables continual learning › analytical synthesis", "Self distillation enables continual learning › reading guide"]}, {"id": "Other", "name": "Other", "c": "misc", "n": 6, "w": 1484, "t": ["Character Encoding", "Translation Techniques", "creating-new-process", "json-variants", "pandoc-md-pdf", "translation-automation"]}, {"id": "Miscellaneous", "name": "Miscellaneous", "c": "misc", "n": 4, "w": 814, "t": ["A Good Git Commit Message", "CI&CD", "Extreme Programming", "Performance"]}, {"id": "Quotes", "name": "Quotes", "c": "misc", "n": 3, "w": 128, "t": ["AI", "Personal", "Software Engineering"]}, {"id": "Berkeley CS61A", "name": "CS61A", "c": "misc", "n": 1, "w": 380, "t": ["PLAN"]}];
+const ACT = {"C": {"2025-10": 1190, "2025-11": 90, "2026-01": 3, "2026-09": 2}, "CPP": {"2025-10": 405, "2025-11": 1104, "2026-02": 80, "2026-03": 5}, "Data Structures & Algorithms": {"2025-10": 683, "2025-11": 1179, "2025-12": 176, "2026-03": 9, "2026-05": 7, "2026-06": 20, "2026-09": 1528}, "Missing Semester": {"2025-10": 421, "2025-11": 48, "2025-12": 2, "2026-08": 1}, "Refactoring": {"2025-10": 45, "2025-11": 50}, "Swift & iOS": {"2025-10": 455, "2025-11": 535, "2025-12": 69, "2026-02": 0, "2026-05": 13}, "Miscellaneous": {"2025-10": 118, "2025-11": 29}, "Quotes": {"2025-10": 56, "2025-11": 15}, "Qt": {"2025-11": 1076}, "Techniques": {"2025-11": 0}, "ML/Other": {"2025-11": 220, "2025-12": 83, "2026-01": 59, "2026-02": 13, "2026-03": 251}, "Data Structures": {"2025-11": 1}, "ML/Harvard CS50 Intro to AI": {"2025-11": 403, "2025-12": 908, "2026-03": 5}, "Berkeley CS61A": {"2025-11": 98}, "ML/d2l": {"2025-11": 111, "2025-12": 2599, "2026-01": 804, "2026-02": 1361, "2026-03": 985, "2026-04": 38, "2026-05": 1, "2026-06": 1, "2026-07": 49}, "Database": {"2025-12": 536}, "Other": {"2025-12": 55, "2026-01": 122, "2026-02": 2, "2026-08": 44}, "Python": {"2025-12": 196, "2026-01": 29, "2026-03": 65}, "Torch": {"2025-12": 0}, "3-Linear NNs Regression": {"2025-12": 1}, "Users": {"2025-12": 0, "2026-02": 0}, "Network & Web": {"2025-12": 1579}, "5-Multilayer Perceptrons": {"2025-12": 0}, "ML/Torch": {"2025-12": 186, "2026-02": 69, "2026-03": 73}, "LaTeX": {"2026-01": 309, "2026-02": 42, "2026-09": 3}, "Java": {"2026-02": 1266, "2026-03": 418, "2026-04": 133}, "Discrete Math": {"2026-03": 511, "2026-04": 277, "2026-05": 372, "2026-06": 1189}, "Matlab": {"2026-03": 576, "2026-04": 246, "2026-07": 363}, "Backend": {"2026-03": 1630, "2026-04": 1334, "2026-05": 3}, "ML/Multimodal": {"2026-04": 45}, "ML/RecSys": {"2026-04": 317, "2026-05": 324, "2026-06": 421, "2026-07": 67}, "ML/Foundation": {"2026-04": 602, "2026-05": 186, "2026-06": 393, "2026-07": 737, "2026-08": 1082, "2026-09": 7}, "Digital Logic": {"2026-05": 618, "2026-06": 979}, "OS": {"2026-05": 96, "2026-06": 35}, "ML/CMU Advanced NLP S2026": {"2026-07": 258}, "ML/LLM": {"2026-07": 19, "2026-08": 145, "2026-09": 3560}, "Computer Organizationa & Architechture": {"2026-09": 413}, "Computer Graphics": {"2026-09": 302}, "Rust": {"2026-09": 3243}, "paper-summaries": {"2026-09": 639}};
+const CL = {
+  ai:{name:"Machine learning"}, cs:{name:"CS foundations"}, lang:{name:"Languages & tools"},
+  eng:{name:"Backend engineering"}, misc:{name:"Other"}
+};
+const ORDER = ["ai","cs","lang","eng","misc"];
+const fmt = n => n.toLocaleString("en-US");
+const col = c => `var(--${c})`;
+
+// stats + bar
+const totalW = LEAVES.reduce((s,l)=>s+l.w,0), totalN = LEAVES.reduce((s,l)=>s+l.n,0);
+const byC = {}; ORDER.forEach(c=>byC[c]={w:0,n:0});
+LEAVES.forEach(l=>{byC[l.c].w+=l.w;byC[l.c].n+=l.n});
+document.getElementById("stats").innerHTML = [
+  [fmt(totalN),"notes"],[Math.round(totalW/1000)+"k","words written"],
+  [LEAVES.length,"topic folders"],[Math.round(byC.ai.w/totalW*100)+"%","of words on ML"]
+].map(([v,k])=>`<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+document.getElementById("bar").innerHTML = ORDER.map(c=>`<span style="flex:${byC[c].w};background:${col(c)}" title="${CL[c].name}"></span>`).join("");
+document.getElementById("legend").innerHTML = ORDER.map(c=>`<span><span class="dot" style="background:${col(c)}"></span>${CL[c].name} <b>${Math.round(byC[c].w/totalW*100)}%</b></span>`).join("");
+
+// squarified treemap
+function squarify(items, x, y, w, h){
+  const out=[]; const total=items.reduce((s,i)=>s+i.v,0); const scale=w*h/total;
+  let rest=items.map(i=>({...i,a:i.v*scale}));
+  while(rest.length){
+    const short=Math.min(w,h); let row=[], best=Infinity;
+    for(const it of rest){
+      const r=[...row,it], s=r.reduce((a,b)=>a+b.a,0);
+      const worst=Math.max(...r.map(q=>Math.max(short*short*q.a/(s*s), s*s/(short*short*q.a))));
+      if(worst<=best){row=r;best=worst}else break;
+    }
+    rest=rest.slice(row.length);
+    const s=row.reduce((a,b)=>a+b.a,0), thick=s/short; let off=0;
+    for(const it of row){
+      const len=it.a/thick;
+      if(w>=h) out.push({...it,x:x,y:y+off,bw:thick,bh:len}); else out.push({...it,x:x+off,y:y,bw:len,bh:thick});
+      off+=len;
+    }
+    if(w>=h){x+=thick;w-=thick}else{y+=thick;h-=thick}
+  }
+  return out;
+}
+const tm=document.getElementById("tm");
+let selected="ML/LLM";
+function drawTM(){
+  const W=tm.clientWidth,H=tm.clientHeight; tm.innerHTML="";
+  const groups=ORDER.map(c=>({c,v:byC[c].w,kids:LEAVES.filter(l=>l.c===c).sort((a,b)=>b.w-a.w)}));
+  const gap=2;
+  for(const g of squarify(groups,0,0,W,H)){
+    const kids=squarify(g.kids.map(k=>({...k,v:k.w})),g.x,g.y,g.bw,g.bh);
+    for(const k of kids){
+      const b=document.createElement("button");
+      b.className="tile"+(k.id===selected?" sel":"");
+      const w=k.bw-gap,h=k.bh-gap;
+      if(w<70||h<40) b.classList.add("sm"); if(w<44||h<22) b.classList.add("xs");
+      Object.assign(b.style,{left:k.x+"px",top:k.y+"px",width:Math.max(w,1)+"px",height:Math.max(h,1)+"px",background:col(k.c)});
+      b.innerHTML=`<span class="nm">${k.name}</span><span class="ct">${fmt(k.w)} words · ${k.n} note${k.n===1?'':'s'}</span>`;
+      b.setAttribute("aria-label",`${k.name}: ${fmt(k.w)} words in ${k.n} note${k.n===1?'':'s'}`);
+      b.onclick=()=>{selected=k.id;drawTM();showDetail()};
+      tm.appendChild(b);
+    }
+  }
+}
+function showDetail(){
+  const l=LEAVES.find(x=>x.id===selected);
+  document.getElementById("detail").innerHTML=`<div class="detail-head"><span class="dot" style="background:${col(l.c)}"></span><h3>${l.name}</h3><span class="meta">${CL[l.c].name} · ${l.n} note${l.n===1?'':'s'} · ${fmt(l.w)} words · ${(l.w/totalW*100).toFixed(1)}% of everything</span></div><div class="chips">${l.t.map(t=>`<span class="chip">${t}</span>`).join("")}</div>`;
+}
+drawTM();showDetail();
+let rt; new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(drawTM,60)}).observe(tm);
+
+// heatmap
+const MONTHS = ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"];
+const MN=MONTHS.map(m=>["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m.slice(5)-1]);
+document.getElementById("hm").style.setProperty("--cols",MONTHS.length);
+const rows=LEAVES.filter(l=>ACT[l.id]).map(l=>{
+  const a=ACT[l.id]; const tot=MONTHS.reduce((s,m)=>s+(a[m]||0),0);
+  const first=MONTHS.findIndex(m=>(a[m]||0)>0);
+  return {...l,a,tot,first};
+}).filter(r=>r.tot>=100);
+const max=Math.max(...rows.flatMap(r=>MONTHS.map(m=>r.a[m]||0)));
+let html=`<colgroup><col style="width:190px">${MONTHS.map(()=>'<col>').join('')}</colgroup><thead><tr><th></th>${MN.map((m,i)=>{const y=i===0||m==="Jan";return `<th class="${y?'yr':''}">${m}${y?' ’'+MONTHS[i].slice(2,4):''}</th>`}).join("")}</tr></thead><tbody>`;
+for(const c of ORDER){
+  const rs=rows.filter(r=>r.c===c).sort((a,b)=>a.first-b.first||b.tot-a.tot);
+  if(!rs.length) continue;
+  html+=`<tr><td class="grp" style="color:${col(c)}">${CL[c].name}</td>${MONTHS.map(()=>"<td></td>").join("")}</tr>`;
+  for(const r of rs){
+    html+=`<tr><td class="lab">${r.name}</td>${MONTHS.map((m,i)=>{
+      const v=r.a[m]||0; if(!v) return `<td class="c"></td>`;
+      const o=Math.max(.12,Math.sqrt(v/max));
+      return `<td class="c" title="${r.name}, ${MN[i]}: ${fmt(v)} lines"><span style="background:${col(c)};opacity:${o.toFixed(2)}"></span></td>`;
+    }).join("")}</tr>`;
+  }
+}
+document.getElementById("hm").innerHTML=html+"</tbody>";
+
+// phases
+const PH=[
+  {when:"Oct – Nov 2025",t:"Systems languages",d:"C, C++ and its threading model, Swift, Qt, the Missing Semester tooling course, and a first pass at data structures.",c:["lang","cs"]},
+  {when:"Dec 2025 – Mar 2026",t:"Deep learning from the ground up",d:"Most of Dive into Deep Learning, from autograd through CNNs, RNNs and Transformers, alongside CS50 AI, PyTorch, networking and Java.",c:["ai","lang","cs"]},
+  {when:"Mar – Apr 2026",t:"Backend and discrete math",d:"Spring Boot, FastAPI and Hadoop, plus a full Discrete Math course and Matlab.",c:["eng","cs","lang"]},
+  {when:"Apr – Aug 2026",t:"Generative models and recommenders",d:"VAEs, diffusion, flow matching, RoPE, MoE and LoRA, plus a run of recommender papers (TIGER, LC-Rec, DiffRec). Digital logic in June.",c:["ai","cs"]},
+  {when:"Jul – Sep 2026",t:"LLM post-training and agent RL",d:"Agent RL, self-distillation papers (SDFT, SDPO), the Terminal-Bench reproduction, speculative decoding, distributed training and SFT/KD/OPD. Rust, algorithms and computer organization alongside.",c:["ai","lang","cs"],now:true}
+];
+document.getElementById("phases").innerHTML=PH.map(p=>`<div class="phase${p.now?' now':''}"><div class="swatches">${p.c.map(c=>`<span style="background:${col(c)}"></span>`).join("")}</div><div class="when">${p.when}</div><h4>${p.t}</h4><p>${p.d}</p></div>`).join("");
+</script>
+</html>
