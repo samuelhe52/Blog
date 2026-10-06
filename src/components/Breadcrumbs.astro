@@ -23,7 +23,7 @@ const text = t[lang];
 
 const pathParts = currentPath ? currentPath.split('/') : [];
 const breadcrumbs: Array<{ name: string; path: string }> = [
-  { name: text.home, path: baseUrl ? baseUrl + '/' : '/' }
+  { name: text.home, path: lang === 'zh-CN' ? '/zh/' : '/en/' }
 ];
 
 let accumulatedPath = '';
