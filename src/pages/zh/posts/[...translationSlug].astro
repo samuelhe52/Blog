@@ -55,7 +55,7 @@ const ogImageUrl = new URL(`/og/${post.data.translationSlug}.svg`, SITE.domain).
     toZh={`/zh/posts/${post.data.translationSlug}/`}
     toEn={hasEnTranslation ? `/en/posts/${post.data.translationSlug}/` : '/en/'}
   />
-  <main>
+  <main id="main-content" tabindex="-1">
     <article>
       {parentFolderPath && (
         <nav class="parent-folder-nav animate">

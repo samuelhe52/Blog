@@ -39,7 +39,8 @@ const alternates = {
 
 <Layout lang="en" description="konakona's personal blog" alternates={alternates}>
   <Header lang="en" toZh="/zh/" toEn="/en/" />
-  <main class="animate">
+  <main id="main-content" tabindex="-1" class="animate">
+    <h1 class="sr-only">{SITE.title}</h1>
     <FolderView structure={structure} lang="en" />
   </main>
 </Layout>

@@ -50,7 +50,7 @@ const alternates = {
 
 <Layout lang="en" {title} {description} alternates={alternates}>
   <Header lang="en" toZh={`/folders/${folderPath}/`} toEn={`/en/folders/${folderPath}/`} />
-  <main class="animate">
+  <main id="main-content" tabindex="-1" class="animate">
     <Breadcrumbs currentPath={folderPath} lang="en" />
     
     <div class="folder-header">

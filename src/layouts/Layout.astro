@@ -178,6 +178,47 @@ const strings = lang === 'zh-CN' ? zh : en;
       a:hover {
         text-decoration: underline;
       }
+
+      :focus-visible {
+        outline: 2px solid var(--link);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .skip-link {
+        position: fixed;
+        top: 0.75rem;
+        left: 0.75rem;
+        z-index: 1200;
+        padding: 0.5rem 0.9rem;
+        border-radius: 6px;
+        background: var(--link);
+        color: #fff;
+        font: 600 0.875rem/1.2 var(--font-heading);
+        transform: translateY(-200%);
+        transition: transform 0.2s ease-out, background 0.3s ease-in-out;
+      }
+
+      main:focus {
+        outline: none;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+        text-decoration: none;
+      }
       
       .content {
         flex: 1;
@@ -448,9 +489,10 @@ const strings = lang === 'zh-CN' ? zh : en;
     data-copied-label={strings.copied_code}
     data-copy-failed-label={strings.copy_failed}
   >
-    <main class="content">
+    <a class="skip-link" href="#main-content">{strings.skip_to_content}</a>
+    <div class="content">
       <slot />
-    </main>
+    </div>
     <Toast />
     <Footer lang={lang} />
   </body>
