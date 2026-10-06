@@ -18,14 +18,26 @@ const t = {
   'zh-CN': {
     posts: '文章',
     folders: '文件夹',
+    notes: (n: number) => `${n} 篇笔记`,
+    year: (y: number) => `${y} 年`,
   },
   'en': {
     posts: 'Posts',
     folders: 'Folders',
+    notes: (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`,
+    year: (y: number) => String(y),
   }
 };
 
 const text = t[lang];
+
+const postsByYear: { year: number; posts: typeof structure.posts }[] = [];
+for (const post of structure.posts) {
+  const year = post.date.getFullYear();
+  const group = postsByYear.find(g => g.year === year);
+  if (group) group.posts.push(post);
+  else postsByYear.push({ year, posts: [post] });
+}
 ---
 
 <div class="folder-view">
@@ -34,25 +46,26 @@ const text = t[lang];
       <h2 class="section-title">
         <TitleWithCount id="section-post-count" title={text.posts} count={structure.posts.length} lang={lang} />
       </h2>
-      <ul class="post-list">
-        {structure.posts.map((post) => (
-          <li class="post-item">
-            <a href={`${postsUrl}/${post.slug}/`} class="post-link">
-              <div class="post-info">
-                <h3 class="post-title">{post.title}</h3>
-                {post.description && <p class="post-description">{post.description}</p>}
-              </div>
-              <time datetime={post.date.toISOString()}>
-                {post.date.toLocaleDateString(lang, {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </time>
-            </a>
-          </li>
-        ))}
-      </ul>
+      {postsByYear.map(({ year, posts }) => (
+        <div class="year-group">
+          <p class="year-tag">{text.year(year)}</p>
+          <ul class="post-list">
+            {posts.map((post) => (
+              <li class="post-item">
+                <a href={`${postsUrl}/${post.slug}/`} class="post-link">
+                  <time datetime={post.date.toISOString()}>
+                    {post.date.toLocaleDateString(lang, { month: 'short', day: 'numeric' })}
+                  </time>
+                  <div class="post-info">
+                    <h3 class="post-title">{post.title}</h3>
+                    {post.description && <p class="post-description">{post.description}</p>}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </section>
   )}
 
@@ -65,11 +78,9 @@ const text = t[lang];
           return (
             <li class="folder-item">
               <a href={`${folderBaseUrl}/${folder.path}/`} class="folder-link">
-                <div class="folder-info">
-                  <h3 class="folder-name">{getLocalizedFolderName(folder.path, lang)}</h3>
-                  {folderDesc && <p class="folder-description">{folderDesc}</p>}
-                </div>
-                <span class="folder-arrow">→</span>
+                <span class="folder-tab">{text.notes(folder.postCount)}</span>
+                <h3 class="folder-name">{getLocalizedFolderName(folder.path, lang)}</h3>
+                {folderDesc && <p class="folder-description">{folderDesc}</p>}
               </a>
             </li>
           );
@@ -87,13 +98,24 @@ const text = t[lang];
   }
 
   .section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 1rem 0;
+    font-size: 1.3rem;
+    margin: 0 0 0.25rem 0;
     color: var(--text);
   }
 
-  /* Posts Section */
+  .section-title :global(.post-count) {
+    font: 400 1rem/1 var(--font-hand);
+    color: var(--accent);
+  }
+
+  .year-tag {
+    margin: 1.5rem 0 0.25rem;
+    font: 400 1.05rem/1 var(--font-hand);
+    color: var(--link);
+    transition: color 0.3s ease-in-out;
+  }
+
+  /* Posts */
   .post-list {
     list-style: none;
     padding: 0;
@@ -102,63 +124,66 @@ const text = t[lang];
 
   .post-item {
     margin: 0;
-    border-bottom: 1px solid var(--border);
-    transition: border-color 0.3s ease-in-out;
-  }
-
-  .post-item:last-child {
-    border-bottom: none;
   }
 
   .post-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1.5rem;
-    padding: 1.25rem 0;
+    display: grid;
+    grid-template-columns: 4.75rem 1fr;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1.5px dashed var(--border);
     text-decoration: none;
     color: inherit;
-    transition: color 0.3s ease-in-out;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
 
-  .post-link:hover .post-title {
-    color: var(--link);
+  .post-link:hover {
+    text-decoration: none;
   }
 
   .post-info {
-    flex: 1;
     min-width: 0;
   }
 
   .post-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin: 0 0 0.25rem 0;
-    transition: color 0.2s;
+    display: inline;
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.45;
+    background: linear-gradient(100deg, transparent 0.2em, var(--hl) 0.2em, var(--hl) calc(100% - 0.2em), transparent calc(100% - 0.2em)) 0 85% / 0 0.55em no-repeat;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    transition: background-size 0.4s cubic-bezier(0.3, 0.8, 0.3, 1), color 0.3s ease-in-out;
+  }
+
+  .post-link:hover .post-title,
+  .post-link:focus-visible .post-title {
+    background-size: 100% 0.55em;
   }
 
   .post-description {
-    margin: 0;
+    margin: 0.3rem 0 0;
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.93rem;
+    line-height: 1.6;
     transition: color 0.3s ease-in-out;
   }
 
   time {
+    font: 400 1rem/1.75 var(--font-hand);
     color: var(--text-muted);
-    font-size: 0.85rem;
     white-space: nowrap;
-    flex-shrink: 0;
     transition: color 0.3s ease-in-out;
   }
 
-  /* Folders Section */
+  /* Folders */
   .folder-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 1.75rem 0 0;
     display: grid;
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 2.4rem 1.4rem;
   }
 
   .folder-item {
@@ -166,84 +191,65 @@ const text = t[lang];
   }
 
   .folder-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.875rem 1.125rem;
+    position: relative;
+    display: block;
+    height: 100%;
+    padding: 1.3rem 1.2rem 1.1rem;
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 0 10px 10px 10px;
     text-decoration: none;
     color: inherit;
-    transition: all 0.15s ease, border-color 0.3s ease-in-out, background 0.3s ease-in-out;
-    background: transparent;
+    transition: transform 0.25s ease, color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
 
   .folder-link:hover {
-    border-color: var(--link);
-    background: rgba(0, 0, 0, 0.02);
+    text-decoration: none;
+    transform: translateY(-3px);
   }
 
-  :root[data-theme="dark"] .folder-link:hover {
-    background: rgba(255, 255, 255, 0.05);
+  .folder-tab {
+    position: absolute;
+    top: -1.55rem;
+    left: -1px;
+    padding: 0.2rem 0.8rem 0.25rem;
+    border-radius: 8px 8px 0 0;
+    background: var(--link);
+    color: var(--bg);
+    font: 400 0.9rem/1.2 var(--font-hand);
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .folder-link:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-  }
-
-  .folder-info {
-    flex: 1;
-    min-width: 0;
+  .folder-item:nth-child(even) .folder-tab {
+    background: var(--accent);
+    color: #3a2a17;
   }
 
   .folder-name {
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0 0 0.25rem 0;
-    transition: color 0.2s;
-  }
-
-  .folder-link:hover .folder-name {
-    color: var(--link);
-  }
-
-  .folder-count {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.4;
   }
 
   .folder-description {
-    font-size: 0.85rem;
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
     color: var(--text-muted);
-    margin: 0;
-    line-height: 1.4;
     transition: color 0.3s ease-in-out;
   }
 
-  .folder-arrow {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    flex-shrink: 0;
-    transition: transform 0.15s ease, color 0.3s ease-in-out;
-  }
-
-  .folder-link:hover .folder-arrow {
-    transform: translateX(3px);
-    color: var(--link);
+  @media (prefers-reduced-motion: reduce) {
+    .post-title,
+    .folder-link {
+      transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    }
   }
 
   @media (max-width: 640px) {
     .post-link {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .folder-link {
-      padding: 0.75rem 1rem;
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
     }
   }
 </style>

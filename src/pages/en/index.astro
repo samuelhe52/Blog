@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import FolderView from '../../components/FolderView.astro';
+import HomeIntro from '../../components/HomeIntro.astro';
 import { getCollection } from 'astro:content';
 import { buildFolderStructure } from '../../utils/folders';
 import { SITE } from '../../site.config';
@@ -41,6 +42,7 @@ const alternates = {
   <Header lang="en" toZh="/zh/" toEn="/en/" />
   <main id="main-content" tabindex="-1" class="animate">
     <h1 class="sr-only">{SITE.title}</h1>
+    <HomeIntro lang="en" />
     <FolderView structure={structure} lang="en" />
   </main>
 </Layout>

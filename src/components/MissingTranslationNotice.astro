@@ -16,56 +16,21 @@ const strings = await import(`../i18n/${lang === 'zh-CN' ? 'zh' : 'en'}.json`);
 
 <style>
   .missing-translation-notice {
-    background: #fffbeb;
-    border-left: 4px solid #fbbf24;
-    padding: 1rem 1.25rem;
     margin: 1.5rem 0;
-    border-radius: 4px;
-    transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    padding: 1rem 1.25rem;
+    background: var(--note);
+    border-radius: 2px;
+    box-shadow: 0 10px 20px -16px rgba(90, 60, 20, 0.5);
+    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
   .missing-translation-notice p {
     margin: 0;
-    color: #78350f;
+    color: var(--text);
     transition: color 0.3s ease-in-out;
   }
   .missing-translation-notice a {
-    color: #ea580c;
+    color: var(--link);
     font-weight: 500;
     transition: color 0.2s ease-in-out;
-  }
-  .missing-translation-notice a:hover {
-    color: #c2410c;
-  }
-  
-  /* Dark mode when manually set */
-  :root[data-theme="dark"] .missing-translation-notice {
-    background: #451a03;
-    border-left-color: #d97706;
-  }
-  :root[data-theme="dark"] .missing-translation-notice p {
-    color: #fde68a;
-  }
-  :root[data-theme="dark"] .missing-translation-notice a {
-    color: #fbbf24;
-  }
-  :root[data-theme="dark"] .missing-translation-notice a:hover {
-    color: #fde68a;
-  }
-  
-  /* Dark mode when following system preference (auto mode) */
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .missing-translation-notice {
-      background: #451a03;
-      border-left-color: #d97706;
-    }
-    :root:not([data-theme="light"]) .missing-translation-notice p {
-      color: #fde68a;
-    }
-    :root:not([data-theme="light"]) .missing-translation-notice a {
-      color: #fbbf24;
-    }
-    :root:not([data-theme="light"]) .missing-translation-notice a:hover {
-      color: #fde68a;
-    }
   }
 </style>

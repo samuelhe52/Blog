@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#2563eb"/>
-  <text x="50" y="70" font-size="60" font-weight="700" text-anchor="middle" fill="white" font-family="-apple-system, BlinkMacSystemFont, sans-serif">K</text>
+  <rect width="100" height="100" rx="18" fill="#c4402e"/>
+  <rect x="6" y="6" width="88" height="88" rx="12" fill="none" stroke="#fff6ea" stroke-opacity="0.7" stroke-width="3"/>
+  <path d="M611 60Q624 60 624 45V15Q624 0 609 0H364Q349 0 349 15V46Q349 60 362 60H377Q387 60 395.5 64.0Q404 68 404 75Q404 82 396 90L264 233L243 214V155Q243 116 246.5 95.5Q250 75 261.5 67.5Q273 60 297 60Q312 60 312 45V15Q312 0 297 0H30Q15 0 15 15V45Q15 60 30 60Q67 60 85.0 87.5Q103 115 103 155V530Q103 557 99.5 582.0Q96 607 83.5 624.5Q71 642 43 645Q32 646 32 658V692Q32 698 35.5 700.5Q39 703 46 705Q126 731 170.0 757.0Q214 783 234 798Q237 800 239 800H241Q243 800 243 798V302L365 413Q373 421 373 427Q373 440 353 440H323Q310 440 310 455V485Q310 500 325 500H547Q562 500 562 485V455Q562 440 549 440H537Q508 440 485.5 425.0Q463 410 424 375L347 306L561 91Q578 74 588.0 67.0Q598 60 608 60Z" fill="#fff6ea" transform="translate(28 81) scale(0.072 -0.072)"/>
 </svg>

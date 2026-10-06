@@ -16,7 +16,7 @@ const homeUrl = lang === 'zh-CN' ? '/zh/' : '/en/';
 
 <header>
   <div class="header-content">
-    <a href={homeUrl} class="site-title">{SITE.title}</a>
+    <a href={homeUrl} class="site-title"><span class="seal" aria-hidden="true">k</span>{SITE.title}</a>
     <LanguageSwitcher lang={lang} disableZh={disableZh} disableEn={disableEn} toZh={toZh} toEn={toEn} />
   </div>
 </header>
@@ -28,24 +28,14 @@ const homeUrl = lang === 'zh-CN' ? '/zh/' : '/en/';
     left: 0;
     right: 0;
     z-index: 50;
-    padding: 1.25rem 0; /* restore taller header */
-    background: rgba(250, 250, 249, 0.75);
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
+    padding: 1.1rem 0;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(8px) saturate(160%);
+    -webkit-backdrop-filter: blur(8px) saturate(160%);
     border-bottom: 1px solid var(--border);
     transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
-  
-  :root[data-theme="dark"] header {
-    background: rgba(28, 25, 23, 0.75);
-  }
-  
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) header {
-      background: rgba(28, 25, 23, 0.75);
-    }
-  }
-  
+
   .header-content {
     max-width: 45rem;
     margin: 0 auto;
@@ -55,18 +45,42 @@ const homeUrl = lang === 'zh-CN' ? '/zh/' : '/en/';
     align-items: center;
     gap: 1rem;
   }
-  
+
   .site-title {
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    text-decoration: none;
-    font-family: var(--font-family);
-    transition: color 0.2s ease-in-out;
-  }
-  
-  .site-title:hover {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font: 500 1.28rem/1 "Literata Variable", Georgia, serif;
+    letter-spacing: 0.01em;
     color: var(--text);
     text-decoration: none;
+    transition: color 0.3s ease-in-out;
+  }
+
+  .site-title:hover {
+    text-decoration: none;
+  }
+
+  .seal {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    padding-bottom: 0.12rem;
+    border-radius: 5px;
+    background: var(--seal);
+    color: #fff6ea;
+    font: 400 1.3rem/1 "Young Serif", Georgia, serif;
+    box-shadow: inset 0 0 0 2px var(--seal), inset 0 0 0 3px rgba(255, 246, 234, 0.7);
+    transform: rotate(-5deg);
+    transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1), background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+
+  .site-title:hover .seal {
+    transform: rotate(4deg) scale(1.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .seal { transition: background-color 0.3s ease-in-out; }
   }
 </style>

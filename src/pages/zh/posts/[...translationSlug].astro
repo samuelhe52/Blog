@@ -44,7 +44,7 @@ if (hasEnTranslation) {
   alternates.en = new URL(`/en/posts/${post.data.translationSlug}/`, SITE.domain).href;
 }
 
-const ogImageUrl = new URL(`/og/${post.data.translationSlug}.svg`, SITE.domain).href;
+const ogImageUrl = new URL(`/og/${post.data.translationSlug}.png`, SITE.domain).href;
 ---
 
 <Layout 
@@ -75,6 +75,7 @@ const ogImageUrl = new URL(`/og/${post.data.translationSlug}.svg`, SITE.domain).
       <div class="prose animate">
         <Content />
       </div>
+      <p class="post-end" aria-hidden="true">下次见 ～</p>
       <PostNav lang="zh-CN" older={older} newer={newer} />
     </article>
   </main>
@@ -103,5 +104,14 @@ const ogImageUrl = new URL(`/og/${post.data.translationSlug}.svg`, SITE.domain).
 
   .prose {
     margin-top: 2rem;
+  }
+
+  .post-end {
+    margin: 3rem 0 0;
+    text-align: right;
+    font: 400 1.4rem/1 var(--font-hand);
+    color: var(--seal);
+    transform: rotate(-3deg);
+    transition: color 0.3s ease-in-out;
   }
 </style>
