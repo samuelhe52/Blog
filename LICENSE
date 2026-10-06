@@ -5,19 +5,21 @@ This repository contains both code and content, each licensed separately:
 ## Code License (MIT)
 
 All source code, including but not limited to:
-- Astro components (`src/components/`, `src/layouts/`)
-- TypeScript/JavaScript files (`src/utils/`, `src/pages/`)
-- Configuration files (`astro.config.mjs`, `tsconfig.json`)
-- Build scripts and workflows (`.github/workflows/`)
-- Styling and assets (`public/`, CSS files)
+- Astro components, layouts, pages, and utilities in `src/` (except the content listed below)
+- Client scripts and site icons (`public/scripts/`, `public/favicon*.svg`)
+- Configuration files (`astro.config.mjs`, `tsconfig.json`, `package.json`)
+- Build and deploy workflows (`.github/workflows/`) and server config (`infra/`)
+- Stylesheets
 
 is licensed under the **MIT License**. See [LICENSE-CODE](LICENSE-CODE) for details.
 
 ## Content License (CC BY 4.0)
 
 All blog content, including but not limited to:
-- Markdown/MDX files in `src/content/posts/`
-- Images and media used in blog posts
+- Posts in `src/content/posts/`, including the images stored alongside them
+- Folder names and descriptions in `src/content/folders.yaml`
+- Images used in posts (`public/images/`)
+- Interactive pages embedded in posts (`public/lab/`)
 
 is licensed under the **Creative Commons Attribution 4.0 International License (CC BY 4.0)**. See [LICENSE-CONTENT](LICENSE-CONTENT) for details.
 

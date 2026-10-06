@@ -1,6 +1,7 @@
 # Agents Guide
 
 Timestamp: 2025-11-07T19:58:00.000Z
+Updated: 2026-10-06
 
 ## Purpose
 
@@ -8,17 +9,17 @@ This file tells any assisting agent (automation, AI, scripts) EXACTLY how to app
 
 ## High-Level Vision
 
-Minimalist, performant bilingual (Chinese default, English secondary) static blog using Astro with custom minimal theme inspired by Astro Nano; clean SEO, translation pairing, dynamic OG images; future-friendly (search, typed i18n later).
+Minimalist, performant bilingual (Chinese default, English secondary) static blog using Astro with a custom theme; clean SEO, translation pairing, dynamic OG images; future-friendly (search, typed i18n later).
 
 ## Author Preferences
 
 - Explanations: patient, plain language; avoid heavy jargon unless clarified.
 - Implementation: clear directory structure, small focused components, minimal client JS.
-- Internationalization: Chinese default (no prefix), English under /en/.
+- Internationalization: Chinese default under /zh/, English under /en/.
 - URL style: enforce trailing slashes.
 - OG images: per-post dynamic generation; site-level image non-localized.
 - UI strings: start with JSON (/src/i18n/{zh,en}.json); may migrate to typed TS later.
-- Language switcher: global (site-wide preference), always visible; disable target if translation missing.
+- Language switcher: always visible; disable target if translation missing.
 - Language detection: instant redirect at root (/) based on browser language; English fallback for unsupported locales.
 - SEO: self-canonical per page; hreflang only for existing translations (zh-CN, en).
 - Dependencies: Keep minimal, avoid complex tooling unless necessary.
@@ -31,54 +32,39 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 
 ## Core Decisions
 
-(Updated 2025-11-07T19:58:00.000Z)
+(Updated 2026-10-06)
 
-- **Theme approach**: Custom minimal theme (NOT using Astro Nano package due to dependency complexity). Goal is feature parity with Nano while maintaining bilingual-first design. See NANO_PARITY.md for checklist.
-- Default locale: Chinese (no /zh prefix). English under /en/.
+- **Theme approach**: Custom minimal theme (NOT using Astro Nano package due to dependency complexity). Nano parity was reached; the old checklist is in docs/archive/NANO_PARITY.md.
+- Default locale: Chinese, served under /zh/ (was unprefixed until the route restructure). English under /en/. Unprefixed /posts/* redirects to /en/posts/*.
 - translationSlug identical across languages (English string).
 - Fallback: show available language; switcher always visible; disable target if missing translation.
 - Sitemap: single combined sitemap with hreflang alternates.
-- RSS: Planned - separate feeds per language.
+- RSS: separate feeds per language (/rss.xml for zh, /en/rss.xml for en).
 - Language detection: instant redirect at root (/) via inline script; checks browser languages for zh/en, defaults to English for unsupported locales.
 - Locale codes: hreflang zh-CN & en; og:locale zh_CN default, en_US alternate.
-- OG images: Planned dynamic generation per-post.
+- OG images: generated per post at build time (satori + resvg) under /og/.
 - Canonicals: self per page; hreflang only for existing translations.
 - Deployment: custom VM with Nginx + Let's Encrypt.
 - CI/CD: GitHub Actions automated build & rsync deploy.
 - URL style: trailing slash enforced.
 - Domains: blog.konakona.dev serves this build and is the canonical URL; blog.konakona52.com and konakona52.com redirect to it. konakona.dev is the separate personal profile site (samuelhe52/profile), which 301-redirects the blog's old root-domain paths (/en/, /posts/, /zh/posts/, /folders/, /og/, /images/, /lab/, /scripts/, /rss.xml) to blog.konakona.dev. Don't link to blog content on the bare konakona.dev domain.
 - UI strings: JSON for now; may migrate to TS later.
-- Search: planned later (multilingual); defer in MVP.
+- Search: planned later (multilingual).
 - Styling: Custom CSS with CSS variables (not Tailwind yet, may add later for utilities).
 
-## Current Deliverables (MVP Complete)
+## Implemented
 
-- ✅ Astro initialized with bilingual structure.
-- ✅ Content collections: src/content/posts/{zh,en}/.
-- ✅ translationSlug in frontmatter to pair posts.
-- ✅ Layout: html lang, canonical, hreflang, meta description, OG/Twitter tags.
-- ✅ Language switcher (cookie + detection) with disabled states for missing translations.
-- ✅ MissingTranslationNotice component.
-- ✅ Combined sitemap with hreflang alternates.
-- ✅ Header, PostList, PostHeader components.
-- ✅ Light/dark mode support via CSS variables.
-- ✅ Minimal responsive design.
-- ✅ GitHub Actions deployment workflow.
-- ✅ robots.txt.
+- Content collections in src/content/posts/{zh,en}/, paired by translationSlug; nested folders with metadata in src/content/folders.yaml.
+- Layout with html lang, canonical, hreflang, meta description, OG/Twitter tags.
+- Language switcher with disabled states; MissingTranslationNotice.
+- Combined sitemap with hreflang alternates; per-language RSS; robots.txt.
+- MDX, KaTeX math, Shiki code highlighting (light/dark).
+- Per-post dynamic OG images.
+- Reading time, table of contents with reading progress, older/newer post navigation, back-to-top, code copy.
+- Light/dark theme via CSS variables; bilingual 404 page.
+- GitHub Actions build and rsync deploy.
 
-## Next Priorities (See NANO_PARITY.md)
-
-1. Lighthouse audit & optimization
-2. MDX support for rich content
-3. Better styling/polish
-4. Dynamic OG images
-5. UX enhancements (reading time, animations)
-6. RSS Feed (deferred)
-
-- Combined sitemap (both locales; alternates only when translation exists).
-- GitHub Actions workflow (build & rsync deploy to Nginx VM with TLS).
-
-## Non-MVP (Deferred)
+## Deferred
 
 - Search (multilingual index strategy).
 - Typed i18n (typesafe-i18n or TS modules).
@@ -98,22 +84,16 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 ## File Structure Guidelines
 
 - src/i18n/: en.json, zh.json for UI strings.
+- src/site.config.ts: site title, author, domain, locales.
 - src/layouts/Layout.astro: central metadata + language logic.
-- src/components/LanguageSwitcher.{astro|tsx}: cookie logic + disabled state.
-- src/pages/index.astro (zh default), src/pages/en/index.astro.
-- src/pages/en/posts/[slug]/ and src/pages/posts/[slug]/ for posts.
-- scripts/ or lib/ for sitemap and OG generation utilities.
-
-## Agent Action Checklist (MVP Setup)
-
-1. Create Astro project & install dependencies (@astrojs/i18n).
-2. Scaffold content directories & sample bilingual post pair with translationSlug.
-3. Implement Layout with canonical + hreflang + OG tags.
-4. Add language switcher component (cookie + disable if missing counterpart).
-5. Implement dynamic OG image route.
-6. Generate combined sitemap at build.
-7. Add GitHub Actions workflow (.github/workflows/deploy.yml).
-8. Provide Nginx server block example (not auto-applied here).
+- src/components/LanguageSwitcher.astro: links to the other locale + disabled state.
+- src/pages/index.astro: root language redirect; src/pages/zh/index.astro and src/pages/en/index.astro are the home pages.
+- src/pages/{zh,en}/posts/[...translationSlug].astro for posts; src/pages/posts/ only redirects to English.
+- src/pages/folders/ (zh) and src/pages/en/folders/ for folder views.
+- src/pages/og/ for OG images; src/utils/ for folder, OG, reading-time, and post-link helpers.
+- public/scripts/: all client JavaScript (see the no-inline-scripts rule).
+- infra/nginx/: reference Nginx server block.
+- docs/: how-to guides; docs/archive/ holds superseded plans and notes.
 
 ## Communication Style
 
@@ -122,8 +102,12 @@ When presenting code: minimize extraneous comments; only clarify non-obvious log
 
 ## Reference Plan
 
-Project phases detailed in PROJECT_PLAN.md (kept separately for task sequencing).
+The original phase plan is archived at docs/archive/PROJECT_PLAN.md.
 
 ## Updating This File
 
 Append new sections under "Updates" with timestamps. Do not erase historical decisions.
+
+## Updates
+
+- 2026-10-06: Synced this file with the code before making the repo public. Chinese moved to /zh/ (earlier route restructure); RSS, MDX, and dynamic OG images are implemented; the language switcher no longer uses a cookie. Moved PROJECT_PLAN.md and stale docs into docs/archive/. Replaced the finished MVP checklist and old priorities list with an "Implemented" section.

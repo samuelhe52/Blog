@@ -39,15 +39,16 @@ src/content/posts/
 
 ### URL Structure
 
-- **Root posts**: `/posts/{slug}/` or `/en/posts/{slug}/`
-- **Folder view**: `/folders/{path}/` or `/en/folders/{path}/`
+- **Posts**: `/zh/posts/{translationSlug}/` or `/en/posts/{translationSlug}/`
+- **Folder view**: `/folders/{path}/` (Chinese) or `/en/folders/{path}/`
 - **Example**:
-  - Post at `zh/tutorial/basics.md` → accessible at `/posts/basics/`
+  - Post at `zh/tutorial/basics.md` with `translationSlug: "tutorial/basics"` → `/zh/posts/tutorial/basics/`
   - Folder view: `/folders/tutorial/` shows all posts in tutorial folder
+- Old unprefixed `/posts/{slug}/` URLs redirect to `/en/posts/{slug}/`
 
 ### Hierarchical Navigation
 
-- **Homepage** (`/` or `/en/`): Shows root posts + first-level folders
+- **Homepage** (`/zh/` or `/en/`): Shows root posts + first-level folders
 - **Folder page** (`/folders/tutorial/`): Shows posts in tutorial + subfolders
 - **Breadcrumbs**: Automatically generated for navigation
 
