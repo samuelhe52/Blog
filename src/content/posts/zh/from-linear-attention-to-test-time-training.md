@@ -9,7 +9,7 @@ author: "konakona"
 
 > 本文基于 CVPR 2026 论文 [ViT$^3$: Unlocking Test-Time Training in Vision](https://arxiv.org/abs/2512.01643)。
 
-在这篇文章中，我们将探讨注意力机制与序列建模之间的联系，以及这种联系如何引出一种名为**测试时训练（TTT）**的新范式。首先，让我们简要回顾标准的 softmax 注意力与线性注意力。
+在这篇文章中，我们将探讨注意力机制与序列建模之间的联系，以及这种联系如何引出一种名为**测试时训练**（TTT）的新范式。首先，让我们简要回顾标准的 softmax 注意力与线性注意力。
 
 ## Softmax 注意力
 
