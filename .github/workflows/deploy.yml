@@ -32,3 +32,26 @@ jobs:
           remote_host: ${{ secrets.SSH_HOST }}
           remote_user: ${{ secrets.SSH_USER }}
           remote_key: ${{ secrets.SSH_KEY }}
+      - name: Stage blog-terminal content
+        run: |
+          mkdir -p terminal-stamp
+          echo "${{ github.sha }}" > terminal-stamp/deployed
+      - name: Deploy blog-terminal content
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: -avzr --delete
+          path: src/content/posts/
+          remote_path: /srv/blog-terminal/posts/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+      # Written last: a systemd path unit restarts the reader when it changes.
+      - name: Signal blog-terminal reload
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: -avz
+          path: terminal-stamp/deployed
+          remote_path: /srv/blog-terminal/deployed
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
