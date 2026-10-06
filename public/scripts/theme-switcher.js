@@ -1,25 +1,21 @@
 // Theme switcher
 function setTheme(theme) {
-  localStorage.setItem('theme', theme);
-  
   const lightBtn = document.getElementById('theme-light');
   const darkBtn = document.getElementById('theme-dark');
   const autoBtn = document.getElementById('theme-auto');
   
-  lightBtn?.classList.remove('active');
-  darkBtn?.classList.remove('active');
-  autoBtn?.classList.remove('active');
-  
-  if (theme === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-    lightBtn?.classList.add('active');
-  } else if (theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    darkBtn?.classList.add('active');
+  if (theme === 'light' || theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', theme);
   } else {
+    theme = 'auto';
     document.documentElement.removeAttribute('data-theme');
-    autoBtn?.classList.add('active');
   }
+  localStorage.setItem('theme', theme);
+
+  [['light', lightBtn], ['dark', darkBtn], ['auto', autoBtn]].forEach(([name, button]) => {
+    button?.classList.toggle('active', name === theme);
+    button?.setAttribute('aria-pressed', String(name === theme));
+  });
 }
 
 function initTheme() {

@@ -7,16 +7,25 @@ interface Props {
   toEn?: string;
 }
 const { lang, disableZh = false, disableEn = false, toZh = '/zh/', toEn = '/en/' } = Astro.props;
+const label = lang === 'zh-CN' ? '切换语言' : 'Switch language';
+const unavailableLabel = lang === 'zh-CN' ? '暂无该语言版本' : 'Not available in this language';
+
+const options = [
+  { code: 'zh-CN', label: '中文', href: toZh, disabled: disableZh },
+  { code: 'en', label: 'English', href: toEn, disabled: disableEn },
+] as const;
 ---
-<nav class="language-switcher">
-  <button id="to-zh" data-target={toZh} disabled={lang === 'zh-CN' || disableZh} class:list={['lang-btn', { 'active': lang === 'zh-CN', 'unavailable': disableZh && lang !== 'zh-CN' }]}>
-    中文
-  </button>
-  <button id="to-en" data-target={toEn} disabled={lang === 'en' || disableEn} class:list={['lang-btn', { 'active': lang === 'en', 'unavailable': disableEn && lang !== 'en' }]}>
-    English
-  </button>
+<nav class="language-switcher" aria-label={label}>
+  {options.map((option) =>
+    option.code === lang ? (
+      <span class="lang-btn active" lang={option.code} aria-current="page">{option.label}</span>
+    ) : option.disabled ? (
+      <span class="lang-btn unavailable" lang={option.code} aria-disabled="true" title={unavailableLabel}>{option.label}</span>
+    ) : (
+      <a class="lang-btn" href={option.href} lang={option.code} hreflang={option.code}>{option.label}</a>
+    )
+  )}
 </nav>
-<script is:inline src="/scripts/lang-switcher.js"></script>
 
 <style>
   .language-switcher {
@@ -26,31 +35,27 @@ const { lang, disableZh = false, disableEn = false, toZh = '/zh/', toEn = '/en/'
   }
   .lang-btn {
     padding: 0.375rem 0.75rem;
-    border: none;
     border-radius: 6px;
-    background: transparent;
     color: var(--text-muted);
     font-size: 0.875rem;
     font-weight: 500;
     font-family: var(--font-family);
-    cursor: pointer;
-    transition: background 0.2s;
+    line-height: 1.6;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out, background 0.2s ease-in-out;
   }
-  .lang-btn:hover:not(:disabled) {
+  a.lang-btn:hover {
     background: var(--code-bg);
     color: var(--text);
+    text-decoration: none;
   }
   .lang-btn.active {
     background: var(--link);
     color: white;
-    cursor: default;
   }
   .lang-btn.unavailable {
     opacity: 0.4;
     cursor: not-allowed;
     text-decoration: line-through;
-  }
-  .lang-btn:disabled:not(.active) {
-    cursor: not-allowed;
   }
 </style>
