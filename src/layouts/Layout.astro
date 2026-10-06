@@ -61,6 +61,7 @@ const strings = lang === 'zh-CN' ? zh : en;
       })();
     </script>
     
+    <noscript><style>.animate { opacity: 1 !important; transform: none !important; }</style></noscript>
     <script is:inline src="/scripts/main.js" defer></script>
     <script is:inline src="/scripts/code-copy.js" defer></script>
     <title>{pageTitle}</title>
@@ -479,6 +480,14 @@ const strings = lang === 'zh-CN' ? zh : en;
       .animate.show {
         opacity: 1;
         transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .animate {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
       }
       /* Universal top spacing below fixed header */
       header + * { margin-top: 1rem; }
