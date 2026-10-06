@@ -95,6 +95,13 @@ const currentYear = new Date().getFullYear();
     pointer-events: none;
   }
   
+  /* Keep footer text clear of the floating TOC / back-to-top buttons */
+  @media (max-width: 56rem) {
+    :global(body:has(#back-to-top)) footer {
+      padding-bottom: calc(8.5rem + env(safe-area-inset-bottom));
+    }
+  }
+
   @media (max-width: 640px) {
     .footer-content {
       flex-direction: row;
