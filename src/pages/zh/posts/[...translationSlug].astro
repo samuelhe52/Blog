@@ -6,6 +6,9 @@ import Header from '../../../components/Header.astro';
 import PostHeader from '../../../components/PostHeader.astro';
 import BackToTop from '../../../components/BackToTop.astro';
 import TableOfContents from '../../../components/TableOfContents.astro';
+import PostNav from '../../../components/PostNav.astro';
+import { getAdjacentPosts } from '../../../utils/postLinks';
+import { calculateReadingTime, formatReadingTime } from '../../../utils/reading-time';
 import { SITE } from '../../../site.config';
 
 export const getStaticPaths = (async () => {
@@ -26,6 +29,8 @@ export const getStaticPaths = (async () => {
 
 const { post, hasEnTranslation } = Astro.props;
 const { Content } = await post.render();
+const { older, newer } = await getAdjacentPosts(post.data.translationSlug, 'zh-CN');
+const readingTime = formatReadingTime(calculateReadingTime(post.body), 'zh-CN');
 
 // Check if post is in a folder
 const isInFolder = post.data.translationSlug.includes('/');
@@ -59,17 +64,18 @@ const ogImageUrl = new URL(`/og/${post.data.translationSlug}.svg`, SITE.domain).
     <article>
       {parentFolderPath && (
         <nav class="parent-folder-nav animate">
-          <a href={`/zh/folders/${parentFolderPath}/`} class="back-to-folder">
+          <a href={`/folders/${parentFolderPath}/`} class="back-to-folder">
             ← 返回文件夹
           </a>
         </nav>
       )}
       <div class="animate">
-        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang="zh-CN" />
+        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang="zh-CN" readingTime={readingTime} />
       </div>
       <div class="prose animate">
         <Content />
       </div>
+      <PostNav lang="zh-CN" older={older} newer={newer} />
     </article>
   </main>
   <TableOfContents lang="zh-CN" />

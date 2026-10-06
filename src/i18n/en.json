@@ -1,7 +1,7 @@
 {
   "read_more": "Read more",
-  "next_post": "Next",
-  "prev_post": "Previous",
+  "next_post": "Newer",
+  "prev_post": "Older",
   "switch_language": "Switch language",
   "english": "English",
   "chinese": "Chinese",
@@ -13,5 +13,6 @@
   "copy_failed": "Copy failed",
   "translation_missing": "This content is not yet available in English",
   "view_in_other_language": "View in Chinese",
-  "skip_to_content": "Skip to content"
+  "skip_to_content": "Skip to content",
+  "post_navigation": "More posts"
 }

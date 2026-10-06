@@ -5,6 +5,9 @@ import PostHeader from '../../../components/PostHeader.astro';
 import BackToTop from '../../../components/BackToTop.astro';
 import MissingTranslationNotice from '../../../components/MissingTranslationNotice.astro';
 import TableOfContents from '../../../components/TableOfContents.astro';
+import PostNav from '../../../components/PostNav.astro';
+import { getAdjacentPosts } from '../../../utils/postLinks';
+import { calculateReadingTime, formatReadingTime } from '../../../utils/reading-time';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -24,6 +27,8 @@ if (!post) {
 
 const counterpart = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug);
 const { Content } = await post.render();
+const { older, newer } = await getAdjacentPosts(translationSlug, 'en');
+const readingTime = formatReadingTime(calculateReadingTime(post.body), 'en');
 
 // Check if post is in a folder
 const isInFolder = translationSlug.includes('/');
@@ -54,12 +59,13 @@ const ogImageUrl = new URL(`/og/${isFallback ? '' : 'en-'}${translationSlug}.svg
         </nav>
       )}
       <div class="animate">
-        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang={isFallback ? 'zh-CN' : 'en'} />
+        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang={isFallback ? 'zh-CN' : 'en'} readingTime={readingTime} />
       </div>
       {isFallback && <MissingTranslationNotice lang="en" translationUrl={`/zh/posts/${translationSlug}/`} />}
       <div class="prose animate">
         <Content />
       </div>
+      <PostNav lang="en" older={older} newer={newer} />
     </article>
   </main>
   <TableOfContents lang="en" />

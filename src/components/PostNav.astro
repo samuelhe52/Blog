@@ -1,0 +1,98 @@
+---
+import type { AdjacentPost } from '../utils/postLinks';
+import en from '../i18n/en.json';
+import zh from '../i18n/zh.json';
+
+interface Props {
+  lang: 'zh-CN' | 'en';
+  older: AdjacentPost | null;
+  newer: AdjacentPost | null;
+}
+
+const { lang, older, newer } = Astro.props;
+const strings = lang === 'zh-CN' ? zh : en;
+---
+
+{(older || newer) && (
+  <nav class="post-nav" aria-label={strings.post_navigation}>
+    {older ? (
+      <a href={older.href} class="post-nav-link older" rel="prev">
+        <span class="post-nav-label">← {strings.prev_post}</span>
+        <span class="post-nav-title">{older.title}</span>
+      </a>
+    ) : <span />}
+    {newer && (
+      <a href={newer.href} class="post-nav-link newer" rel="next">
+        <span class="post-nav-label">{strings.next_post} →</span>
+        <span class="post-nav-title">{newer.title}</span>
+      </a>
+    )}
+  </nav>
+)}
+
+<style>
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    transition: border-color 0.3s ease-in-out;
+  }
+
+  .post-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+
+  .post-nav-link:hover {
+    border-color: var(--link);
+    text-decoration: none;
+  }
+
+  .post-nav-link.newer {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .post-nav-label {
+    color: var(--text-muted);
+    font: 600 0.75rem/1.2 var(--font-heading);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color 0.3s ease-in-out;
+  }
+
+  .post-nav-title {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    transition: color 0.3s ease-in-out;
+  }
+
+  .post-nav-link:hover .post-nav-title {
+    color: var(--link);
+  }
+
+  @media (max-width: 640px) {
+    .post-nav {
+      grid-template-columns: 1fr;
+    }
+
+    .post-nav-link.newer {
+      grid-column: auto;
+    }
+
+    .post-nav > span:empty {
+      display: none;
+    }
+  }
+</style>
