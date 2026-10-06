@@ -1,4 +1,36 @@
-let tocObserver;
+const TOC_RING_LENGTH = 2 * Math.PI * 22.5;
+let progressTarget = null;
+let progressFrame = 0;
+let progressListening = false;
+
+function updateProgress() {
+  progressFrame = 0;
+  if (!progressTarget) {
+    return;
+  }
+
+  const { article, headings, links, ring } = progressTarget;
+  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+  const threshold = atBottom ? window.innerHeight : 120;
+  const current = headings.filter((heading) => heading.getBoundingClientRect().top <= threshold).pop();
+  const currentHash = current ? `#${current.id}` : '';
+  links.forEach((link) => {
+    link.classList.toggle('active', link.hash === currentHash);
+  });
+
+  if (ring) {
+    const rect = article.getBoundingClientRect();
+    const distance = rect.height - window.innerHeight;
+    const progress = distance > 0 ? Math.min(1, Math.max(0, -rect.top / distance)) : 1;
+    ring.style.strokeDashoffset = String(TOC_RING_LENGTH * (1 - progress));
+  }
+}
+
+function scheduleProgress() {
+  if (!progressFrame) {
+    progressFrame = window.requestAnimationFrame(updateProgress);
+  }
+}
 
 function generateTOC() {
   const article = document.querySelector('article .prose');
@@ -67,8 +99,12 @@ function generateTOC() {
   const openDialog = () => {
     dialog.classList.remove('is-closing');
     dialog.showModal();
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
+
+    const nav = dialog.querySelector('.toc-dialog-nav');
+    const current = dialogList.querySelector('.toc-link.active') || dialogList.querySelector('.toc-link');
+    if (nav && current) {
+      nav.scrollTop = current.offsetTop - nav.offsetTop - (nav.clientHeight - current.offsetHeight) / 2;
+      current.focus({ preventScroll: true });
     }
   };
 
@@ -90,8 +126,19 @@ function generateTOC() {
     link.className = 'toc-link';
     link.addEventListener('click', (event) => {
       event.preventDefault();
-      history.pushState(null, '', `#${id}`);
-      heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const goToHeading = () => {
+        history.pushState(null, '', `#${id}`);
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        heading.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        heading.setAttribute('tabindex', '-1');
+        heading.focus({ preventScroll: true });
+      };
+
+      if (isDialog) {
+        closeDialog(goToHeading);
+      } else {
+        goToHeading();
+      }
     });
 
     item.appendChild(link);
@@ -126,23 +173,18 @@ function generateTOC() {
     toggle.dataset.tocReady = 'true';
   }
 
-  tocObserver?.disconnect();
-  tocObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) {
-        return;
-      }
-
-      document.querySelectorAll('.toc-link').forEach((link) => {
-        link.classList.toggle('active', link.hash === `#${entry.target.id}`);
-      });
-    });
-  }, {
-    rootMargin: '-100px 0px -66%',
-    threshold: 0
-  });
-
-  headings.forEach((heading) => tocObserver.observe(heading));
+  progressTarget = {
+    article,
+    headings,
+    links: [...document.querySelectorAll('.toc-link')],
+    ring: toggle.querySelector('.toc-progress-value')
+  };
+  updateProgress();
+  if (!progressListening) {
+    window.addEventListener('scroll', scheduleProgress, { passive: true });
+    window.addEventListener('resize', scheduleProgress, { passive: true });
+    progressListening = true;
+  }
 }
 
 if (document.readyState === 'loading') {
