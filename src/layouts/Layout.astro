@@ -22,8 +22,9 @@ export interface Props {
   canonical?: string;
   alternates?: { 'zh-CN'?: string; en?: string };
   ogImage?: string;
+  noindex?: boolean;
 }
-const { lang, title, description, canonical, alternates, ogImage } = Astro.props as Props;
+const { lang, title, description, canonical, alternates, ogImage, noindex } = Astro.props as Props;
 const site = SITE.domain;
 const current = canonical || Astro.url.toString();
 const pageTitle = title || SITE.title;
@@ -66,7 +67,8 @@ const strings = lang === 'zh-CN' ? zh : en;
     <script is:inline src="/scripts/code-copy.js" defer></script>
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="canonical" href={current} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {!noindex && <link rel="canonical" href={current} />}
     {alternates?.['zh-CN'] && <link rel="alternate" hreflang="zh-CN" href={alternates['zh-CN']} />}
     {alternates?.en && <link rel="alternate" hreflang="en" href={alternates.en} />}
     <meta property="og:title" content={pageTitle} />

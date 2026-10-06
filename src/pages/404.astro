@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+---
+
+<Layout lang="en" title="404 · konakona" noindex>
+  <Header lang="en" />
+  <main id="main-content" tabindex="-1" class="not-found animate">
+    <p class="code">404</p>
+    <h1>Page not found</h1>
+    <p lang="zh-CN" class="zh">页面不存在</p>
+    <p class="hint">
+      The link may be outdated, or the post may have moved.
+      <span lang="zh-CN">链接可能已失效，或文章已移动。</span>
+    </p>
+    <nav class="actions" aria-label="Home">
+      <a href="/en/">Back to English home</a>
+      <a href="/zh/" lang="zh-CN">返回中文首页</a>
+    </nav>
+  </main>
+</Layout>
+
+<style>
+  .not-found {
+    padding: 3rem 0 1rem;
+  }
+
+  .code {
+    margin: 0 0 0.5rem;
+    color: var(--text-muted);
+    font: 600 0.85rem/1 var(--font-heading);
+    letter-spacing: 0.08em;
+    transition: color 0.3s ease-in-out;
+  }
+
+  h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .zh {
+    margin: 0 0 1.5rem;
+    font: 600 1.15rem/1.4 var(--font-heading);
+    color: var(--text-muted);
+    transition: color 0.3s ease-in-out;
+  }
+
+  .hint {
+    color: var(--text-muted);
+    transition: color 0.3s ease-in-out;
+  }
+
+  .hint span {
+    display: block;
+    font-family: var(--font-heading);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .actions a {
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-heading);
+    font-size: 0.925rem;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+
+  .actions a:hover {
+    border-color: var(--link);
+    text-decoration: none;
+  }
+</style>
