@@ -96,7 +96,7 @@ function generateTOC() {
     closeFallback = window.setTimeout(finishClose, 260);
   };
 
-  const openDialog = () => {
+  const openDialog = (event) => {
     dialog.classList.remove('is-closing');
     dialog.showModal();
 
@@ -104,7 +104,10 @@ function generateTOC() {
     const current = dialogList.querySelector('.toc-link.active') || dialogList.querySelector('.toc-link');
     if (nav && current) {
       nav.scrollTop = current.offsetTop - nav.offsetTop - (nav.clientHeight - current.offsetHeight) / 2;
-      current.focus({ preventScroll: true });
+      // Keyboard opens (click with detail 0) land on the current entry; pointer
+      // opens focus the list itself so no focus ring is drawn.
+      const openedByKeyboard = event?.detail === 0;
+      (openedByKeyboard ? current : nav).focus({ preventScroll: true });
     }
   };
 

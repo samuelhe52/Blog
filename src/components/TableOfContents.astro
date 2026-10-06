@@ -51,7 +51,7 @@ const labels = lang === 'zh-CN'
       </svg>
     </button>
   </div>
-  <nav class="toc-dialog-nav" aria-label={labels.title}>
+  <nav class="toc-dialog-nav" aria-label={labels.title} tabindex="-1">
     <ul class="toc-list toc-dialog-list" id="toc-dialog-list"></ul>
   </nav>
 </dialog>
@@ -124,7 +124,7 @@ const labels = lang === 'zh-CN'
     line-height: 1.4;
     text-decoration: none;
     cursor: pointer;
-    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   }
 
   .toc-link:hover {
@@ -308,7 +308,7 @@ const labels = lang === 'zh-CN'
 
   .toc-dialog-list .toc-link {
     padding: 0.55rem 0.5rem 0.55rem 0.75rem;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 0.95rem;
     line-height: 1.45;
   }
@@ -319,7 +319,11 @@ const labels = lang === 'zh-CN'
   }
 
   .toc-dialog-list .toc-link.active {
-    background: color-mix(in srgb, var(--link) 10%, transparent);
+    box-shadow: inset 2px 0 0 var(--link);
+  }
+
+  .toc-dialog-nav:focus {
+    outline: none;
   }
 
   .toc-dialog-list .toc-link:focus-visible {
