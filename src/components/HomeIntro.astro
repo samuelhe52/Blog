@@ -9,19 +9,30 @@ const t = {
     hi: '嗨！',
     title: '我是 Samuel',
     body: '机器学习研究、Swift，还有偶尔掉进去的 debug 兔子洞。',
+    ssh: '也可以在终端里阅读：',
+    copy: '点击复制',
+    copied: '已复制',
   },
   en: {
     hi: 'hi!',
     title: "I'm Samuel",
     body: 'Machine learning research, Swift, and the occasional debugging rabbit hole.',
+    ssh: 'Also available in your terminal:',
+    copy: 'Click to copy',
+    copied: 'Copied',
   },
 }[lang];
+const sshCommand = 'ssh -p 2222 ssh-blog.konakona.dev';
 ---
 
 <section class="intro">
   <span class="hi" aria-hidden="true">{t.hi}</span>
   <p class="intro-title">{t.title}</p>
   <p class="intro-body">{t.body}</p>
+  <p class="intro-ssh">
+    {t.ssh}
+    <button type="button" class="ssh-copy" data-ssh-command={sshCommand} data-copied-label={t.copied} title={t.copy}>{sshCommand}</button>
+  </p>
 </section>
 
 <style>
@@ -66,6 +77,29 @@ const t = {
     margin: 0;
     color: var(--text-muted);
     transition: color 0.3s ease-in-out;
+  }
+
+  .intro-ssh {
+    margin: 0.9rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    transition: color 0.3s ease-in-out;
+  }
+
+  .ssh-copy {
+    padding: 0.1rem 0.4rem;
+    border: 0;
+    border-radius: 4px;
+    background: var(--code-inline-bg);
+    color: var(--code-inline-text);
+    font: 0.78rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+
+  .ssh-copy:hover,
+  .ssh-copy:focus-visible {
+    color: var(--link);
   }
 
   @media (max-width: 640px) {
