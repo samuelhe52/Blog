@@ -1,0 +1,124 @@
+---
+import type { PostItem } from '../utils/folders';
+
+interface Props {
+  posts: PostItem[];
+  lang: 'zh-CN' | 'en';
+}
+
+const { posts, lang } = Astro.props;
+const postsUrl = lang === 'zh-CN' ? '/zh/posts' : '/en/posts';
+const yearLabel = (y: number) => (lang === 'zh-CN' ? `${y} 年` : String(y));
+
+const postsByYear: { year: number; posts: PostItem[] }[] = [];
+for (const post of posts) {
+  const year = post.date.getFullYear();
+  const group = postsByYear.find(g => g.year === year);
+  if (group) group.posts.push(post);
+  else postsByYear.push({ year, posts: [post] });
+}
+---
+
+{postsByYear.map(({ year, posts }) => (
+  <div class="year-group">
+    <p class="year-tag">{yearLabel(year)}</p>
+    <ul class="post-list">
+      {posts.map((post) => (
+        <li class="post-item">
+          <a href={`${postsUrl}/${post.slug}/`} class="post-link">
+            <time datetime={post.date.toISOString()}>
+              {post.date.toLocaleDateString(lang, { month: 'short', day: 'numeric' })}
+            </time>
+            <div class="post-info">
+              <h3 class="post-title">{post.title}</h3>
+              {post.description && <p class="post-description">{post.description}</p>}
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+))}
+
+<style>
+  .year-tag {
+    margin: 1.5rem 0 0.25rem;
+    font: 400 1.05rem/1 var(--font-hand);
+    color: var(--link);
+    transition: color 0.3s ease-in-out;
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .post-item {
+    margin: 0;
+  }
+
+  .post-link {
+    display: grid;
+    grid-template-columns: 4.75rem 1fr;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1.5px dashed var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+
+  .post-link:hover {
+    text-decoration: none;
+  }
+
+  .post-info {
+    min-width: 0;
+  }
+
+  .post-title {
+    display: inline;
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.45;
+    background: linear-gradient(100deg, transparent 0.2em, var(--hl) 0.2em, var(--hl) calc(100% - 0.2em), transparent calc(100% - 0.2em)) 0 85% / 0 0.55em no-repeat;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    transition: background-size 0.4s cubic-bezier(0.3, 0.8, 0.3, 1), color 0.3s ease-in-out;
+  }
+
+  .post-link:hover .post-title,
+  .post-link:focus-visible .post-title {
+    background-size: 100% 0.55em;
+  }
+
+  .post-description {
+    margin: 0.3rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.93rem;
+    line-height: 1.6;
+    transition: color 0.3s ease-in-out;
+  }
+
+  time {
+    font: 400 1rem/1.75 var(--font-hand);
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: color 0.3s ease-in-out;
+  }
+
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-title {
+      transition: color 0.3s ease-in-out;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .post-link {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+  }
+</style>

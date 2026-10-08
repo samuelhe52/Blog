@@ -55,6 +55,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Combined sitemap with hreflang alternates; per-language RSS; robots.txt.
 - MDX, KaTeX math, Shiki code highlighting (light/dark).
 - Per-post dynamic OG images.
+- Home pages show the latest 6 posts with an "All N →" link to the year-grouped archive at /zh/posts/ and /en/posts/ (PostTimeline component, shared by both).
 - Reading time, table of contents with reading progress, older/newer post navigation, back-to-top, code copy.
 - Light/dark theme via CSS variables; bilingual 404 page.
 - GitHub Actions build and rsync deploy.
@@ -85,7 +86,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - src/layouts/Layout.astro: central metadata + language logic.
 - src/components/LanguageSwitcher.astro: links to the other locale + disabled state.
 - src/pages/index.astro: root language redirect; src/pages/zh/index.astro and src/pages/en/index.astro are the home pages.
-- src/pages/{zh,en}/posts/[...translationSlug].astro for posts; src/pages/posts/ only redirects to English.
+- src/pages/{zh,en}/posts/[...translationSlug].astro for posts, index.astro for the archive; src/pages/posts/ only redirects to English.
 - src/pages/folders/ (zh) and src/pages/en/folders/ for folder views.
 - src/pages/og/ for OG images; src/utils/ for folder, OG, reading-time, and post-link helpers.
 - public/scripts/: client JavaScript (see the scripts rule for exceptions).
