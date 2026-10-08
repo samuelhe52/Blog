@@ -69,6 +69,8 @@ for (const post of structure.posts) {
     </section>
   )}
 
+  <slot name="before-folders" />
+
   {structure.folders.length > 0 && (
     <section class="folders-section">
       <h2 class="section-title">{text.folders}</h2>

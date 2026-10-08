@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Paper walkthrough: Self-Distillation Enables Continual Learning (SDFT)</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet"/>
+<style>
+  :root { --ink:#1d2433; --mute:#5b6478; --line:#d9dde6; --bg:#f6f7fa; --blue:#2450c8; --red:#c23b3b; --green:#2b8a5a; --amber:#b7791f;
+          --hl:#2a78d6; --neutral:#a9afbd; --track:#e8eaf0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-snap-type:y mandatory; background:#e9ebf0; }
+  body { font-family:-apple-system,"Helvetica Neue",Inter,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif; color:var(--ink); }
+  .page { height:100vh; display:flex; align-items:center; justify-content:center; scroll-snap-align:center; }
+
+  .slide { width:min(100vw, 177.78vh); aspect-ratio:16/9; background:#fff; padding:2.4vw 3vw 1.4vw; display:grid;
+           grid-template-rows:auto 1fr auto; gap:1.2vw; font-size:min(1.1vw, 1.96vh); line-height:1.5; box-shadow:0 4px 30px #0002; }
+  header h1 { font-size:2.1em; letter-spacing:-.005em; line-height:1.25; }
+  header p { color:var(--mute); margin-top:.3em; font-size:1.05em; }
+  .body { min-height:0; display:grid; gap:1.4vw; }
+  .c2 { grid-template-columns:1fr 1fr; } .c3 { grid-template-columns:1fr 1fr 1fr; } .c21 { grid-template-columns:1.35fr 1fr; } .c12 { grid-template-columns:1fr 1.35fr; }
+  section { background:var(--bg); border-radius:.7vw; padding:1vw 1.2vw; overflow:hidden; }
+  section h2 { font-size:1em; letter-spacing:.04em; color:var(--blue); margin-bottom:.55em; }
+  .stack { display:grid; gap:1.2vw; align-content:start; min-height:0; }
+  ul { list-style:none; }
+  li { padding-left:1.1em; position:relative; margin-bottom:.45em; }
+  li::before { content:"•"; position:absolute; left:0; color:var(--blue); }
+  ol { padding-left:1.4em; } ol li { padding-left:.2em; } ol li::before { content:none; }
+  b { font-weight:650; }
+  .mute { color:var(--mute); }
+  .warn { color:var(--amber); font-weight:650; }
+  .prompt { background:#fff; border:1px solid var(--line); border-radius:.4vw; padding:.6em .8em; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.9em; line-height:1.5; }
+  .prompt i { color:var(--blue); font-style:normal; }
+  .eq { background:#fff; border-left:3px solid var(--blue); padding:.1em .8em; margin:.45em 0 .6em; position:relative; }
+  .eq .katex-display { margin:.45em 0; }
+  .eq .lbl { position:absolute; right:.7em; top:50%; transform:translateY(-50%); color:var(--mute); font-size:.85em; }
+  .katex { font-size:1.05em; }
+  .flow { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:.8em; text-align:center; }
+  .role { background:#fff; border:2px solid var(--line); border-radius:.5vw; padding:.7em .5em; }
+  .role b { display:block; font-size:1.1em; margin-bottom:.2em; }
+  .role.t { border-color:var(--green); } .role.s { border-color:var(--red); }
+  .arrow { color:var(--mute); font-size:.9em; line-height:1.3; }
+  table { width:100%; border-collapse:collapse; font-size:.92em; font-variant-numeric:tabular-nums; }
+  td,th { text-align:right; padding:.25em .4em; border-bottom:1px solid var(--line); }
+  td:first-child, th:first-child { text-align:left; }
+  th { color:var(--mute); font-weight:600; }
+  th.grp { text-align:center; border-bottom:none; padding-bottom:0; }
+  tr.ours td { font-weight:650; }
+  tr.ours td:first-child { color:var(--hl); }
+  tr.basel td { color:var(--mute); }
+  td.bad { color:var(--red); }
+  .cap { color:var(--mute); font-size:.85em; margin-top:.5em; }
+  .algo { font-size:.92em; line-height:1.55; background:#fff; border:1px solid var(--line); border-radius:.4vw; padding:.7em .9em; counter-reset:ln; }
+  .algo div { counter-increment:ln; padding-left:2.2em; text-indent:-2.2em; }
+  .algo div::before { content:counter(ln); display:inline-block; width:2.2em; text-indent:0; color:var(--mute); }
+  .algo .in1 { padding-left:3.6em; } .algo .in2 { padding-left:5em; }
+  .algo .cm { color:var(--mute); }
+
+  .chart h3 { font-size:.95em; font-weight:650; margin:.5em 0 .3em; }
+  .bar { display:grid; grid-template-columns:7.2em 1fr 3.2em; align-items:center; gap:.6em; margin:.28em 0; font-size:.92em; }
+  .bar .track { background:var(--track); height:1.05em; border-radius:0 4px 4px 0; position:relative; }
+  .bar .fill { height:100%; background:var(--neutral); border-radius:0 4px 4px 0; }
+  .bar.hl .fill { background:var(--hl); }
+  .bar.hl > span:first-child { font-weight:650; }
+  .bar .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .bar .ref { position:absolute; top:-.2em; bottom:-.2em; width:2px; background:var(--ink); opacity:.55; }
+  .bar:hover .fill { filter:brightness(.9); }
+  .legend { font-size:.82em; color:var(--mute); margin-top:.3em; }
+  .key { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2vw; }
+  .kpi { background:var(--bg); border-radius:.7vw; padding:1vw 1.2vw; }
+  .kpi .v { font-size:2.4em; font-weight:700; color:var(--hl); line-height:1.1; font-variant-numeric:tabular-nums; }
+  .kpi .l { color:var(--mute); font-size:.95em; margin-top:.2em; }
+  .chain { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:.8em; align-items:stretch; }
+  .chain .step { background:#fff; border:1px solid var(--line); border-radius:.5vw; padding:.6em .8em; }
+  .chain .step b { display:block; color:var(--blue); margin-bottom:.2em; }
+  .chain .op { align-self:center; color:var(--mute); font-size:1.3em; }
+  .tagm { display:inline-block; padding:0 .45em; border-radius:.3em; font-size:.78em; font-weight:650; color:#fff; vertical-align:.1em; margin-left:.3em; }
+  .tagm.math { background:var(--green); } .tagm.assume { background:var(--amber); } .tagm.emp { background:var(--mute); }
+  .fig { margin:0; display:flex; flex-direction:column; min-height:0; height:100%; }
+  .fig img { flex:1; min-height:0; width:100%; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:.4vw; }
+  .fig figcaption { color:var(--mute); font-size:.85em; margin-top:.4em; }
+  .fig figcaption b { color:var(--ink); }
+  .ok::before { content:"✓"; color:var(--green); } .no::before { content:"✗"; color:var(--red); } .q::before { content:"?"; color:var(--amber); font-weight:700; }
+  footer { display:flex; justify-content:space-between; color:var(--mute); font-size:.78em; border-top:1px solid var(--line); padding-top:.5vw; }
+  .title .slide { grid-template-rows:1fr auto auto; }
+  .title h1 { font-size:3.1em; line-height:1.15; letter-spacing:-.01em; }
+  .title .sub { font-size:1.35em; color:var(--mute); margin-top:.6em; max-width:52em; }
+  .title .auth { font-size:1.1em; margin-top:1.4em; }
+  @media print {
+    @page { size:16in 9in; margin:0; }
+    html { background:#fff; }
+    .page { height:auto; page-break-after:always; }
+    .slide { width:16in; height:9in; font-size:16px; box-shadow:none; padding:34px 42px 20px; gap:16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page title"><div class="slide">
+<div style="align-self:center">
+<p style="font-size:1.05em;letter-spacing:.06em;color:var(--blue);font-weight:650">Paper walkthrough</p>
+<h1>Self-Distillation Enables Continual Learning<br/><span style="font-size:.62em">Self-Distillation Fine-Tuning (SDFT)</span></h1>
+<p class="sub">SDFT uses a demonstration-conditioned version of itself as teacher, turning expert demonstrations into on-policy signals. It learns new tasks while forgetting much less than SFT.</p>
+<p class="auth">Idan Shenfeld, Mehul Damani, Jonas Hübotter, Pulkit Agrawal · MIT, Improbable AI Lab, ETH Zurich<br/>
+<span class="mute">arXiv 2601.19897v2 (2026-08-07) · Code: github.com/Continual-Intelligence/Self-Distillation</span></p>
+</div>
+<div class="key">
+<div class="kpi"><div class="v">65.4 vs 56.0</div><div class="l">Prior-task average after Tool Use training: SDFT vs SFT (base 65.5)</div></div>
+<div class="kpi"><div class="v">70.6 vs 63.2</div><div class="l">Tool Use accuracy: SDFT vs SFT (base 42.9)</div></div>
+<div class="kpi"><div class="v">98 vs 80</div><div class="l">OOD accuracy on newly injected 2025 facts: SDFT vs SFT</div></div>
+</div>
+<footer><span>All numbers are from the paper; Qwen2.5-7B-Instruct unless stated otherwise.</span><span>1</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>On-policy learning forgets less, but usually needs rewards</h1>
+<p>With demonstrations alone, the default is SFT, an off-policy method.</p></header>
+<div class="body c2">
+<section>
+<h2>The core tension</h2>
+<ul>
+<li><b>Continual learning</b>: acquire skills and knowledge without degrading existing capabilities. Deployed models currently keep their parameters fixed.</li>
+<li><b>On-policy training</b> (learning from the model's own samples) reduces forgetting relative to off-policy training (RL's Razor, Shenfeld et al. 2025; Chen et al. 2025) and improves generalization (Chu et al. 2025).</li>
+<li>Most successful on-policy methods use <b>reinforcement learning</b>, requiring explicit rewards that many real-world settings lack.</li>
+<li>Learning from <b>demonstrations</b> mainly uses <b>SFT</b>: training on a fixed expert distribution leads to compounding errors at inference (Ross et al. 2011) and catastrophic forgetting.</li>
+</ul>
+<p style="margin-top:.8em"><b>Question: </b>How can we learn on-policy from demonstrations alone?</p>
+</section>
+<div class="stack">
+<section>
+<h2>Existing approaches and their limits</h2>
+<ul>
+<li><b>Inverse RL（IRL）：</b>Infer a reward, then run on-policy RL. Strong structural priors (maximum entropy, adversarial discriminators, preference pairs) are needed; otherwise the problem is ill-posed or too costly.</li>
+<li><b>Context distillation</b> (Bai et al. 2022; Snell et al. 2022): a model with extra context teaches itself without that context. Usually <i>offline</i>, trained on teacher samples, with <i>fixed</i> context (e.g., guidelines or few-shot examples).</li>
+</ul>
+</section>
+<section>
+<h2>What SDFT changes</h2>
+<ul>
+<li>Distillation is <b>on-policy</b>: the student trains on its own trajectories, letting the teacher correct errors where they arise.</li>
+<li>Teacher context is <b>a demonstration specific to each query</b>, rather than a global prefix, expressing fine-grained task intent.</li>
+<li>The pretrained model's in-context learning (ICL) replaces an explicit reward model.</li>
+<li>Concurrent independent work proposed similar self-distillation: Zhao et al. 2026; Hübotter et al. 2026 ("RL via self-distillation").</li>
+</ul>
+</section>
+</div>
+</div>
+<footer><span>§1–2</span><span>2</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Two modes: the teacher stays closer to the base than SFT</h1>
+<p>Left: SDFT pipeline. Right: demonstration conditioning stays closer to the base distribution at the same new-task accuracy.</p></header>
+<div class="body" style="grid-template-rows:1fr auto">
+<section style="display:flex;flex-direction:column">
+<figure class="fig">
+<img alt="Figure 2: SDFT pipeline and policy distributions" src="../figs/teaser_fig.webp"/>
+<figcaption><b>Figure 2 in the paper. </b>Left: the query enters student mode to sample tokens; the same LLM in teacher mode also sees a demonstration. KL between token distributions $P$ and $Q$ provides the gradient. Right: SDFT stays closer to the base policy than SFT while reaching the target region near the demonstrator.</figcaption>
+</figure>
+</section>
+<div class="body c3" style="gap:1.2vw">
+<section><h2>Student mode</h2><p>Sees only query $x$ and samples $y\sim\pi_\theta(\cdot\mid x)$. All training trajectories come from this mode: on-policy.</p></section>
+<section><h2>Teacher mode</h2><p>The same model (EMA weights) also sees demonstration $c$, producing $\pi(\cdot\mid y_{\lt t},x,c)$ at each student-generated position.</p></section>
+<section><h2>Key measurement (§3.2)</h2><p>KL to base: teacher 0.68 nats, SFT 1.26 nats, at the same new-task accuracy.</p></section>
+</div>
+</div>
+<footer><span>§3, Figure 2</span><span>3</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>One model takes two roles</h1>
+<p>The teacher also sees the demonstration; the student sees only the query and generates training trajectories.</p></header>
+<div class="body c2">
+<div class="stack">
+<section>
+<h2>Roles</h2>
+<div class="flow">
+<div class="role s"><b>Student</b>$P=\pi_\theta(\cdot\mid x)$<br/><span class="mute">Query only<br/>Sample response $y$</span></div>
+<div class="arrow">On $y$,<br/>match teacher<br/>←</div>
+<div class="role t"><b>Teacher</b>$Q=\pi(\cdot\mid x,c)$<br/><span class="mute">Same model + demonstration $c$<br/>Score student tokens</span></div>
+</div>
+</section>
+<section>
+<h2>Teacher prompt (verbatim)</h2>
+<div class="prompt">&lt;Question&gt;<br/>This is an example for a response to the question:<br/>&lt;<i>Demonstration</i>&gt;<br/>Now answer with a response of your own, including the thinking process:</div>
+<p class="cap">The authors find this prompt prevents copying $c$ verbatim: the teacher generates its own response, reflecting its understanding of the demonstration's intent.</p>
+</section>
+<section>
+<h2>Notation</h2>
+<ul>
+<li>$\theta$: student parameters, the only ones that receive gradients. Their value at step $k$ is $\theta_k$, abbreviated $\pi_k\equiv\pi_{\theta_k}$ (used on the next two slides).</li>
+<li>The teacher $\pi(\cdot\mid x,c)$ is a constant in the loss. In the derivation it shares the student's parameters $\theta_k$; in the implementation it uses EMA parameters $\phi$, i.e. $\pi_\phi(\cdot\mid x,c)$ (algorithm on the next slide).</li>
+</ul>
+</section>
+</div>
+<section>
+<h2>Objective</h2>
+<p>Sample $y$ from the student and minimize student-to-teacher KL:</p>
+<div class="eq">$$\mathcal{L}(\theta)=D_{\mathrm{KL}}\big(\pi_\theta(\cdot\mid x)\,\|\,\pi(\cdot\mid x,c)\big)=\mathbb{E}_{y\sim\pi_\theta(\cdot\mid x)}\left[\log\frac{\pi_\theta(y\mid x)}{\pi(y\mid x,c)}\right]$$<span class="lbl">(1)</span></div>
+<p><b>Step 1: differentiate (1).</b> $\theta$ appears in both the sampling distribution and the log ratio. The score-function identity $\nabla\pi_\theta=\pi_\theta\nabla\log\pi_\theta$ handles the former; the latter contributes $\mathbb{E}_{y\sim\pi_\theta}[\nabla_\theta\log\pi_\theta(y\mid x)]=0$:</p>
+<div class="eq">$$\nabla_\theta\mathcal{L}=\mathbb{E}_{y\sim\pi_\theta}\left[\log\frac{\pi_\theta(y\mid x)}{\pi(y\mid x,c)}\,\nabla_\theta\log\pi_\theta(y\mid x)\right]$$<span class="lbl">(2a)</span></div>
+<p><b>Step 2: approximate per token.</b> $\log\pi(y\mid x)=\sum_t\log\pi(y_t\mid y_{\lt t},x)$. At each position the paper keeps only that position's KL, summed exactly over the vocabulary $\mathcal{V}$ (the analytic per-token estimator):</p>
+<div class="eq">$$g=\mathbb{E}_{y\sim\pi_\theta}\sum_t\sum_{y_t\in\mathcal{V}}\pi_\theta(y_t\mid y_{\lt t},x)\,\log\frac{\pi_\theta(y_t\mid y_{\lt t},x)}{\pi(y_t\mid y_{\lt t},x,c)}\,\nabla_\theta\log\pi_\theta(y_t\mid y_{\lt t},x)$$<span class="lbl">(2)</span></div>
+<p class="cap" style="margin-top:0">(2) is not (2a): it drops how $y_t$ changes the ratios of later tokens, which amounts to minimizing $\sum_t D_{\mathrm{KL}}$ on fixed student prefixes. This is the sequence-level bias noted in Appendix A.1.</p>
+<ul style="margin-top:.5em">
+<li>Supervision is <b>dense</b>: every token, over the full vocabulary, from <b>one rollout</b> per query; GRPO-style methods give one advantage per trajectory and need a group of samples.</li>
+<li>The theory uses reverse KL, but <span class="warn">forward KL works best in practice</span>; the repository README (2026-04-07) says all paper results use per-token forward KL.</li>
+</ul>
+</section>
+</div>
+<footer><span>§3, Equations (1)–(2); Equation (2a) and notation added</span><span>4</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Algorithm and key design choices</h1>
+<p>Each choice is either ablated in the appendix or used by default in the main experiments.</p></header>
+<div class="body c2">
+<section>
+<h2>Algorithm 1 (SDFT)</h2>
+<div class="algo">
+<div>Initialize teacher weights $\phi\leftarrow\theta$</div>
+<div>For each training step:</div>
+<div class="in1">Sample demonstration minibatch $\{(x_i,c_i)\}$</div>
+<div class="in1">For each pair in parallel:</div>
+<div class="in2">$y_i\sim\pi_\theta(\cdot\mid \mathrm{Ctx}_S(x_i))$ <span class="cm">— on-policy rollout</span></div>
+<div class="in2">$\ell^S_{i,t}\leftarrow\log\pi_\theta(y_{i,t}\mid y_{i,\lt t},\mathrm{Ctx}_S(x_i))$</div>
+<div class="in2">$\ell^T_{i,t}\leftarrow\log\pi_\phi(y_{i,t}\mid y_{i,\lt t},\mathrm{Ctx}_T(x_i,c_i))$</div>
+<div class="in1">$g\leftarrow$ analytic per-token KL gradient, averaged over $i$</div>
+<div class="in1"><span class="cm">Optionally use importance sampling for inference/training engine differences</span></div>
+<div class="in1">$\theta\leftarrow\theta-\eta\,g$</div>
+<div class="in1">$\phi\leftarrow\alpha\,\theta+(1-\alpha)\,\phi$ <span class="cm">— EMA teacher</span></div>
+</div>
+</section>
+<div class="stack">
+<section>
+<h2>Teacher weights (Appendix A.3)</h2>
+<ul>
+<li><b>Frozen base model: </b>stable but weaker; it cannot track the student's improvements.</li>
+<li><b>Current student directly: </b>unstable; small fluctuations are amplified by the on-policy loop, causing divergence.</li>
+<li><b>EMA of student weights</b> ($\alpha\in\{0.01,0.02,0.05\}$): tracks progress and smooths updates. Default choice.</li>
+</ul>
+</section>
+<section>
+<h2>KL gradient estimator (Appendix A.1)</h2>
+<ul>
+<li><b>Sampled token-level estimator：</b>Higher variance and weaker KL control.</li>
+<li><b>Analytic per-token estimator</b> (sum over vocabulary at each step): biased at sequence level, but most stable and effective. Default choice.</li>
+<li><b>Rao-Blackwellized estimator</b> (unbiased): extra cost without measurable gains.</li>
+<li>Multiple rollouts per query: negligible gains with much more compute.</li>
+</ul>
+</section>
+<section>
+<h2>Suppressing artifacts (§5)</h2>
+<p>Students may learn teacher phrases such as "Based on the text…". Masking loss on the first few tokens removes these without harming accuracy.</p>
+</section>
+</div>
+</div>
+<footer><span>Algorithm 1, Appendices A.1, A.3, §5</span><span>5</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>An inverse RL view: demonstrations define an implicit reward</h1>
+<p>Under an assumption, self-distillation is equivalent to on-policy RL with rewards supplied by the model's own ICL.</p></header>
+<div class="body c21">
+<section>
+<h2>Derivation (§3.1)</h2>
+<ol>
+<li><b>One trust-region RL update</b> ($\pi_k=\pi_{\theta_k}$ is the current student; $\pi$ ranges over all policies):
+<div class="eq">$$\pi_{k+1}=\arg\max_{\pi}\ \mathbb{E}_{y\sim\pi}\big[r(y,x)\big]-\beta\,D_{\mathrm{KL}}\big(\pi(\cdot\mid x)\,\|\,\pi_k(\cdot\mid x)\big)$$<span class="lbl">(3)</span></div></li>
+<li><b>The closed-form optimum</b> is a tilted distribution $\pi^*_{k+1}(y\mid x)\propto\pi_k(y\mid x)\,e^{r(y,x)/\beta}$, hence<div class="eq">$$r(y,x)=\beta\big[\log\pi^*_{k+1}(y\mid x)-\log\pi_k(y\mid x)\big]+C$$</div></li>
+<li><b>In-context assumption:</b> The same model (parameters $\theta_k$), conditioned on the demonstration, approximates the unknown optimal policy<div class="eq">$$\pi^*_{k+1}(y\mid x)\approx\pi(y\mid x,c)$$<span class="lbl">(4)</span></div></li>
+<li><b>Implicit reward</b> (dropping $\beta$ and $C$) and its per-token form, which sums to the sequence reward:<div class="eq">$$r(y,x,c)=\log\frac{\pi(y\mid x,c)}{\pi_k(y\mid x)},\qquad r_t=\log\frac{\pi(y_t\mid y_{\lt t},x,c)}{\pi_k(y_t\mid y_{\lt t},x)}$$<span class="lbl">(5)</span></div></li>
+<li><b>Policy gradient</b> (evaluated at $\theta=\theta_k$, reward held fixed)
+<div class="eq">$$\nabla_\theta J\big|_{\theta_k}=\mathbb{E}_{y\sim\pi_k}\left[\log\frac{\pi(y\mid x,c)}{\pi_k(y\mid x)}\,\nabla_\theta\log\pi_\theta(y\mid x)\big|_{\theta_k}\right]$$<span class="lbl">(6)</span></div> This is exactly the negative of Equation (2a) at $\theta=\theta_k$: maximizing this reward minimizes reverse KL. The implemented Equation (2) is a per-token approximation of (2a).</li>
+</ol>
+</section>
+<div class="stack">
+<section>
+<h2>Interpretation</h2>
+<ul>
+<li>The student is rewarded for approaching its more informed, demonstration-conditioned self.</li>
+<li>No reward model or explicit reward prior is required: the prior is the pretrained model's ICL ability.</li>
+<li>The trust-region term explains anchoring: the target is the high-reward policy <b>closest to the current model</b>. This starts the forgetting argument on the next two slides.</li>
+</ul>
+</section>
+<section>
+<h2>Caution</h2>
+<p>This equivalence concerns reverse KL. Experiments use forward KL, so the IRL argument motivates the method rather than exactly describing the implemented loss.</p>
+</section>
+</div>
+</div>
+<footer><span>§3.1, Equations (3)–(6)</span><span>6</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Why less forgetting? (I) The ideal target changes as little as needed</h1>
+<p>The paper gives no forgetting bound. Its argument has three links; only the first is rigorous mathematics.</p></header>
+<div class="body" style="grid-template-rows:auto 1fr">
+<div class="chain">
+<div class="step"><b>① Trust-region optimum = minimum KL change <span class="tagm math">Math</span></b>The tilted distribution is closest to $\pi_k$ among policies reaching a given reward.</div>
+<div class="op">+</div>
+<div class="step"><b>② Demonstration-conditioned teacher ≈ optimum <span class="tagm assume">Assumption</span></b>$\pi(\cdot\mid x,c)\approx\pi^*_{k+1}$, and similarly close to $\pi_k$.</div>
+<div class="op">+</div>
+<div class="step"><b>③ Small new-task KL ⇒ less forgetting <span class="tagm emp">Empirical</span></b>From prior work including RL's Razor; not derived here.</div>
+</div>
+<div class="body" style="gap:1.4vw;grid-template-columns:1.3fr 1fr">
+<section>
+<h2>① The optimum's minimum-change property</h2>
+<p>"High reward, but not far from $\pi_k$" can be written two ways. Equation (3) puts a <b>price</b> $\beta$ on change. Alternatively, set a <b>passing mark</b> $v$ for reward and pick the passing policy that changes least:</p>
+<div class="eq">$$\min_{\pi}\ D_{\mathrm{KL}}\big(\pi\,\|\,\pi_k\big)\quad\text{s.t.}\quad\mathbb{E}_{y\sim\pi}\big[r(y,x)\big]\ge v$$</div>
+<p>With $v=\mathbb{E}_{\pi^*_{k+1}}[r]$, the reward of Equation (3)'s optimum $\pi^*_{k+1}=\pi_k\,e^{r/\beta}/Z$ (normalizer $Z=\sum_y\pi_k(y\mid x)\,e^{r(y,x)/\beta}$), both give the same answer. Taking logs gives $\log\frac{\pi^*_{k+1}}{\pi_k}=\frac{r}{\beta}-\log Z$. For any $\pi$:</p>
+<div class="eq">$$\begin{aligned}D_{\mathrm{KL}}(\pi\,\|\,\pi_k)&=\mathbb{E}_{\pi}\Big[\log\frac{\pi}{\pi_k}\Big]&&\text{definition of KL}\\&=\mathbb{E}_{\pi}\Big[\log\frac{\pi}{\pi^*_{k+1}}\Big]+\mathbb{E}_{\pi}\Big[\log\frac{\pi^*_{k+1}}{\pi_k}\Big]&&\text{multiply and divide by }\pi^*_{k+1}\\&=D_{\mathrm{KL}}(\pi\,\|\,\pi^*_{k+1})+\mathbb{E}_{\pi}\Big[\frac{r}{\beta}-\log Z\Big]&&\text{a KL; substitute the log ratio}\\&=\underbrace{D_{\mathrm{KL}}(\pi\,\|\,\pi^*_{k+1})}_{\ge 0,\ =0\iff\pi=\pi^*_{k+1}}+\frac{\mathbb{E}_{\pi}[r]}{\beta}-\log Z&&Z\text{ does not depend on }y\end{aligned}$$</div>
+<p>At $\pi=\pi^*_{k+1}$ the first term is 0, so $D_{\mathrm{KL}}(\pi^*_{k+1}\,\|\,\pi_k)=v/\beta-\log Z$. A passing $\pi$ has $\mathbb{E}_\pi[r]\ge v$, so $D_{\mathrm{KL}}(\pi\,\|\,\pi_k)\ge 0+v/\beta-\log Z=D_{\mathrm{KL}}(\pi^*_{k+1}\,\|\,\pi_k)$, with equality only at $\pi=\pi^*_{k+1}$: <b>among policies reaching the same reward, $\pi^*_{k+1}$ is closest to $\pi_k$</b> (the standard I-projection result).</p>
+</section>
+<div class="stack">
+<section>
+<h2>①′ What the optimum implies</h2>
+<ul>
+<li>Reweights only outputs <b>already supported</b> by $\pi_k$: $\pi_k(y\mid x)=0\Rightarrow\pi^*_{k+1}(y\mid x)=0$.</li>
+<li>Larger $\beta$ makes change pricier: a lower passing mark $v$ and a smaller change.</li>
+</ul>
+</section>
+<section>
+<h2>② Two conditions for the teacher (§3.2)</h2>
+<ul>
+<li><b>Optimality: </b>teacher samples achieve near-maximal reward<div class="eq">$$\mathbb{E}_{y\sim\pi(\cdot\mid x,c)}\big[r(y,x)\big]\approx\mathbb{E}_{y\sim\pi^*_{k+1}}\big[r(y,x)\big]$$</div></li>
+<li><b>Minimal deviation: </b>the teacher is as close to $\pi_k$ as the optimum<div class="eq">$$D_{\mathrm{KL}}\big(\pi(\cdot\mid x,c)\,\|\,\pi_k\big)\approx D_{\mathrm{KL}}\big(\pi^*_{k+1}\,\|\,\pi_k\big)$$</div></li>
+<li>The second condition supports retention: teacher and student share <b>the same parameters</b> and differ only in context, so outputs keep the model's style. A copying teacher would violate it.</li>
+<li>ToolAlpaca measurement: teacher accuracy 100% (base 42%); KL to base <b>0.68</b> nats vs SFT <b>1.26</b>, at the same new-task accuracy.</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+<footer><span>§3.1–3.2, Figure 2; I-projection is a standard result, added here</span><span>7</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Testing the assumption: the teacher is correct and close to base</h1>
+<p>Qwen2.5-7B-Instruct on ToolAlpaca: produce a correct tool call from an API description and user request.</p></header>
+<div class="body c2">
+<section>
+<h2>Condition one: optimality</h2>
+<div class="chart">
+<h3>ToolAlpaca accuracy (%)</h3>
+<div class="bar" title="Base without demonstration: 42%"><span>Base, no demonstration</span><div class="track"><div class="fill" style="width:42%"></div></div><span class="num">42</span></div>
+<div class="bar hl" title="Teacher conditioned on demonstration: 100%"><span>Teacher (+ demonstration)</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="num">100</span></div>
+</div>
+<ul style="margin-top:1em">
+<li>The authors manually inspect 50 teacher reasoning traces: every final tool call is correct, <b>and</b> intermediate reasoning is valid and grounded.</li>
+<li>This suggests reconstructed reasoning rather than copied demonstration outputs.</li>
+</ul>
+</section>
+<section>
+<h2>Condition two: minimal deviation</h2>
+<div class="chart">
+<h3>KL to base policy $D_{\mathrm{KL}}(\pi\,\|\,\pi_0)$, in nats (lower is closer)</h3>
+<div class="bar" title="SFT on demonstrations: 1.26 nats"><span>SFT model</span><div class="track"><div class="fill" style="width:84%"></div></div><span class="num">1.26</span></div>
+<div class="bar hl" title="Demonstration-conditioned teacher: 0.68 nats"><span>Teacher</span><div class="track"><div class="fill" style="width:45.3%"></div></div><span class="num">0.68</span></div>
+<p class="legend">Axis: 0–1.5 nats.</p>
+</div>
+<ul style="margin-top:1em">
+<li>At the same new-task accuracy as SFT, the teacher deviates about half as much from base (Figure 2, right).</li>
+<li>Here $\pi_0$ substitutes for the training-time $\pi_k$ as reference.</li>
+<li>Both checks are empirical and cover one task only; the assumption is not theoretically established.</li>
+</ul>
+</section>
+</div>
+<footer><span>§3.2, Figure 2</span><span>8</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Why less forgetting? (II) Small KL, retention, and the gaps</h1>
+<p>The third link relies on prior empirical findings; the derivation also differs from actual training.</p></header>
+<div class="body c3">
+<section>
+<h2>③ Empirical relation (RL's Razor and others)</h2>
+<p>Prior work (Shenfeld et al. 2025; Chen et al. 2025) finds forgetting increases with KL between the fine-tuned and base policies <b>on new-task inputs</b>,</p>
+<div class="eq">$$\text{Forgetting}\ \uparrow\quad\text{as}\quad\mathbb{E}_{x\sim\mathcal{D}_{\text{new}}}\,\mathrm{KL}\big(\pi_0(\cdot\mid x),\,\pi(\cdot\mid x)\big)\ \uparrow$$</div>
+<p>and on-policy training tends to select smaller-KL solutions, whereas SFT does not.</p>
+<p class="cap">This is a correlation, not a theorem; the paper cites it without re-deriving it.</p>
+</section>
+<section>
+<h2>Intuition: two gradients</h2>
+<p><b>SFT</b> increases expert-token probability on expert prefixes:</p>
+<div class="eq">$$\nabla\mathcal{L}_{\text{SFT}}=-\,\mathbb{E}_{(x,y^\star)\sim\mathcal{D}}\sum_t\nabla_\theta\log\pi_\theta(y^\star_t\mid y^\star_{\lt t},x)$$</div>
+<p>When $\pi_\theta(y^\star_t\mid\cdot)$ is small, the gradient moves substantial probability mass; parameter changes can affect unrelated inputs too.</p>
+<p style="margin-top:.5em"><b>SDFT</b> matches $\pi(\cdot\mid y_{\lt t},x,c)$ on student prefixes $y\sim\pi_\theta$: the target is already near the model's distribution, requiring less change.</p>
+</section>
+<section>
+<h2>Gaps in the argument</h2>
+<ul>
+<li><b>KL direction: </b>Theory uses reverse KL; training uses per-token forward KL. The IRL argument does not cover the implemented loss.</li>
+<li><b>Estimator：</b>The analytic per-token estimator is biased at sequence level (Appendix A.1), another departure.</li>
+<li><b>EMA teacher: </b>The derivation assumes a teacher based on $\pi_k$; EMA lags the student, so the target is approximate.</li>
+<li><b>Limited evidence: </b>Minimal deviation rests on one task's numbers (0.68 vs 1.26), measured against $\pi_0$, not each step's $\pi_k$.</li>
+<li><b>No old-task guarantee: </b>KL is measured on new-task inputs; it gives no bound for other inputs.</li>
+<li><b>Forgetting remains: </b>After Science Q&amp;A, IFEval falls from 74.3 to 66.8. The claim is reduced forgetting.</li>
+</ul>
+</section>
+</div>
+<footer><span>§3.2, §5; Shenfeld et al. 2025 (RL's Razor); Chen et al. 2025</span><span>9</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Experimental setup</h1>
+<p>Two kinds of post-training adaptation: acquiring skills and absorbing new facts.</p></header>
+<div class="body c3">
+<section>
+<h2>Skill learning</h2>
+<p class="mute" style="margin-bottom:.5em">Tasks the model was not specifically tuned for (unlike math and code).</p>
+<ul>
+<li><b>Science Q&amp;A：</b>SciKnowEval Chemistry L-3, multiple choice, 75/5/20 split. GPT-4o demonstrations: retain one correct response from up to 8 samples per question.</li>
+<li><b>Tool Use：</b>ToolAlpaca, original split and demonstrations. Regex scoring of API calls, allowing argument-order variation.</li>
+<li><b>Medical：</b>HuatuoGPT-o1: about 20,000 English SFT examples for training; 1,000 verifiable questions for evaluation, graded by GPT-5-mini.</li>
+</ul>
+</section>
+<section>
+<h2>Knowledge acquisition</h2>
+<ul>
+<li>About 200,000 tokens of Wikipedia articles on 2025 natural disasters, after the model's cutoff (Myanmar and Kamchatka earthquakes, Hurricane Melissa, Central Texas floods, etc.).</li>
+<li>GPT-5 generates question-answer pairs, about 5 times the source corpus size.</li>
+<li>Metrics: <b>strict</b> (all details correct), <b>lenient</b> (correct information without errors), <b>OOD</b>: indirect questions requiring these facts without explicitly naming them (e.g., which countries needed international humanitarian aid in 2025?).</li>
+</ul>
+</section>
+<div class="stack">
+<section>
+<h2>Prior capabilities</h2>
+<p>Average over HellaSwag, TruthfulQA, MMLU, IFEval, Winogrande, and HumanEval (lm-eval-harness), measuring forgetting.</p>
+</section>
+<section>
+<h2>Baselines</h2>
+<ul>
+<li><b>Skills: </b>SFT; DFT (importance sampling treats offline data as on-policy samples); SFT + Re-invocation (on-policy distillation from base on generic prompts to restore capabilities).</li>
+<li><b>Knowledge: </b>continual pretraining (CPT) on articles; SFT on question-answer pairs; oracle RAG that always retrieves the correct article.</li>
+</ul>
+</section>
+<section>
+<h2>Protocol</h2>
+<p>Full fine-tuning with TRL on one H200. Tune learning rate, batch size, and epochs separately for each method; select the best validation checkpoint. Greedy decoding, 3 seeds. SDFT max generation length 2048 (skills) or 1024 (knowledge).</p>
+</section>
+</div>
+</div>
+<footer><span>§4.1, Appendix B, Tables 3–4</span><span>10</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>SDFT learns more with little forgetting across three skills</h1>
+<p>On all three tasks, only SDFT improves the new task without a substantial decline in prior capabilities.</p></header>
+<div class="body c3">
+<section>
+<h2>Science Q&amp;A</h2>
+<div class="chart">
+<h3>New-task accuracy (%)</h3>
+<div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:66.2%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">66.2</span></div>
+<div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:66%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">66.0</span></div>
+<div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:54.8%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">54.8</span></div>
+<div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:70.2%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">70.2</span></div>
+<h3>Prior-task average (%)</h3>
+<div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:53.4%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">53.4</span></div>
+<div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:60.2%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.2</span></div>
+<div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:60.2%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.2</span></div>
+<div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:64.5%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">64.5</span></div>
+</div>
+</section>
+<section>
+<h2>Tool Use</h2>
+<div class="chart">
+<h3>New-task accuracy (%)</h3>
+<div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:63.2%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">63.2</span></div>
+<div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:63.1%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">63.1</span></div>
+<div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:64.2%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">64.2</span></div>
+<div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:70.6%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">70.6</span></div>
+<h3>Prior-task average (%)</h3>
+<div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:56%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">56.0</span></div>
+<div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:63.7%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">63.7</span></div>
+<div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:60.8%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.8</span></div>
+<div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:65.4%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">65.4</span></div>
+</div>
+</section>
+<section>
+<h2>Medical</h2>
+<div class="chart">
+<h3>New-task accuracy (%)</h3>
+<div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:35.5%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">35.5</span></div>
+<div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:35.6%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">35.6</span></div>
+<div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:36.2%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">36.2</span></div>
+<div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:40.2%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">40.2</span></div>
+<h3>Prior-task average (%)</h3>
+<div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:60.2%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.2</span></div>
+<div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:62.6%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">62.6</span></div>
+<div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:64%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">64.0</span></div>
+<div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:65.4%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">65.4</span></div>
+</div>
+</section>
+</div>
+<footer><span>Figure 4, Table 5. Axis: 0–100; black tick = base (new tasks 32.1 / 42.9 / 30.1; prior-task average 65.5).</span><span>11</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>SFT forgets instruction following, truthfulness, and code</h1>
+<p>Prior benchmark scores after each training task. Red = a drop of more than 5 points from base.</p></header>
+<div class="body c21">
+<section>
+<table>
+<tr><th>Training task → method</th><th>New task</th><th>HellaSwag</th><th>HumanEval</th><th>IFEval</th><th>MMLU</th><th>TruthfulQA</th><th>Winogrande</th><th>Average</th></tr>
+<tr class="basel"><td>Base (Qwen2.5-7B-Instruct)</td><td>—</td><td>62.0</td><td>65.8</td><td>74.3</td><td>71.7</td><td>47.9</td><td>71.1</td><td>65.5</td></tr>
+<tr><th colspan="9" style="text-align:left;padding-top:.6em">Science Q&amp;A (base 32.1)</th></tr>
+<tr><td>SFT</td><td>66.2</td><td class="bad">55.0</td><td class="bad">54.8</td><td class="bad">35.3</td><td class="bad">64.6</td><td class="bad">36.8</td><td>73.7</td><td>53.4</td></tr>
+<tr><td>SFT + re-invoke</td><td>66.0</td><td>61.6</td><td>63.4</td><td class="bad">52.9</td><td>68.7</td><td>45.2</td><td>70.0</td><td>60.2</td></tr>
+<tr><td>DFT</td><td>54.8</td><td>57.6</td><td>67.0</td><td class="bad">60.4</td><td>69.4</td><td class="bad">38.8</td><td>68.2</td><td>60.2</td></tr>
+<tr class="ours"><td>SDFT</td><td>70.2</td><td>60.9</td><td>68.9</td><td class="bad">66.8</td><td>70.7</td><td>46.5</td><td>73.1</td><td>64.5</td></tr>
+<tr><th colspan="9" style="text-align:left;padding-top:.6em">Tool Use (base 42.9)</th></tr>
+<tr><td>SFT</td><td>63.2</td><td>57.3</td><td class="bad">50.0</td><td class="bad">49.8</td><td>70.2</td><td class="bad">37.5</td><td>73.1</td><td>56.0</td></tr>
+<tr><td>SFT + re-invoke</td><td>63.1</td><td>61.7</td><td>68.9</td><td class="bad">59.1</td><td>71.5</td><td>49.1</td><td>71.6</td><td>63.7</td></tr>
+<tr><td>DFT</td><td>64.2</td><td>59.7</td><td>61.4</td><td class="bad">60.2</td><td>71.6</td><td class="bad">40.2</td><td>71.5</td><td>60.8</td></tr>
+<tr class="ours"><td>SDFT</td><td>70.6</td><td>61.6</td><td>68.3</td><td>71.9</td><td>71.5</td><td>47.3</td><td>71.7</td><td>65.4</td></tr>
+<tr><th colspan="9" style="text-align:left;padding-top:.6em">Medical (base 30.1)</th></tr>
+<tr><td>SFT</td><td>35.5</td><td>59.5</td><td>62.1</td><td class="bad">56.6</td><td>70.5</td><td class="bad">39.8</td><td>72.9</td><td>60.2</td></tr>
+<tr><td>SFT + re-invoke</td><td>35.6</td><td>61.5</td><td>63.1</td><td class="bad">67.6</td><td>70.0</td><td class="bad">42.3</td><td>71.4</td><td>62.6</td></tr>
+<tr><td>DFT</td><td>36.2</td><td>61.9</td><td>64.6</td><td>74.6</td><td>71.6</td><td class="bad">40.1</td><td>71.3</td><td>64.0</td></tr>
+<tr class="ours"><td>SDFT</td><td>40.2</td><td>61.4</td><td>67.7</td><td>72.3</td><td>71.5</td><td>47.3</td><td>71.9</td><td>65.4</td></tr>
+</table>
+</section>
+<div class="stack">
+<section>
+<h2>Observations</h2>
+<ul>
+<li><b>IFEval</b> is most vulnerable: Science Q&amp;A SFT drops from 74.3 to 35.3. SDFT's worst case is 66.8, also after Science Q&amp;A.</li>
+<li><b>TruthfulQA</b> falls 7.7–11.1 points with SFT and DFT on every task; SDFT drops at most 1.4 points.</li>
+<li><b>Re-invocation</b> restores most SFT losses but never reaches the base average, and requires another training stage.</li>
+<li><b>DFT</b> (approximately on-policy) forgets less than SFT, but still loses TruthfulQA and has much lower Science Q&amp;A accuracy.</li>
+<li>SFT on each task slightly <i>improves</i> Winogrande.</li>
+</ul>
+</section>
+</div>
+</div>
+<footer><span>Table 5</span><span>12</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Sequential learning: SDFT accumulates skills; SFT forgets</h1>
+<p>Train one model on Tool Use → Science Q&amp;A → Medical. Normalize each task: 0 = base, 1 = best accuracy achieved by either method.</p></header>
+<div class="body" style="grid-template-rows:1fr auto">
+<div class="body c2">
+<section style="display:flex;flex-direction:column">
+<figure class="fig">
+<img alt="Figure 3a: sequential learning with SDFT" src="../figs/seq_learning_sdft.webp"/>
+<figcaption><b>Figure 3a in the paper, SDFT. </b>At each stage, new-task performance rises while earlier-task curves largely remain high.</figcaption>
+</figure>
+</section>
+<section style="display:flex;flex-direction:column">
+<figure class="fig">
+<img alt="Figure 3b: sequential learning with SFT" src="../figs/seq_learning_sft.webp"/>
+<figcaption><b>Figure 3b in the paper, SFT. </b>After switching tasks, the previous task quickly falls below base (negative normalized score).</figcaption>
+</figure>
+</section>
+</div>
+<p class="cap">Only curves are given, without stage-end tables; shading shows variation across seeds. Normalization sets 1 to the best score across both methods, so heights are comparable only within each task.</p>
+</div>
+<footer><span>§4.3, Figure 3</span><span>13</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Scale and pass@k: stronger ICL matters, beyond sharper outputs</h1>
+<p>Scaling on Science Q&amp;A; pass@k on Tool Use (temperature 1.0, top-p 0.95).</p></header>
+<div class="body c2">
+<section>
+<h2>Model scale (Figure 5, left)</h2>
+<div class="chart">
+<h3>SDFT minus SFT on Science Q&amp;A (points)</h3>
+<div class="bar" title="Qwen2.5-3B: SDFT trails SFT by 3.3 points"><span>Qwen2.5-3B</span><div class="track" style="background:none"><div style="display:flex;height:100%"><div style="width:50%;display:flex;justify-content:flex-end"><div class="fill" style="width:23.6%;border-radius:4px 0 0 4px"></div></div><div style="width:2px;background:var(--ink);opacity:.55"></div></div></div><span class="num">−3.3</span></div>
+<div class="bar hl" title="Qwen2.5-7B: SDFT leads SFT by 4.0 points"><span>Qwen2.5-7B</span><div class="track" style="background:none"><div style="display:flex;height:100%"><div style="width:50%"></div><div style="width:2px;background:var(--ink);opacity:.55"></div><div class="fill" style="width:14.3%"></div></div></div><span class="num">+4.0</span></div>
+<div class="bar hl" title="Qwen2.5-14B: SDFT leads SFT by 6.9 points"><span>Qwen2.5-14B</span><div class="track" style="background:none"><div style="display:flex;height:100%"><div style="width:50%"></div><div style="width:2px;background:var(--ink);opacity:.55"></div><div class="fill" style="width:24.6%"></div></div></div><span class="num">+6.9</span></div>
+<p class="legend">Axis: −14 to +14; vertical line = 0. The text reports only differences.</p>
+</div>
+<ul style="margin-top:.8em">
+<li>At 3B, weak teacher ICL makes SDFT worse than SFT.</li>
+<li>The gap grows with scale; the authors expect more benefit from larger models.</li>
+<li>Only three sizes, one task, and one model family are tested.</li>
+</ul>
+</section>
+<section style="display:flex;flex-direction:column">
+<h2>pass@k (Figure 5, right)</h2>
+<figure class="fig">
+<img alt="Figure 5 right: Tool Use pass@k" src="../figs/tooluse_pass_at_k.webp"/>
+<figcaption><b>Figure 5, right, in the paper. </b>For $k$ from 1 to 128, SDFT (Distillation) stays above SFT and base; the gap persists at larger $k$. A common concern is that RL improves pass@1 only by reducing entropy (Yue et al. 2025); these results do not support that explanation.</figcaption>
+</figure>
+</section>
+</div>
+<footer><span>§4.2, §4.4, Figure 5</span><span>14</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Knowledge acquisition nearly matches oracle retrieval</h1>
+<p>The base lacks these 2025 facts; SDFT absorbs them in a way that transfers to indirect questions.</p></header>
+<div class="body c2">
+<section>
+<h2>Results (Table 1)</h2>
+<table>
+<tr><th>Method</th><th>Strict</th><th>Lenient</th><th>OOD</th></tr>
+<tr class="basel"><td>Base</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Continual pretraining (CPT) on articles</td><td>9</td><td>37</td><td>7</td></tr>
+<tr><td>SFT on question-answer pairs</td><td>80</td><td>95</td><td>80</td></tr>
+<tr class="ours"><td>SDFT</td><td>89</td><td>100</td><td>98</td></tr>
+<tr class="basel"><td>Oracle RAG (upper-bound reference)</td><td>91</td><td>100</td><td>100</td></tr>
+</table>
+<ul style="margin-top:1em">
+<li>CPT has little effect, consistent with Mecklenburg et al. 2024.</li>
+<li>SFT reaches 80 strict accuracy but only 80 OOD: it reproduces answers without fully integrating the facts.</li>
+<li>SDFT strict 89，OOD 98。</li>
+</ul>
+</section>
+<section>
+<h2>What must the teacher see? (Appendix A.2)</h2>
+<div class="chart">
+<h3>Strict accuracy (%) with on-policy training fixed and teacher context varied</h3>
+<div class="bar" title="Teacher sees answers only: 37%"><span>Answers only</span><div class="track"><div class="fill" style="width:37%"></div></div><span class="num">37</span></div>
+<div class="bar" title="Teacher sees articles only: 75%"><span>Articles only</span><div class="track"><div class="fill" style="width:75%"></div></div><span class="num">75</span></div>
+<div class="bar hl" title="Teacher sees articles and answers: 89%"><span>Articles + answers</span><div class="track"><div class="fill" style="width:89%"></div></div><span class="num">89</span></div>
+</div>
+<ul style="margin-top:1em">
+<li>Earlier knowledge-injection self-distillation (Cartridges; Kujanpää et al. 2025) uses raw corpus context and offline training.</li>
+<li>Adding worked answers to article context gains 14 points.</li>
+</ul>
+</section>
+</div>
+<footer><span>§4.2, Table 1, Appendix A.2, Figure 7</span><span>15</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Answer-only data can adapt a reasoning model</h1>
+<p>SFT on short answers suppresses long CoT. SDFT's teacher is the same reasoning model, preserving its reasoning style in the target distribution.</p></header>
+<div class="body c2">
+<section>
+<h2>Olmo-3-7B-Think, Medical (no CoT in the data)</h2>
+<div class="chart">
+<h3>Accuracy (%)</h3>
+<div class="bar"><span>Base</span><div class="track"><div class="fill" style="width:31.2%"></div></div><span class="num">31.2</span></div>
+<div class="bar"><span>+ SFT</span><div class="track"><div class="fill" style="width:23.5%"></div></div><span class="num">23.5</span></div>
+<div class="bar hl"><span>+ SDFT</span><div class="track"><div class="fill" style="width:43.7%"></div></div><span class="num">43.7</span></div>
+<p class="legend">Axis: 0–100.</p>
+<h3>Mean response length (tokens)</h3>
+<div class="bar"><span>Base</span><div class="track"><div class="fill" style="width:92.2%"></div></div><span class="num">4612</span></div>
+<div class="bar"><span>+ SFT</span><div class="track"><div class="fill" style="width:65.5%"></div></div><span class="num">3273</span></div>
+<div class="bar hl"><span>+ SDFT</span><div class="track"><div class="fill" style="width:83.6%"></div></div><span class="num">4180</span></div>
+<p class="legend">Axis: 0–5000 tokens.</p>
+</div>
+</section>
+<div class="stack">
+<section>
+<h2>Results</h2>
+<ul>
+<li>SFT reduces accuracy (31.2 → 23.5) and shortens responses by 29%, collapsing reasoning depth.</li>
+<li>SDFT gains 12.5 accuracy points and retains 91% of the original response length.</li>
+<li>Response length is used as a proxy for retained reasoning depth.</li>
+</ul>
+</section>
+<section>
+<h2>Implications</h2>
+<ul>
+<li>Real datasets often contain only final answers; closed models may not expose reasoning traces.</li>
+<li>SDFT can adapt reasoning models to these data without reasoning demonstrations.</li>
+</ul>
+</section>
+<section>
+<h2>The reverse direction is difficult</h2>
+<p>In §5 the authors say converting a <i>non-</i>reasoning model to explicit CoT is difficult. SDFT can preserve a generation style, but cannot create a new one.</p>
+</section>
+</div>
+</div>
+<footer><span>§4.5, Table 2, §5</span><span>16</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Gains come from on-policy training, beyond a better teacher</h1>
+<p>Figure 6 compares three uses of the same conditioned teacher; Figure 8 compares teacher weights. Both use Tool Use.</p></header>
+<div class="body c3">
+<section style="display:flex;flex-direction:column">
+<h2>Offline vs on-policy (Figure 6)</h2>
+<figure class="fig">
+<img alt="Figure 6: on-policy versus offline distillation" src="../figs/ablation.webp"/>
+<figcaption><b>Figure 6 in the paper. </b>Distillation = SDFT; Offline Distillation = KL on fixed teacher outputs; SFT from Teacher = SFT on teacher samples. Both offline variants remain below SDFT throughout training.</figcaption>
+</figure>
+</section>
+<section style="display:flex;flex-direction:column">
+<h2>Teacher weights (Figure 8)</h2>
+<figure class="fig">
+<img alt="Figure 8: teacher-weight ablation" src="../figs/ema_ablation.webp"/>
+<figcaption><b>Figure 8 in the paper. </b>$\mathrm{EMA}(\theta)$ performs best; frozen base $\theta_0$ is stable but weaker; current student $\theta$ initially improves, then collapses midway.</figcaption>
+</figure>
+</section>
+<section>
+<h2>Ablation summary</h2>
+<table>
+<tr><th>Factor</th><th style="text-align:left">Finding</th></tr>
+<tr><td>Training distribution</td><td style="text-align:left">on-policy &gt; two offline variants &gt; SFT</td></tr>
+<tr><td>Teacher weights</td><td style="text-align:left">EMA &gt; frozen base; current student diverges</td></tr>
+<tr><td>Teacher context</td><td style="text-align:left">articles + answers 89 &gt; articles 75 &gt; answers 37</td></tr>
+<tr><td>KL estimator</td><td style="text-align:left">analytic per-token best; no Rao-Blackwellized gain</td></tr>
+<tr><td>Rollouts per query</td><td style="text-align:left">1 is enough</td></tr>
+<tr><td>KL direction</td><td style="text-align:left">forward KL best (used for all results)</td></tr>
+<tr><td>Model scale</td><td style="text-align:left">3B −3.3；7B +4.0；14B +6.9</td></tr>
+<tr><td>Epochs</td><td style="text-align:left">SDFT 2 (skills) / 4 (knowledge); SFT no gain beyond 1</td></tr>
+</table>
+<p class="cap">Figures 6 and 8 contain curves only (accuracy axis 35–70), without final numeric values.</p>
+</section>
+</div>
+<footer><span>§4.6, Figures 6, 8, Appendices A, B.1</span><span>17</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Discussion and limitations (authors' statements)</h1>
+<p>SDFT complements on-policy RL when demonstrations are available but rewards are not.</p></header>
+<div class="body c3">
+<section>
+<h2>Relationship to RL</h2>
+<ul>
+<li>Different supervision: demonstrations without rewards, versus rewards optimized through exploration.</li>
+<li>Can combine: initialize RL with SDFT (supported by pass@k gains), or mix both signals.</li>
+<li>Cheaper per step than GRPO: one rollout per query, with token- or even logit-level credit assignment.</li>
+</ul>
+</section>
+<section>
+<h2>Costs and failure modes</h2>
+<ul>
+<li><b>Compute: </b>About 2.5 times SFT FLOPs and 4 times wall-clock time. Total time may be lower than SFT plus a recovery stage (e.g., Re-invoke).</li>
+<li><b>Artifacts: </b>Students imitate phrases such as "Following the example…"; masking early tokens is a heuristic fix.</li>
+<li><b>Strong ICL required: </b>fails at 3B.</li>
+<li><b>Small behavioral changes only: </b>cannot teach explicit CoT to a non-reasoning model.</li>
+<li><b>Residual forgetting</b> (e.g., IFEval 74.3 → 66.8 after Science Q&amp;A).</li>
+</ul>
+</section>
+<section>
+<h2>Future work</h2>
+<ul>
+<li>Combine with on-policy RL: SDFT before RL, or jointly mix demonstration and reward signals.</li>
+<li>Further reduce residual forgetting.</li>
+<li>Learn from non-expert or noisy demonstrations.</li>
+<li>Learn from unstructured data (e.g., user conversations) for real-world continual learning.</li>
+</ul>
+</section>
+</div>
+<footer><span>§5</span><span>18</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Summary: a demonstration-informed self supplies on-policy signals</h1>
+<p>These final two slides are our assessment, rather than the paper's statements.</p></header>
+<div class="body c2">
+<section>
+<h2>Contribution</h2>
+<p>SDFT enables on-policy learning from demonstrations without rewards: on its own rollouts, the student distills from the same model (EMA weights) conditioned on demonstrations. On Qwen2.5-7B skill and knowledge tasks, it outperforms SFT on new tasks while largely retaining prior capabilities.</p>
+<h2 style="margin-top:1em">Findings to remember</h2>
+<ul>
+<li><b>Learn more, forget less: </b>Tool Use 70.6 vs SFT 63.2; prior-task average 65.4 vs 56.0 (base 65.5).</li>
+<li><b>Knowledge integration: </b>OOD accuracy on injected facts 98 vs SFT 80, near oracle RAG's 100.</li>
+<li><b>Answer-only reasoning adaptation: </b>Olmo-3-7B-Think Medical 43.7 vs SFT 23.5; response length retains 91%.</li>
+<li><b>On-policy is key: </b>Offline distillation from the same teacher stays below SDFT (Figure 6).</li>
+<li><b>ICL matters: </b>SDFT trails SFT by 3.3 at 3B and leads by 6.9 at 14B.</li>
+</ul>
+</section>
+<section>
+<h2>Convincing evidence</h2>
+<ul>
+<li class="ok"> <b>Consistent reduction in forgetting: </b>3 tasks × 6 prior benchmarks; SDFT's prior-task average loses at most 1.0 vs base. TruthfulQA drops 7.7–11.1 for SFT/DFT, at most 1.4 for SDFT (Table 5).</li>
+<li class="ok"> <b>Mechanism isolated: </b>Figure 6 fixes the teacher and changes the training distribution, attributing gains to on-policy learning beyond teacher quality.</li>
+<li class="ok"> <b>Ablated design choices: </b>Teacher context (Figure 7), teacher weights (Figure 8), and KL estimator (Appendix A.1) have separate controls.</li>
+<li class="ok"> <b>Beyond sharper outputs: </b>pass@k consistently leads for $k\le 128$ (Figure 5, right).</li>
+<li class="ok"> <b>Three sequential tasks</b> show cumulative learning consistent with single-task results (Figure 3).</li>
+</ul>
+</section>
+</div>
+<footer><span>Our assessment; numbers from Tables 1, 2, 5 and Figures 3, 5, 6</span><span>19</span></footer>
+</div></div>
+
+<div class="page"><div class="slide">
+<header><h1>Critique: theory differs from training; broader transfer is unproven</h1>
+<p>Each point cites a specific section of the paper.</p></header>
+<div class="body c2">
+<section>
+<h2>Thin evidence</h2>
+<ul>
+<li class="no"> <b>Theory does not cover the actual loss: </b>§3.1's IRL equivalence uses reverse KL, but all results use per-token forward KL (README, 2026-04-07); the analytic estimator is sequence-level biased (Appendix A.1).</li>
+<li class="no"> <b>One minimal-deviation measurement: </b>0.68 vs 1.26 nats, one task, against $\pi_0$ rather than each step's $\pi_k$ (§3.2).</li>
+<li class="no"> <b>Narrow scope: </b>Mostly Qwen2.5-7B; scaling only on Science Q&amp;A; only one reasoning model, Olmo-3-7B-Think.</li>
+<li class="no"> <b>Unmatched compute: </b>SDFT uses about 2.5 times the FLOPs and 2–4 epochs; no compute-matched SFT or RL control.</li>
+<li class="no"> <b>Uncertainty not shown: </b>Appendix B.2 says 95% CI over 3 seeds, but Tables 1, 2, 5 omit intervals.</li>
+<li class="no"> <b>Grading and retention metrics: </b>Medical and knowledge tasks use GPT-5-mini grading; the prior-capability suite lacks math or long-reasoning benchmarks.</li>
+</ul>
+</section>
+<section>
+<h2>Open questions</h2>
+<ul>
+<li class="q"> Would reverse KL (matching the theory) give the same results? No direct forward/reverse comparison is reported.</li>
+<li class="q"> At equal FLOPs, how does SDFT compare with more SFT epochs or RL when rewards exist?</li>
+<li class="q"> Can the teacher prompt change a thinking model's reasoning style and distill that change into the student?</li>
+<li class="q"> Does retention hold above 30B, across model families, and over longer task sequences?</li>
+<li class="q"> With noisy or weak-model demonstrations, does the teacher still meet the optimality condition?</li>
+</ul>
+</section>
+</div>
+<footer><span>Our assessment; §3.1–3.2, §4, §5, Appendices A.1, B.2</span><span>20</span></footer>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  renderMathInElement(document.body, {
+    delimiters: [ { left:'$$', right:'$$', display:true }, { left:'$', right:'$', display:false } ],
+    throwOnError: false
+  });
+  // Arrow keys / PageUp / PageDown / Space navigate slides
+  const pages = [...document.querySelectorAll('.page')];
+  const current = () => pages.reduce((best, p, i) =>
+    Math.abs(p.getBoundingClientRect().top) < Math.abs(pages[best].getBoundingClientRect().top) ? i : best, 0);
+  document.addEventListener('keydown', e => {
+    const fwd = ['ArrowRight','ArrowDown','PageDown',' '].includes(e.key);
+    const back = ['ArrowLeft','ArrowUp','PageUp'].includes(e.key);
+    if (!fwd && !back) return;
+    e.preventDefault();
+    const i = Math.min(pages.length - 1, Math.max(0, current() + (fwd ? 1 : -1)));
+    pages[i].scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+</script>
+</body>
+</html>

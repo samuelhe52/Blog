@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>论文解读：Self-Distillation Enables Continual Learning（SDFT）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<style>
+  :root { --ink:#1d2433; --mute:#5b6478; --line:#d9dde6; --bg:#f6f7fa; --blue:#2450c8; --red:#c23b3b; --green:#2b8a5a; --amber:#b7791f;
+          --hl:#2a78d6; --neutral:#a9afbd; --track:#e8eaf0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-snap-type:y mandatory; background:#e9ebf0; }
+  body { font-family:-apple-system,"Helvetica Neue",Inter,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif; color:var(--ink); }
+  .page { height:100vh; display:flex; align-items:center; justify-content:center; scroll-snap-align:center; }
+  /* 16:9 幻灯片，按视口缩放 */
+  .slide { width:min(100vw, 177.78vh); aspect-ratio:16/9; background:#fff; padding:2.4vw 3vw 1.4vw; display:grid;
+           grid-template-rows:auto 1fr auto; gap:1.2vw; font-size:min(1.1vw, 1.96vh); line-height:1.5; box-shadow:0 4px 30px #0002; }
+  header h1 { font-size:2.1em; letter-spacing:-.005em; line-height:1.25; }
+  header p { color:var(--mute); margin-top:.3em; font-size:1.05em; }
+  .body { min-height:0; display:grid; gap:1.4vw; }
+  .c2 { grid-template-columns:1fr 1fr; } .c3 { grid-template-columns:1fr 1fr 1fr; } .c21 { grid-template-columns:1.35fr 1fr; } .c12 { grid-template-columns:1fr 1.35fr; }
+  section { background:var(--bg); border-radius:.7vw; padding:1vw 1.2vw; overflow:hidden; }
+  section h2 { font-size:1em; letter-spacing:.04em; color:var(--blue); margin-bottom:.55em; }
+  .stack { display:grid; gap:1.2vw; align-content:start; min-height:0; }
+  ul { list-style:none; }
+  li { padding-left:1.1em; position:relative; margin-bottom:.45em; }
+  li::before { content:"•"; position:absolute; left:0; color:var(--blue); }
+  ol { padding-left:1.4em; } ol li { padding-left:.2em; } ol li::before { content:none; }
+  b { font-weight:650; }
+  .mute { color:var(--mute); }
+  .warn { color:var(--amber); font-weight:650; }
+  .prompt { background:#fff; border:1px solid var(--line); border-radius:.4vw; padding:.6em .8em; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.9em; line-height:1.5; }
+  .prompt i { color:var(--blue); font-style:normal; }
+  .eq { background:#fff; border-left:3px solid var(--blue); padding:.1em .8em; margin:.45em 0 .6em; position:relative; }
+  .eq .katex-display { margin:.45em 0; }
+  .eq .lbl { position:absolute; right:.7em; top:50%; transform:translateY(-50%); color:var(--mute); font-size:.85em; }
+  .katex { font-size:1.05em; }
+  .flow { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:.8em; text-align:center; }
+  .role { background:#fff; border:2px solid var(--line); border-radius:.5vw; padding:.7em .5em; }
+  .role b { display:block; font-size:1.1em; margin-bottom:.2em; }
+  .role.t { border-color:var(--green); } .role.s { border-color:var(--red); }
+  .arrow { color:var(--mute); font-size:.9em; line-height:1.3; }
+  table { width:100%; border-collapse:collapse; font-size:.92em; font-variant-numeric:tabular-nums; }
+  td,th { text-align:right; padding:.25em .4em; border-bottom:1px solid var(--line); }
+  td:first-child, th:first-child { text-align:left; }
+  th { color:var(--mute); font-weight:600; }
+  th.grp { text-align:center; border-bottom:none; padding-bottom:0; }
+  tr.ours td { font-weight:650; }
+  tr.ours td:first-child { color:var(--hl); }
+  tr.basel td { color:var(--mute); }
+  td.bad { color:var(--red); }
+  .cap { color:var(--mute); font-size:.85em; margin-top:.5em; }
+  .algo { font-size:.92em; line-height:1.55; background:#fff; border:1px solid var(--line); border-radius:.4vw; padding:.7em .9em; counter-reset:ln; }
+  .algo div { counter-increment:ln; padding-left:2.2em; text-indent:-2.2em; }
+  .algo div::before { content:counter(ln); display:inline-block; width:2.2em; text-indent:0; color:var(--mute); }
+  .algo .in1 { padding-left:3.6em; } .algo .in2 { padding-left:5em; }
+  .algo .cm { color:var(--mute); }
+  /* 条形图：只高亮 SDFT，其余为中性灰；数值用正文色标注 */
+  .chart h3 { font-size:.95em; font-weight:650; margin:.5em 0 .3em; }
+  .bar { display:grid; grid-template-columns:7.2em 1fr 3.2em; align-items:center; gap:.6em; margin:.28em 0; font-size:.92em; }
+  .bar .track { background:var(--track); height:1.05em; border-radius:0 4px 4px 0; position:relative; }
+  .bar .fill { height:100%; background:var(--neutral); border-radius:0 4px 4px 0; }
+  .bar.hl .fill { background:var(--hl); }
+  .bar.hl > span:first-child { font-weight:650; }
+  .bar .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .bar .ref { position:absolute; top:-.2em; bottom:-.2em; width:2px; background:var(--ink); opacity:.55; }
+  .bar:hover .fill { filter:brightness(.9); }
+  .legend { font-size:.82em; color:var(--mute); margin-top:.3em; }
+  .key { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2vw; }
+  .kpi { background:var(--bg); border-radius:.7vw; padding:1vw 1.2vw; }
+  .kpi .v { font-size:2.4em; font-weight:700; color:var(--hl); line-height:1.1; font-variant-numeric:tabular-nums; }
+  .kpi .l { color:var(--mute); font-size:.95em; margin-top:.2em; }
+  .chain { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:.8em; align-items:stretch; }
+  .chain .step { background:#fff; border:1px solid var(--line); border-radius:.5vw; padding:.6em .8em; }
+  .chain .step b { display:block; color:var(--blue); margin-bottom:.2em; }
+  .chain .op { align-self:center; color:var(--mute); font-size:1.3em; }
+  .tagm { display:inline-block; padding:0 .45em; border-radius:.3em; font-size:.78em; font-weight:650; color:#fff; vertical-align:.1em; margin-left:.3em; }
+  .tagm.math { background:var(--green); } .tagm.assume { background:var(--amber); } .tagm.emp { background:var(--mute); }
+  .fig { margin:0; display:flex; flex-direction:column; min-height:0; height:100%; }
+  .fig img { flex:1; min-height:0; width:100%; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:.4vw; }
+  .fig figcaption { color:var(--mute); font-size:.85em; margin-top:.4em; }
+  .fig figcaption b { color:var(--ink); }
+  .ok::before { content:"✓"; color:var(--green); } .no::before { content:"✗"; color:var(--red); } .q::before { content:"?"; color:var(--amber); font-weight:700; }
+  footer { display:flex; justify-content:space-between; color:var(--mute); font-size:.78em; border-top:1px solid var(--line); padding-top:.5vw; }
+  .title .slide { grid-template-rows:1fr auto auto; }
+  .title h1 { font-size:3.1em; line-height:1.15; letter-spacing:-.01em; }
+  .title .sub { font-size:1.35em; color:var(--mute); margin-top:.6em; max-width:52em; }
+  .title .auth { font-size:1.1em; margin-top:1.4em; }
+  @media print {
+    @page { size:16in 9in; margin:0; }
+    html { background:#fff; }
+    .page { height:auto; page-break-after:always; }
+    .slide { width:16in; height:9in; font-size:16px; box-shadow:none; padding:34px 42px 20px; gap:16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. 标题 -->
+<div class="page title"><div class="slide">
+  <div style="align-self:center">
+    <p style="font-size:1.05em;letter-spacing:.06em;color:var(--blue);font-weight:650">论文解读</p>
+    <h1>Self-Distillation Enables Continual Learning<br><span style="font-size:.62em">自蒸馏使持续学习成为可能</span></h1>
+    <p class="sub">SDFT 以“看过示范的自己”作为教师，把专家示范转化为 on-policy 训练信号。与 SFT 相比，它学会新任务的同时遗忘少得多。</p>
+    <p class="auth">Idan Shenfeld、Mehul Damani、Jonas Hübotter、Pulkit Agrawal · MIT、Improbable AI Lab、ETH Zurich<br>
+      <span class="mute">arXiv 2601.19897v2（2026-08-07）· 代码：github.com/Continual-Intelligence/Self-Distillation</span></p>
+  </div>
+  <div class="key">
+    <div class="kpi"><div class="v">65.4 vs 56.0</div><div class="l">Tool Use 训练后旧任务平均分，SDFT vs SFT（基座 65.5）</div></div>
+    <div class="kpi"><div class="v">70.6 vs 63.2</div><div class="l">Tool Use 准确率，SDFT vs SFT（基座 42.9）</div></div>
+    <div class="kpi"><div class="v">98 vs 80</div><div class="l">新注入的 2025 年事实上的 OOD 准确率，SDFT vs SFT</div></div>
+  </div>
+  <footer><span>所有数字均来自论文；未特别说明时模型为 Qwen2.5-7B-Instruct。</span><span>1</span></footer>
+</div></div>
+
+<!-- 2. 动机 -->
+<div class="page"><div class="slide">
+  <header><h1>动机：on-policy 学习遗忘更少，但需要奖励函数</h1>
+    <p>只有示范数据时，默认做法是 SFT，而 SFT 是 off-policy 的。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>核心矛盾</h2>
+      <ul>
+        <li><b>持续学习</b>：获得新技能和新知识，同时不损害已有能力。目前部署后的模型参数是静态的。</li>
+        <li><b>on-policy 训练</b>（在模型自己的采样上学习）比 off-policy 训练遗忘少得多（RL's Razor，Shenfeld 等 2025；Chen 等 2025），泛化也更好（Chu 等 2025）。</li>
+        <li>成功的 on-policy 方法大多是<b>强化学习</b>，需要显式奖励，而很多实际场景没有奖励。</li>
+        <li>从<b>示范</b>学习以 <b>SFT</b> 为主：在固定的专家分布上训练，测试时误差累积（Ross 等 2011），并造成灾难性遗忘。</li>
+      </ul>
+      <p style="margin-top:.8em"><b>问题：</b>只有示范时，如何做 on-policy 学习？</p>
+    </section>
+    <div class="stack">
+      <section>
+        <h2>已有路线及其不足</h2>
+        <ul>
+          <li><b>Inverse RL（IRL）：</b>先推断奖励，再做 on-policy RL。需要很强的结构先验（最大熵、对抗判别器、偏好对），否则问题病态或代价过高。</li>
+          <li><b>Context distillation</b>（Bai 等 2022；Snell 等 2022）：带额外上下文的模型教不带上下文的自己。通常是<i>offline</i> 的、在教师采样上训练，且上下文是<i>固定</i>的（如行为准则、少样本示例）。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>SDFT 的不同之处</h2>
+        <ul>
+          <li>蒸馏是 <b>on-policy</b> 的：学生在自己生成的轨迹上训练，教师在学生真正犯错的地方纠正。</li>
+          <li>教师的上下文是<b>每个问题对应的那条示范</b>，而非全局前缀，因此能表达细粒度的任务意图。</li>
+          <li>用预训练模型的 in-context learning（ICL）能力代替显式奖励模型。</li>
+          <li>同期独立工作提出了类似的自蒸馏：Zhao 等 2026；Hübotter 等 2026（“RL via self-distillation”）。</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  <footer><span>§1–2</span><span>2</span></footer>
+</div></div>
+
+<!-- 3a. 方法概览 -->
+<div class="page"><div class="slide">
+  <header><h1>方法概览：同一个模型以两种模式运行，教师比 SFT 更靠近基座</h1>
+    <p>左：SDFT 的训练流程；右：示范条件教师的输出分布离基座更近，同时保持相同的新任务准确率。</p></header>
+  <div class="body" style="grid-template-rows:1fr auto">
+    <section style="display:flex;flex-direction:column">
+      <figure class="fig">
+        <img src="../figs/teaser_fig.webp" alt="论文图 2：SDFT 流程与分布示意">
+        <figcaption><b>论文图 2。</b>左半部分：query 进入 student mode 采样 token，同一个 LLM 在 teacher mode 下额外看到 demonstration，二者的 token 分布 $P$ 与 $Q$ 之间的 KL 给出梯度。右半部分：从 base policy 出发，SDFT 的终点比 SFT 更靠近基座，同时到达 demonstrator 附近的目标区域。</figcaption>
+      </figure>
+    </section>
+    <div class="body c3" style="gap:1.2vw">
+      <section><h2>Student mode</h2><p>只看问题 $x$，生成回答 $y\sim\pi_\theta(\cdot\mid x)$。训练数据全部来自这里，所以是 on-policy。</p></section>
+      <section><h2>Teacher mode</h2><p>同一模型（EMA 权重）额外看到示范 $c$，在学生生成的每个位置给出分布 $\pi(\cdot\mid y_{\lt t},x,c)$。</p></section>
+      <section><h2>关键量化（§3.2）</h2><p>到基座的 KL：教师 0.68 nats，SFT 模型 1.26 nats；新任务准确率相同。</p></section>
+    </div>
+  </div>
+  <footer><span>§3，图 2</span><span>3</span></footer>
+</div></div>
+
+<!-- 3. 方法 -->
+<div class="page"><div class="slide">
+  <header><h1>方法：一个模型，两个角色</h1>
+    <p>教师是同一个模型、额外看到示范；学生只看到问题，并负责生成训练轨迹。</p></header>
+  <div class="body c2">
+    <div class="stack">
+      <section>
+        <h2>角色</h2>
+        <div class="flow">
+          <div class="role s"><b>学生</b>$P=\pi_\theta(\cdot\mid x)$<br><span class="mute">只看问题<br>采样回答 $y$</span></div>
+          <div class="arrow">在 $y$ 上<br>匹配教师<br>←</div>
+          <div class="role t"><b>教师</b>$Q=\pi(\cdot\mid x,c)$<br><span class="mute">同一模型 + 示范 $c$<br>给学生的 token 打分</span></div>
+        </div>
+      </section>
+      <section>
+        <h2>教师 prompt（原文）</h2>
+        <div class="prompt">&lt;Question&gt;<br>This is an example for a response to the question:<br>&lt;<i>Demonstration</i>&gt;<br>Now answer with a response of your own, including the thinking process:</div>
+        <p class="cap">作者发现这个 prompt 足以避免教师照抄 $c$；教师会给出自己的回答，体现它对示范意图的理解。</p>
+      </section>
+      <section>
+        <h2>符号</h2>
+        <ul>
+          <li>$\theta$：学生参数，梯度只流向它。第 $k$ 步的取值记为 $\theta_k$，并简写 $\pi_k\equiv\pi_{\theta_k}$（下两页使用）。</li>
+          <li>教师 $\pi(\cdot\mid x,c)$ 在损失中视为常数。推导中它与学生共享参数 $\theta_k$；实现中它是 EMA 参数 $\phi$，即 $\pi_\phi(\cdot\mid x,c)$（下一页算法）。</li>
+        </ul>
+      </section>
+    </div>
+    <section>
+      <h2>目标函数</h2>
+      <p>从学生采样 $y$，最小化学生到教师的 KL：</p>
+      <div class="eq">$$\mathcal{L}(\theta)=D_{\mathrm{KL}}\big(\pi_\theta(\cdot\mid x)\,\|\,\pi(\cdot\mid x,c)\big)=\mathbb{E}_{y\sim\pi_\theta(\cdot\mid x)}\left[\log\frac{\pi_\theta(y\mid x)}{\pi(y\mid x,c)}\right]$$<span class="lbl">(1)</span></div>
+      <p><b>第一步，对 (1) 求梯度。</b>$\theta$ 同时出现在采样分布和 log 比值里；对前者用 score-function 恒等式 $\nabla\pi_\theta=\pi_\theta\nabla\log\pi_\theta$，后者贡献 $\mathbb{E}_{y\sim\pi_\theta}[\nabla_\theta\log\pi_\theta(y\mid x)]=0$：</p>
+      <div class="eq">$$\nabla_\theta\mathcal{L}=\mathbb{E}_{y\sim\pi_\theta}\left[\log\frac{\pi_\theta(y\mid x)}{\pi(y\mid x,c)}\,\nabla_\theta\log\pi_\theta(y\mid x)\right]$$<span class="lbl">(2a)</span></div>
+      <p><b>第二步，按 token 近似。</b>$\log\pi(y\mid x)=\sum_t\log\pi(y_t\mid y_{\lt t},x)$。论文在每个位置只保留该位置的 KL，并对整个词表 $\mathcal{V}$ 精确求和（analytic per-token estimator）：</p>
+      <div class="eq">$$g=\mathbb{E}_{y\sim\pi_\theta}\sum_t\sum_{y_t\in\mathcal{V}}\pi_\theta(y_t\mid y_{\lt t},x)\,\log\frac{\pi_\theta(y_t\mid y_{\lt t},x)}{\pi(y_t\mid y_{\lt t},x,c)}\,\nabla_\theta\log\pi_\theta(y_t\mid y_{\lt t},x)$$<span class="lbl">(2)</span></div>
+      <p class="cap" style="margin-top:0">(2) 不等于 (2a)：它丢掉了 $y_t$ 对后续 token 比值的影响，等价于在固定的学生前缀上最小化 $\sum_t D_{\mathrm{KL}}$。这就是附录 A.1 所说的“序列层面有偏”。</p>
+      <ul style="margin-top:.5em">
+        <li>监督信号<b>稠密</b>：每个 token、覆盖整个词表；每个问题<b>只需一次 rollout</b>，而 GRPO 类方法每条轨迹只有一个 advantage，且需要一组采样。</li>
+        <li>理论上应使用 reverse KL，但<span class="warn">实践中 forward KL 效果最好</span>；仓库 README（2026-04-07）说明论文所有结果都使用 per-token forward KL。</li>
+      </ul>
+    </section>
+  </div>
+  <footer><span>§3，式 (1)–(2)；式 (2a) 与符号说明为补充</span><span>4</span></footer>
+</div></div>
+
+<!-- 4. 算法与设计选择 -->
+<div class="page"><div class="slide">
+  <header><h1>算法与关键设计选择</h1>
+    <p>以下每项要么在附录中做了 ablation，要么是所有主实验的默认设置。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>算法 1（SDFT）</h2>
+      <div class="algo">
+        <div>初始化教师参数 $\phi\leftarrow\theta$</div>
+        <div>对每个训练步：</div>
+        <div class="in1">从示范数据采样 minibatch $\{(x_i,c_i)\}$</div>
+        <div class="in1">对每一对并行执行：</div>
+        <div class="in2">$y_i\sim\pi_\theta(\cdot\mid \mathrm{Ctx}_S(x_i))$ <span class="cm">— on-policy rollout</span></div>
+        <div class="in2">$\ell^S_{i,t}\leftarrow\log\pi_\theta(y_{i,t}\mid y_{i,\lt t},\mathrm{Ctx}_S(x_i))$</div>
+        <div class="in2">$\ell^T_{i,t}\leftarrow\log\pi_\phi(y_{i,t}\mid y_{i,\lt t},\mathrm{Ctx}_T(x_i,c_i))$</div>
+        <div class="in1">$g\leftarrow$ 对 $i$ 平均的 analytic per-token KL 梯度</div>
+        <div class="in1"><span class="cm">必要时用 importance sampling 修正推理引擎与训练代码的差异</span></div>
+        <div class="in1">$\theta\leftarrow\theta-\eta\,g$</div>
+        <div class="in1">$\phi\leftarrow\alpha\,\theta+(1-\alpha)\,\phi$ <span class="cm">— EMA 教师</span></div>
+      </div>
+    </section>
+    <div class="stack">
+      <section>
+        <h2>教师参数（附录 A.3）</h2>
+        <ul>
+          <li><b>冻结的基座模型：</b>稳定，但效果较差，因为它反映不了学生学到的进步。</li>
+          <li><b>直接用当前学生：</b>不稳定；微小波动经 on-policy 回路放大，训练发散。</li>
+          <li><b>学生参数的 EMA</b>（$\alpha\in\{0.01,0.02,0.05\}$）：跟踪进步并平滑更新。默认选择。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>KL gradient estimator（附录 A.1）</h2>
+        <ul>
+          <li><b>Sampled token-level estimator：</b>方差更高，KL 控制更弱。</li>
+          <li><b>Analytic per-token estimator</b>（每步对词表求和）：在序列层面有偏，但最稳定、效果最好。默认选择。</li>
+          <li><b>Rao-Blackwellized estimator</b>（无偏）：额外开销换不来可测的提升。</li>
+          <li>每个问题多次 rollout：收益可忽略，计算量大增。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>抑制 artifacts（§5）</h2>
+        <p>学生可能学到教师的措辞，如 “Based on the text…”。对前几个 token 屏蔽损失即可去除，且不损害准确率。</p>
+      </section>
+    </div>
+  </div>
+  <footer><span>算法 1，附录 A.1、A.3，§5</span><span>5</span></footer>
+</div></div>
+
+<!-- 5. IRL 视角 -->
+<div class="page"><div class="slide">
+  <header><h1>SDFT 即 inverse RL：示范定义了一个隐式奖励</h1>
+    <p>在一个假设下，自蒸馏等价于 on-policy RL，其奖励由模型自身的 ICL 能力给出。</p></header>
+  <div class="body c21">
+    <section>
+      <h2>推导（§3.1）</h2>
+      <ol>
+        <li><b>Trust-region RL 一步更新</b>（$\pi_k=\pi_{\theta_k}$ 为当前学生，$\pi$ 遍历所有策略）：
+          <div class="eq">$$\pi_{k+1}=\arg\max_{\pi}\ \mathbb{E}_{y\sim\pi}\big[r(y,x)\big]-\beta\,D_{\mathrm{KL}}\big(\pi(\cdot\mid x)\,\|\,\pi_k(\cdot\mid x)\big)$$<span class="lbl">(3)</span></div></li>
+        <li><b>闭式最优解</b>是 tilted distribution $\pi^*_{k+1}(y\mid x)\propto\pi_k(y\mid x)\,e^{r(y,x)/\beta}$，因此
+          <div class="eq">$$r(y,x)=\beta\big[\log\pi^*_{k+1}(y\mid x)-\log\pi_k(y\mid x)\big]+C$$</div></li>
+        <li><b>In-context assumption：</b>以示范为条件的同一模型（参数 $\theta_k$）近似未知的最优策略
+          <div class="eq">$$\pi^*_{k+1}(y\mid x)\approx\pi(y\mid x,c)$$<span class="lbl">(4)</span></div></li>
+        <li><b>隐式奖励</b>（去掉 $\beta$ 和 $C$）及其 per-token 形式，后者求和即为前者：
+          <div class="eq">$$r(y,x,c)=\log\frac{\pi(y\mid x,c)}{\pi_k(y\mid x)},\qquad r_t=\log\frac{\pi(y_t\mid y_{\lt t},x,c)}{\pi_k(y_t\mid y_{\lt t},x)}$$<span class="lbl">(5)</span></div></li>
+        <li><b>Policy gradient</b>
+          （在 $\theta=\theta_k$ 处求值，奖励固定）
+          <div class="eq">$$\nabla_\theta J\big|_{\theta_k}=\mathbb{E}_{y\sim\pi_k}\left[\log\frac{\pi(y\mid x,c)}{\pi_k(y\mid x)}\,\nabla_\theta\log\pi_\theta(y\mid x)\big|_{\theta_k}\right]$$<span class="lbl">(6)</span></div>
+          恰好等于式 (2a) 在 $\theta=\theta_k$ 处取负：最大化该奖励即最小化 reverse KL。实际使用的式 (2) 是 (2a) 的 per-token 近似。</li>
+      </ol>
+    </section>
+    <div class="stack">
+      <section>
+        <h2>解读</h2>
+        <ul>
+          <li>学生被奖励去靠近“更聪明的”、看过示范的自己。</li>
+          <li>不需要奖励模型，也不需要奖励先验：先验就是预训练模型的 ICL 能力。</li>
+          <li>Trust-region 项解释了“锚定”：目标是<b>离当前模型最近</b>的高奖励策略。这正是抗遗忘论证的起点（见下两页）。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>注意</h2>
+        <p>这一等价关系针对 reverse KL。论文报告的实验实际使用 forward KL，因此 IRL 论证是方法的动机，而不是对实际运行的损失的精确描述。</p>
+      </section>
+    </div>
+  </div>
+  <footer><span>§3.1，式 (3)–(6)</span><span>6</span></footer>
+</div></div>
+
+<!-- 6. 抗遗忘论证（一） -->
+<div class="page"><div class="slide">
+  <header><h1>为什么能抗遗忘（一）：理想目标是“解决任务的最小改动”</h1>
+    <p>论文没有给出遗忘的上界；它的论证由三步串联而成，其中只有第一步是严格的数学。</p></header>
+  <div class="body" style="grid-template-rows:auto 1fr">
+    <div class="chain">
+      <div class="step"><b>① Trust-region 最优解 = 最小 KL 改动 <span class="tagm math">数学</span></b>tilted distribution 是达到给定奖励时离 $\pi_k$ 最近的策略。</div>
+      <div class="op">+</div>
+      <div class="step"><b>② 示范条件教师 ≈ 该最优解 <span class="tagm assume">假设</span></b>$\pi(\cdot\mid x,c)\approx\pi^*_{k+1}$，且同样靠近 $\pi_k$。</div>
+      <div class="op">+</div>
+      <div class="step"><b>③ 新任务上 KL 小 ⇒ 遗忘少 <span class="tagm emp">经验规律</span></b>来自 RL's Razor 等先前工作，本文未推导。</div>
+    </div>
+    <div class="body" style="gap:1.4vw;grid-template-columns:1.3fr 1fr">
+      <section>
+        <h2>① 最优解的“最小改动”性质</h2>
+        <p>“要高奖励，又不要离 $\pi_k$ 太远”有两种写法。式 (3) 给改动定一个<b>价格</b> $\beta$；也可以给奖励定一个<b>及格线</b> $v$，在及格的策略里挑改动最小的：</p>
+        <div class="eq">$$\min_{\pi}\ D_{\mathrm{KL}}\big(\pi\,\|\,\pi_k\big)\quad\text{s.t.}\quad\mathbb{E}_{y\sim\pi}\big[r(y,x)\big]\ge v$$</div>
+        <p>取 $v$ 为式 (3) 的最优解 $\pi^*_{k+1}=\pi_k\,e^{r/\beta}/Z$ 自身的平均奖励 $v=\mathbb{E}_{\pi^*_{k+1}}[r]$（$Z=\sum_y\pi_k(y\mid x)\,e^{r(y,x)/\beta}$ 为归一化常数），两种写法的答案相同。对 $\pi^*_{k+1}$ 的定义取对数，得 $\log\frac{\pi^*_{k+1}}{\pi_k}=\frac{r}{\beta}-\log Z$。对任意 $\pi$：</p>
+        <div class="eq">$$\begin{aligned}D_{\mathrm{KL}}(\pi\,\|\,\pi_k)&=\mathbb{E}_{\pi}\Big[\log\frac{\pi}{\pi_k}\Big]&&\text{KL 的定义}\\&=\mathbb{E}_{\pi}\Big[\log\frac{\pi}{\pi^*_{k+1}}\Big]+\mathbb{E}_{\pi}\Big[\log\frac{\pi^*_{k+1}}{\pi_k}\Big]&&\text{分子分母同乘 }\pi^*_{k+1}\\&=D_{\mathrm{KL}}(\pi\,\|\,\pi^*_{k+1})+\mathbb{E}_{\pi}\Big[\frac{r}{\beta}-\log Z\Big]&&\text{第一项即 KL；第二项代入上式}\\&=\underbrace{D_{\mathrm{KL}}(\pi\,\|\,\pi^*_{k+1})}_{\ge 0,\ =0\iff\pi=\pi^*_{k+1}}+\frac{\mathbb{E}_{\pi}[r]}{\beta}-\log Z&&Z\text{ 与 }y\text{ 无关}\end{aligned}$$</div>
+        <p>令 $\pi=\pi^*_{k+1}$：第一项为 0，得 $D_{\mathrm{KL}}(\pi^*_{k+1}\,\|\,\pi_k)=v/\beta-\log Z$。及格的 $\pi$ 满足 $\mathbb{E}_\pi[r]\ge v$，于是 $D_{\mathrm{KL}}(\pi\,\|\,\pi_k)\ge 0+v/\beta-\log Z=D_{\mathrm{KL}}(\pi^*_{k+1}\,\|\,\pi_k)$，等号仅当 $\pi=\pi^*_{k+1}$：<b>在所有达到同样奖励的策略中，$\pi^*_{k+1}$ 离 $\pi_k$ 最近</b>（标准的 I-projection 结论，论文只给出闭式解）。</p>
+      </section>
+      <div class="stack">
+      <section>
+        <h2>①′ 最优解的两个推论</h2>
+        <ul>
+          <li>只对 $\pi_k$ <b>已有</b>的输出重新加权：$\pi_k(y\mid x)=0\Rightarrow\pi^*_{k+1}(y\mid x)=0$。</li>
+          <li>$\beta$ 越大，改动的价格越高，对应的及格线 $v$ 越低，改动越小。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>② 教师近似最优解：两个条件（§3.2）</h2>
+        <ul>
+          <li><b>最优性：</b>教师采样达到接近最大的奖励
+            <div class="eq">$$\mathbb{E}_{y\sim\pi(\cdot\mid x,c)}\big[r(y,x)\big]\approx\mathbb{E}_{y\sim\pi^*_{k+1}}\big[r(y,x)\big]$$</div></li>
+          <li><b>最小偏离：</b>教师与 $\pi_k$ 的距离和最优解一样近
+            <div class="eq">$$D_{\mathrm{KL}}\big(\pi(\cdot\mid x,c)\,\|\,\pi_k\big)\approx D_{\mathrm{KL}}\big(\pi^*_{k+1}\,\|\,\pi_k\big)$$</div></li>
+          <li>第二个条件承担抗遗忘的论证：教师与学生<b>参数相同</b>，只差上下文，所以输出保持模型自己的风格。照抄示范的教师会违反这一条件。</li>
+          <li>实测（ToolAlpaca）：教师准确率 100%（基座 42%）；到基座的 KL 为 <b>0.68</b> nats，而 SFT 模型为 <b>1.26</b>，新任务准确率相同。</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+  <footer><span>§3.1–3.2，图 2；I-projection 为标准结论，非论文原文推导</span><span>7</span></footer>
+</div></div>
+
+<!-- 7. 验证 In-context assumption -->
+<div class="page"><div class="slide">
+  <header><h1>检验假设：教师既正确，又靠近基座模型</h1>
+    <p>Qwen2.5-7B-Instruct，ToolAlpaca：模型拿到工具 API 说明和用户请求，需要给出正确的工具调用。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>条件一：最优性</h2>
+      <div class="chart">
+        <h3>ToolAlpaca 准确率（%）</h3>
+        <div class="bar" title="不带示范的基座模型：42%"><span>基座，无示范</span><div class="track"><div class="fill" style="width:42%"></div></div><span class="num">42</span></div>
+        <div class="bar hl" title="以对应示范为条件的教师：100%"><span>教师（+示范）</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="num">100</span></div>
+      </div>
+      <ul style="margin-top:1em">
+        <li>作者人工检查了 50 条教师推理轨迹：最终工具调用全部正确，<b>且</b>中间推理有效、有依据。</li>
+        <li>说明教师是在重建推理过程，而非照抄示范的输出。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>条件二：最小偏离</h2>
+      <div class="chart">
+        <h3>到基座策略的 KL 散度 $D_{\mathrm{KL}}(\pi\,\|\,\pi_0)$，单位 nats（越低越近）</h3>
+        <div class="bar" title="在示范上做 SFT 的模型：1.26 nats"><span>SFT 模型</span><div class="track"><div class="fill" style="width:84%"></div></div><span class="num">1.26</span></div>
+        <div class="bar hl" title="示范条件教师：0.68 nats"><span>教师</span><div class="track"><div class="fill" style="width:45.3%"></div></div><span class="num">0.68</span></div>
+        <p class="legend">坐标轴 0–1.5 nats。</p>
+      </div>
+      <ul style="margin-top:1em">
+        <li>教师达到与 SFT 相同的新任务准确率，但偏离基座的程度只有约一半（图 2 右）。</li>
+        <li>这里用 $\pi_0$ 代替训练中的 $\pi_k$ 作为参照。</li>
+        <li>两项检验都是经验性的，且只在一个任务上做；论文没有从理论上验证该假设。</li>
+      </ul>
+    </section>
+  </div>
+  <footer><span>§3.2，图 2</span><span>8</span></footer>
+</div></div>
+
+<!-- 8. 抗遗忘论证（二） -->
+<div class="page"><div class="slide">
+  <header><h1>为什么能抗遗忘（二）：从“KL 小”到“遗忘少”，以及论证的缺口</h1>
+    <p>第三步依赖先前工作的经验规律；推导本身与实际训练之间也有几处出入。</p></header>
+  <div class="body c3">
+    <section>
+      <h2>③ 经验规律（RL's Razor 等）</h2>
+      <p>作者先前的工作（Shenfeld 等 2025）及 Chen 等 2025 发现：遗忘程度随微调后策略与基座策略<b>在新任务输入上</b>的 KL 散度增大而增大，</p>
+      <div class="eq">$$\text{遗忘}\ \uparrow\quad\text{随}\quad\mathbb{E}_{x\sim\mathcal{D}_{\text{new}}}\,\mathrm{KL}\big(\pi_0(\cdot\mid x),\,\pi(\cdot\mid x)\big)\ \uparrow$$</div>
+      <p>并且 on-policy 训练会倾向于选择 KL 较小的解，而 SFT 不会。</p>
+      <p class="cap">这是相关性规律，不是定理；本文直接引用，未重新推导。</p>
+    </section>
+    <section>
+      <h2>直观对比：两种梯度</h2>
+      <p><b>SFT</b> 在专家前缀上提高专家 token 的概率：</p>
+      <div class="eq">$$\nabla\mathcal{L}_{\text{SFT}}=-\,\mathbb{E}_{(x,y^\star)\sim\mathcal{D}}\sum_t\nabla_\theta\log\pi_\theta(y^\star_t\mid y^\star_{\lt t},x)$$</div>
+      <p>若 $\pi_\theta(y^\star_t\mid\cdot)$ 很小，梯度会强行搬动大量概率质量，参数改动也会波及无关输入。</p>
+      <p style="margin-top:.5em"><b>SDFT</b> 在学生自己的前缀 $y\sim\pi_\theta$ 上，向同一模型给出的分布 $\pi(\cdot\mid y_{\lt t},x,c)$ 靠拢：目标本就在模型自身的分布附近，所需改动更小。</p>
+    </section>
+    <section>
+      <h2>论证的缺口</h2>
+      <ul>
+        <li><b>KL 方向：</b>推导针对 reverse KL，实际运行用的是 per-token forward KL，IRL 论证并不覆盖实际损失。</li>
+        <li><b>Estimator：</b>analytic per-token estimator 在序列层面有偏（附录 A.1），又一处偏离。</li>
+        <li><b>EMA 教师：</b>推导假设教师基于 $\pi_k$；EMA 教师滞后于学生，目标只是近似。</li>
+        <li><b>证据薄弱：</b>“最小偏离”只靠一个任务上的一组数字（0.68 vs 1.26），且参照的是 $\pi_0$ 而非各步的 $\pi_k$。</li>
+        <li><b>没有对旧任务的保证：</b>KL 在新任务的输入上测量，对其他输入上的表现没有任何界。</li>
+        <li><b>遗忘仍然存在：</b>Science Q&amp;A 训练后 IFEval 从 74.3 降到 66.8，只能说“遗忘更少”。</li>
+      </ul>
+    </section>
+  </div>
+  <footer><span>§3.2，§5；Shenfeld 等 2025（RL's Razor）；Chen 等 2025</span><span>9</span></footer>
+</div></div>
+
+<!-- 9. 实验设置 -->
+<div class="page"><div class="slide">
+  <header><h1>实验设置</h1>
+    <p>两类后训练适应：学习新技能，以及吸收新事实。</p></header>
+  <div class="body c3">
+    <section>
+      <h2>技能学习</h2>
+      <p class="mute" style="margin-bottom:.5em">选择模型未专门调优过的任务（不同于数学、代码）。</p>
+      <ul>
+        <li><b>Science Q&amp;A：</b>SciKnowEval 化学 L-3 子集，多选题，75/5/20 划分。示范由 GPT-4o 生成，保留答案正确的一条（每题最多采样 8 次）。</li>
+        <li><b>Tool Use：</b>ToolAlpaca，沿用原始划分与示范。用正则匹配 API 调用评分，允许参数顺序不同。</li>
+        <li><b>Medical：</b>HuatuoGPT-o1。约 2 万条英文 SFT 数据用于训练；1,000 道可验证题用于评测，由 GPT-5-mini 判分。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>知识获取</h2>
+      <ul>
+        <li>约 20 万 token 的维基百科文章，内容为 2025 年的自然灾害，在模型知识截止之后（缅甸和堪察加地震、飓风 Melissa、得州中部洪水等）。</li>
+        <li>用 GPT-5 从文章生成问答对，规模约为原文的 5 倍。</li>
+        <li>指标：<b>strict</b>（所有细节正确）、<b>lenient</b>（包含正确信息且无错误）、<b>OOD</b>：需要这些事实但不直接提及的间接问题（如“2025 年哪些国家需要国际人道主义援助？”）。</li>
+      </ul>
+    </section>
+    <div class="stack">
+      <section>
+        <h2>旧能力</h2>
+        <p>HellaSwag、TruthfulQA、MMLU、IFEval、Winogrande、HumanEval 的平均分（lm-eval-harness），作为遗忘的度量。</p>
+      </section>
+      <section>
+        <h2>基线</h2>
+        <ul>
+          <li><b>技能：</b>SFT；DFT（用 importance sampling 把 offline 数据当作 on-policy 样本）；SFT + Re-invocation（SFT 后在通用 prompt 上从基座做 on-policy 蒸馏以恢复能力）。</li>
+          <li><b>知识：</b>在原文上 continual pretraining（CPT）；在问答上 SFT；总能检索到正确文章的 oracle RAG。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>流程</h2>
+        <p>全参数微调，TRL，单张 H200。每种方法分别搜索 learning rate、batch size、epoch 数，报告验证集最优的 checkpoint。greedy decoding，3 个 seed。SDFT max generation length 2048（技能）或 1024（知识）。</p>
+      </section>
+    </div>
+  </div>
+  <footer><span>§4.1，附录 B，表 3–4</span><span>10</span></footer>
+</div></div>
+
+<!-- 10. 技能学习结果 -->
+<div class="page"><div class="slide">
+  <header><h1>技能学习：SDFT 学得更多，几乎不遗忘</h1>
+    <p>在三个任务上，它都是唯一一个提升新任务、且旧能力没有明显下降的方法。</p></header>
+  <div class="body c3">
+    <section>
+      <h2>Science Q&amp;A</h2>
+      <div class="chart">
+        <h3>新任务准确率（%）</h3>
+        <div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:66.2%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">66.2</span></div>
+        <div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:66%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">66.0</span></div>
+        <div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:54.8%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">54.8</span></div>
+        <div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:70.2%"></div><div class="ref" style="left:32.1%"></div></div><span class="num">70.2</span></div>
+        <h3>旧任务平均分（%）</h3>
+        <div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:53.4%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">53.4</span></div>
+        <div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:60.2%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.2</span></div>
+        <div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:60.2%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.2</span></div>
+        <div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:64.5%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">64.5</span></div>
+      </div>
+    </section>
+    <section>
+      <h2>Tool Use</h2>
+      <div class="chart">
+        <h3>新任务准确率（%）</h3>
+        <div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:63.2%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">63.2</span></div>
+        <div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:63.1%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">63.1</span></div>
+        <div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:64.2%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">64.2</span></div>
+        <div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:70.6%"></div><div class="ref" style="left:42.9%"></div></div><span class="num">70.6</span></div>
+        <h3>旧任务平均分（%）</h3>
+        <div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:56%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">56.0</span></div>
+        <div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:63.7%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">63.7</span></div>
+        <div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:60.8%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.8</span></div>
+        <div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:65.4%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">65.4</span></div>
+      </div>
+    </section>
+    <section>
+      <h2>Medical</h2>
+      <div class="chart">
+        <h3>新任务准确率（%）</h3>
+        <div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:35.5%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">35.5</span></div>
+        <div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:35.6%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">35.6</span></div>
+        <div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:36.2%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">36.2</span></div>
+        <div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:40.2%"></div><div class="ref" style="left:30.1%"></div></div><span class="num">40.2</span></div>
+        <h3>旧任务平均分（%）</h3>
+        <div class="bar"><span>SFT</span><div class="track"><div class="fill" style="width:60.2%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">60.2</span></div>
+        <div class="bar"><span>SFT+re-invoke</span><div class="track"><div class="fill" style="width:62.6%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">62.6</span></div>
+        <div class="bar"><span>DFT</span><div class="track"><div class="fill" style="width:64%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">64.0</span></div>
+        <div class="bar hl"><span>SDFT</span><div class="track"><div class="fill" style="width:65.4%"></div><div class="ref" style="left:65.5%"></div></div><span class="num">65.4</span></div>
+      </div>
+    </section>
+  </div>
+  <footer><span>图 4，表 5。坐标轴 0–100；黑色刻度 = 基座模型（新任务 32.1 / 42.9 / 30.1；旧任务平均 65.5）。</span><span>11</span></footer>
+</div></div>
+
+<!-- 11. 遗忘细分 -->
+<div class="page"><div class="slide">
+  <header><h1>SFT 在哪里遗忘：指令遵循、真实性与代码</h1>
+    <p>在各任务上训练后，每个旧基准的得分。红色表示比基座下降超过 5 分。</p></header>
+  <div class="body c21">
+    <section>
+      <table>
+        <tr><th>训练任务 → 方法</th><th>新任务</th><th>HellaSwag</th><th>HumanEval</th><th>IFEval</th><th>MMLU</th><th>TruthfulQA</th><th>Winogrande</th><th>平均</th></tr>
+        <tr class="basel"><td>基座（Qwen2.5-7B-Instruct）</td><td>—</td><td>62.0</td><td>65.8</td><td>74.3</td><td>71.7</td><td>47.9</td><td>71.1</td><td>65.5</td></tr>
+        <tr><th colspan="9" style="text-align:left;padding-top:.6em">Science Q&amp;A（基座 32.1）</th></tr>
+        <tr><td>SFT</td><td>66.2</td><td class="bad">55.0</td><td class="bad">54.8</td><td class="bad">35.3</td><td class="bad">64.6</td><td class="bad">36.8</td><td>73.7</td><td>53.4</td></tr>
+        <tr><td>SFT + re-invoke</td><td>66.0</td><td>61.6</td><td>63.4</td><td class="bad">52.9</td><td>68.7</td><td>45.2</td><td>70.0</td><td>60.2</td></tr>
+        <tr><td>DFT</td><td>54.8</td><td>57.6</td><td>67.0</td><td class="bad">60.4</td><td>69.4</td><td class="bad">38.8</td><td>68.2</td><td>60.2</td></tr>
+        <tr class="ours"><td>SDFT</td><td>70.2</td><td>60.9</td><td>68.9</td><td class="bad">66.8</td><td>70.7</td><td>46.5</td><td>73.1</td><td>64.5</td></tr>
+        <tr><th colspan="9" style="text-align:left;padding-top:.6em">Tool Use（基座 42.9）</th></tr>
+        <tr><td>SFT</td><td>63.2</td><td>57.3</td><td class="bad">50.0</td><td class="bad">49.8</td><td>70.2</td><td class="bad">37.5</td><td>73.1</td><td>56.0</td></tr>
+        <tr><td>SFT + re-invoke</td><td>63.1</td><td>61.7</td><td>68.9</td><td class="bad">59.1</td><td>71.5</td><td>49.1</td><td>71.6</td><td>63.7</td></tr>
+        <tr><td>DFT</td><td>64.2</td><td>59.7</td><td>61.4</td><td class="bad">60.2</td><td>71.6</td><td class="bad">40.2</td><td>71.5</td><td>60.8</td></tr>
+        <tr class="ours"><td>SDFT</td><td>70.6</td><td>61.6</td><td>68.3</td><td>71.9</td><td>71.5</td><td>47.3</td><td>71.7</td><td>65.4</td></tr>
+        <tr><th colspan="9" style="text-align:left;padding-top:.6em">Medical（基座 30.1）</th></tr>
+        <tr><td>SFT</td><td>35.5</td><td>59.5</td><td>62.1</td><td class="bad">56.6</td><td>70.5</td><td class="bad">39.8</td><td>72.9</td><td>60.2</td></tr>
+        <tr><td>SFT + re-invoke</td><td>35.6</td><td>61.5</td><td>63.1</td><td class="bad">67.6</td><td>70.0</td><td class="bad">42.3</td><td>71.4</td><td>62.6</td></tr>
+        <tr><td>DFT</td><td>36.2</td><td>61.9</td><td>64.6</td><td>74.6</td><td>71.6</td><td class="bad">40.1</td><td>71.3</td><td>64.0</td></tr>
+        <tr class="ours"><td>SDFT</td><td>40.2</td><td>61.4</td><td>67.7</td><td>72.3</td><td>71.5</td><td>47.3</td><td>71.9</td><td>65.4</td></tr>
+      </table>
+    </section>
+    <div class="stack">
+      <section>
+        <h2>观察</h2>
+        <ul>
+          <li><b>IFEval</b> 最脆弱：Science Q&amp;A SFT 使其从 74.3 降到 35.3。SDFT 的最差情况是 66.8，同样出现在 Science Q&amp;A 之后。</li>
+          <li><b>TruthfulQA</b> 在每个任务上经 SFT 和 DFT 后下降 7.7–11.1 分；SDFT 的下降不超过 1.4 分。</li>
+          <li><b>Re-invocation</b> 恢复了 SFT 的大部分损失，但始终达不到基座平均分，且需要额外一个训练阶段。</li>
+          <li><b>DFT</b>（近似 on-policy）遗忘少于 SFT，但 TruthfulQA 仍下降，Science Q&amp;A 准确率也低得多。</li>
+          <li>每个任务的 SFT 都让 Winogrande 略有<i>提升</i>。</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  <footer><span>表 5</span><span>12</span></footer>
+</div></div>
+
+<!-- 12a. 顺序学习 -->
+<div class="page"><div class="slide">
+  <header><h1>依次学习三个技能：SDFT 逐步累积，SFT 学一个忘一个</h1>
+    <p>同一个模型依次在 Tool Use → Science Q&amp;A → Medical 上训练。每个任务分别归一化：0 = 基座模型，1 = 两种方法中达到的最高准确率。</p></header>
+  <div class="body" style="grid-template-rows:1fr auto">
+    <div class="body c2">
+      <section style="display:flex;flex-direction:column">
+        <figure class="fig">
+          <img src="../figs/seq_learning_sdft.webp" alt="论文图 3a：SDFT 顺序学习曲线">
+          <figcaption><b>论文图 3a，SDFT。</b>每进入一个新阶段，新任务曲线上升，之前的任务曲线基本保持在高位。</figcaption>
+        </figure>
+      </section>
+      <section style="display:flex;flex-direction:column">
+        <figure class="fig">
+          <img src="../figs/seq_learning_sft.webp" alt="论文图 3b：SFT 顺序学习曲线">
+          <figcaption><b>论文图 3b，SFT。</b>切换到下一个任务后，前一个任务迅速跌到基座以下（归一化值为负）。</figcaption>
+        </figure>
+      </section>
+    </div>
+    <p class="cap">论文只给出曲线，没有各阶段结束时的数值表；阴影为不同 seed 的波动范围。注意归一化以“两种方法的最好成绩”为 1，图上的高低只在同一任务内可比。</p>
+  </div>
+  <footer><span>§4.3，图 3</span><span>13</span></footer>
+</div></div>
+
+<!-- 12b. 规模与 pass@k -->
+<div class="page"><div class="slide">
+  <header><h1>模型规模与 pass@k：需要足够强的 ICL，提升不是靠变尖锐</h1>
+    <p>规模实验在 Science Q&amp;A 上，pass@k 在 Tool Use 上（temperature 1.0，top-p 0.95）。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>模型规模（图 5 左）</h2>
+      <div class="chart">
+        <h3>Science Q&amp;A 上 SDFT 减 SFT（分）</h3>
+        <div class="bar" title="Qwen2.5-3B：SDFT 比 SFT 低 3.3 分"><span>Qwen2.5-3B</span><div class="track" style="background:none"><div style="display:flex;height:100%"><div style="width:50%;display:flex;justify-content:flex-end"><div class="fill" style="width:23.6%;border-radius:4px 0 0 4px"></div></div><div style="width:2px;background:var(--ink);opacity:.55"></div></div></div><span class="num">−3.3</span></div>
+        <div class="bar hl" title="Qwen2.5-7B：SDFT 比 SFT 高 4.0 分"><span>Qwen2.5-7B</span><div class="track" style="background:none"><div style="display:flex;height:100%"><div style="width:50%"></div><div style="width:2px;background:var(--ink);opacity:.55"></div><div class="fill" style="width:14.3%"></div></div></div><span class="num">+4.0</span></div>
+        <div class="bar hl" title="Qwen2.5-14B：SDFT 比 SFT 高 6.9 分"><span>Qwen2.5-14B</span><div class="track" style="background:none"><div style="display:flex;height:100%"><div style="width:50%"></div><div style="width:2px;background:var(--ink);opacity:.55"></div><div class="fill" style="width:24.6%"></div></div></div><span class="num">+6.9</span></div>
+        <p class="legend">坐标轴 −14 到 +14；竖线为 0。论文正文只给出差值。</p>
+      </div>
+      <ul style="margin-top:.8em">
+        <li>3B 时教师的 ICL 太弱，SDFT 不如 SFT。</li>
+        <li>差距随规模增大；作者预期更大的模型收益更多。</li>
+        <li>只在一个任务、一个模型家族上测了三个规模。</li>
+      </ul>
+    </section>
+    <section style="display:flex;flex-direction:column">
+      <h2>pass@k（图 5 右）</h2>
+      <figure class="fig">
+        <img src="../figs/tooluse_pass_at_k.webp" alt="论文图 5 右：Tool Use 上的 pass@k">
+        <figcaption><b>论文图 5 右。</b>$k$ 从 1 到 128，SDFT（Distillation）始终高于 SFT 和基座，且差距不随 $k$ 增大而消失。常有人怀疑 RL 只是通过降低熵提升 pass@1（Yue 等 2025）；这里的结果不支持这种解释。</figcaption>
+      </figure>
+    </section>
+  </div>
+  <footer><span>§4.2、§4.4，图 5</span><span>14</span></footer>
+</div></div>
+
+<!-- 13. 知识获取 -->
+<div class="page"><div class="slide">
+  <header><h1>知识获取：SDFT 几乎追平 oracle 检索</h1>
+    <p>基座模型对这些 2025 年事实一无所知；SDFT 吸收它们的方式能迁移到间接问题上。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>结果（表 1）</h2>
+      <table>
+        <tr><th>方法</th><th>Strict</th><th>Lenient</th><th>OOD</th></tr>
+        <tr class="basel"><td>基座</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>在文章上 continual pretraining（CPT）</td><td>9</td><td>37</td><td>7</td></tr>
+        <tr><td>在问答上 SFT</td><td>80</td><td>95</td><td>80</td></tr>
+        <tr class="ours"><td>SDFT</td><td>89</td><td>100</td><td>98</td></tr>
+        <tr class="basel"><td>Oracle RAG（upper bound 参照）</td><td>91</td><td>100</td><td>100</td></tr>
+      </table>
+      <ul style="margin-top:1em">
+        <li>CPT 几乎无效，与 Mecklenburg 等 2024 一致。</li>
+        <li>SFT strict 准确率 80，但 OOD 仍只有 80：它学会复述答案，而没有把事实融入知识。</li>
+        <li>SDFT strict 89，OOD 98。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>教师需要看到什么（附录 A.2）</h2>
+      <div class="chart">
+        <h3>固定 on-policy 训练、改变教师上下文时的 strict 准确率（%）</h3>
+        <div class="bar" title="教师只看答案：37%"><span>只看答案</span><div class="track"><div class="fill" style="width:37%"></div></div><span class="num">37</span></div>
+        <div class="bar" title="教师只看文章：75%"><span>只看文章</span><div class="track"><div class="fill" style="width:75%"></div></div><span class="num">75</span></div>
+        <div class="bar hl" title="教师看文章和答案：89%"><span>文章 + 答案</span><div class="track"><div class="fill" style="width:89%"></div></div><span class="num">89</span></div>
+      </div>
+      <ul style="margin-top:1em">
+        <li>以往用于知识注入的自蒸馏（Cartridges；Kujanpää 等 2025）只让教师看原始语料，并且 offline 训练。</li>
+        <li>在教师上下文中加入解答，比只给文章高 14 分。</li>
+      </ul>
+    </section>
+  </div>
+  <footer><span>§4.2，表 1，附录 A.2，图 7</span><span>15</span></footer>
+</div></div>
+
+<!-- 14. 推理模型 -->
+<div class="page"><div class="slide">
+  <header><h1>只用答案数据训练推理模型</h1>
+    <p>在短答案上做 SFT 会压制推理模型的长 CoT。SDFT 的教师就是同一个推理模型，所以目标分布保留了它的推理风格。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>Olmo-3-7B-Think，Medical 任务（数据中没有 CoT）</h2>
+      <div class="chart">
+        <h3>准确率（%）</h3>
+        <div class="bar"><span>基座</span><div class="track"><div class="fill" style="width:31.2%"></div></div><span class="num">31.2</span></div>
+        <div class="bar"><span>+ SFT</span><div class="track"><div class="fill" style="width:23.5%"></div></div><span class="num">23.5</span></div>
+        <div class="bar hl"><span>+ SDFT</span><div class="track"><div class="fill" style="width:43.7%"></div></div><span class="num">43.7</span></div>
+        <p class="legend">坐标轴 0–100。</p>
+        <h3>平均回答长度（token）</h3>
+        <div class="bar"><span>基座</span><div class="track"><div class="fill" style="width:92.2%"></div></div><span class="num">4612</span></div>
+        <div class="bar"><span>+ SFT</span><div class="track"><div class="fill" style="width:65.5%"></div></div><span class="num">3273</span></div>
+        <div class="bar hl"><span>+ SDFT</span><div class="track"><div class="fill" style="width:83.6%"></div></div><span class="num">4180</span></div>
+        <p class="legend">坐标轴 0–5000 token。</p>
+      </div>
+    </section>
+    <div class="stack">
+      <section>
+        <h2>结果</h2>
+        <ul>
+          <li>SFT 降低准确率（31.2 → 23.5），回答缩短 29%，推理深度坍缩。</li>
+          <li>SDFT 准确率提高 12.5 分，保留了原长度的 91%。</li>
+          <li>回答长度被用作推理深度保留程度的代理指标。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>意义</h2>
+        <ul>
+          <li>真实数据集常常只有最终答案；闭源模型也不暴露推理过程。</li>
+          <li>SDFT 能在没有推理轨迹的情况下让推理模型适应这类数据。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>反方向不成立</h2>
+        <p>作者在 §5 中说明：把<i>非</i>推理模型变成会写显式 CoT 的模型很困难。SDFT 能保持一种生成风格，但不能创造一种新风格。</p>
+      </section>
+    </div>
+  </div>
+  <footer><span>§4.5，表 2，§5</span><span>16</span></footer>
+</div></div>
+
+<!-- 15. 增益来源 -->
+<div class="page"><div class="slide">
+  <header><h1>增益来自哪里：on-policy 训练，而不只是更好的教师</h1>
+    <p>图 6 用同一个示范条件教师比较三种用法；图 8 比较三种教师参数。均在 Tool Use 上。</p></header>
+  <div class="body c3">
+    <section style="display:flex;flex-direction:column">
+      <h2>Offline vs on-policy（图 6）</h2>
+      <figure class="fig">
+        <img src="../figs/ablation.webp" alt="论文图 6：on-policy 与 offline 蒸馏对比">
+        <figcaption><b>论文图 6。</b>Distillation = SDFT；Offline Distillation = 在固定的教师输出上最小化 KL；SFT from Teacher = 在教师样本上做 SFT。两种 offline 变体在整个训练过程中都低于 SDFT。</figcaption>
+      </figure>
+    </section>
+    <section style="display:flex;flex-direction:column">
+      <h2>教师参数（图 8）</h2>
+      <figure class="fig">
+        <img src="../figs/ema_ablation.webp" alt="论文图 8：教师参数选择">
+        <figcaption><b>论文图 8。</b>$\mathrm{EMA}(\theta)$ 最好；冻结基座 $\theta_0$ 稳定但较低；直接用当前学生 $\theta$ 作教师，先上升后在训练中途崩溃。</figcaption>
+      </figure>
+    </section>
+    <section>
+      <h2>Ablation 汇总</h2>
+      <table>
+        <tr><th>因素</th><th style="text-align:left">结论</th></tr>
+        <tr><td>训练分布</td><td style="text-align:left">on-policy &gt; 两种 offline 变体 &gt; SFT</td></tr>
+        <tr><td>教师参数</td><td style="text-align:left">EMA &gt; 冻结基座；用学生会发散</td></tr>
+        <tr><td>教师上下文</td><td style="text-align:left">文章 + 答案 89 &gt; 文章 75 &gt; 答案 37</td></tr>
+        <tr><td>KL estimator</td><td style="text-align:left">analytic per-token 最好；Rao-Blackwellized 无收益</td></tr>
+        <tr><td>每题 rollout</td><td style="text-align:left">1 次足够</td></tr>
+        <tr><td>KL 方向</td><td style="text-align:left">forward KL 最好（所有结果均使用）</td></tr>
+        <tr><td>模型规模</td><td style="text-align:left">3B −3.3；7B +4.0；14B +6.9</td></tr>
+        <tr><td>Epoch 数</td><td style="text-align:left">SDFT 2（技能）/ 4（知识）；SFT 1 之后无收益</td></tr>
+      </table>
+      <p class="cap">图 6、8 只有曲线（准确率坐标 35–70），没有列出最终数值。</p>
+    </section>
+  </div>
+  <footer><span>§4.6，图 6，图 8，附录 A、B.1</span><span>17</span></footer>
+</div></div>
+
+<!-- 16. 讨论与局限 -->
+<div class="page"><div class="slide">
+  <header><h1>讨论与局限（作者的陈述）</h1>
+    <p>SDFT 与 on-policy RL 互补：它覆盖的是“有示范、没有奖励”的情形。</p></header>
+  <div class="body c3">
+    <section>
+      <h2>与 RL 的关系</h2>
+      <ul>
+        <li>监督假设不同：示范而无奖励，vs 有奖励并通过探索优化。</li>
+        <li>可以结合：用 SDFT 作为 RL 前的初始化（pass@k 的提升支持这一点），或混合两种信号。</li>
+        <li>每步比 GRPO 便宜：每题一次 rollout，credit assignment 到 token 甚至 logit 级别。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>代价与失效模式</h2>
+      <ul>
+        <li><b>计算量：</b>约为 SFT 的 2.5 倍 FLOPs、4 倍 wall-clock 时间。若与“SFT + 恢复阶段”（如 Re-invoke）相比，总时间可能更少。</li>
+        <li><b>学到 artifacts：</b>学生会模仿教师的 “Following the example…” 之类措辞；屏蔽前几个 token 是启发式修补。</li>
+        <li><b>需要强 ICL：</b>3B 时失效。</li>
+        <li><b>只能做小幅行为改变：</b>无法让非推理模型学会写 CoT。</li>
+        <li><b>仍有遗忘</b>（如 Science Q&amp;A 后 IFEval 74.3 → 66.8）。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>未来工作</h2>
+      <ul>
+        <li>与 on-policy RL 结合：先 SDFT 再 RL，或同时混合示范信号与奖励信号。</li>
+        <li>进一步减少残余的遗忘。</li>
+        <li>从非专家或带噪声的示范中学习。</li>
+        <li>从非结构化数据（如用户对话）中学习，面向真实的持续学习场景。</li>
+      </ul>
+    </section>
+  </div>
+  <footer><span>§5</span><span>18</span></footer>
+</div></div>
+
+<!-- 17. 总结 -->
+<div class="page"><div class="slide">
+  <header><h1>总结：用“看过示范的自己”当教师，把示范变成 on-policy 信号</h1>
+    <p>以下两页是我们的评估，不是论文的陈述。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>贡献</h2>
+      <p>SDFT 让模型在只有示范、没有奖励的情况下做 on-policy 学习：学生在自己的 rollout 上，向以示范为条件的同一模型（EMA 权重）蒸馏。在 Qwen2.5-7B 的技能学习和知识注入任务上，它的新任务表现高于 SFT，同时几乎不损失旧能力。</p>
+      <h2 style="margin-top:1em">值得记住的结果</h2>
+      <ul>
+        <li><b>学得更多、忘得更少：</b>Tool Use 70.6 vs SFT 63.2；旧任务平均 65.4 vs 56.0（基座 65.5）。</li>
+        <li><b>知识真正被整合：</b>新注入事实的 OOD 准确率 98 vs SFT 80，接近 oracle RAG 的 100。</li>
+        <li><b>推理模型可用 answer-only 数据：</b>Olmo-3-7B-Think 在 Medical 上 43.7 vs SFT 23.5，回答长度保持 91%。</li>
+        <li><b>关键是 on-policy：</b>同一个教师做 offline 蒸馏，始终低于 SDFT（图 6）。</li>
+        <li><b>依赖 ICL 能力：</b>3B 时比 SFT 低 3.3，14B 时高 6.9。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>证据较强的部分</h2>
+      <ul>
+        <li class="ok"> <b>遗忘的减少很一致：</b>3 个任务 × 6 个旧基准，SDFT 的旧任务平均分最多比基座低 1.0；TruthfulQA 上 SFT、DFT 降 7.7–11.1，SDFT 不超过 1.4（表 5）。</li>
+        <li class="ok"> <b>机制被隔离了：</b>图 6 固定教师、只改变训练分布，直接说明增益来自 on-policy，而不只是教师质量。</li>
+        <li class="ok"> <b>设计选择都有 ablation：</b>教师上下文（图 7）、教师参数（图 8）、KL estimator（附录 A.1）各自都做了对照。</li>
+        <li class="ok"> <b>不只是变尖锐：</b>pass@k 在 $k\le 128$ 上一致领先（图 5 右）。</li>
+        <li class="ok"> <b>三个顺序任务</b>上的累积学习曲线与单任务结论一致（图 3）。</li>
+      </ul>
+    </section>
+  </div>
+  <footer><span>我们的评估；数字来自表 1、2、5 与图 3、5、6</span><span>19</span></footer>
+</div></div>
+
+<!-- 18. 评述 -->
+<div class="page"><div class="slide">
+  <header><h1>评述：理论与实际训练有出入，泛化范围尚未证明</h1>
+    <p>每一条都对应到论文的具体章节。</p></header>
+  <div class="body c2">
+    <section>
+      <h2>证据薄弱之处</h2>
+      <ul>
+        <li class="no"> <b>理论不覆盖实际损失：</b>§3.1 的 IRL 等价针对 reverse KL，而所有结果都用 per-token forward KL（README，2026-04-07）；analytic estimator 在序列层面有偏（附录 A.1）。</li>
+        <li class="no"> <b>“最小偏离”只有一个数字：</b>0.68 vs 1.26 nats，单一任务，且参照 $\pi_0$ 而非各步的 $\pi_k$（§3.2）。</li>
+        <li class="no"> <b>范围窄：</b>几乎全部是 Qwen2.5-7B；规模实验只在 Science Q&amp;A；推理模型只有 Olmo-3-7B-Think 一个。</li>
+        <li class="no"> <b>计算量未对齐：</b>SDFT 约 2.5 倍 FLOPs，且训练 2–4 epoch；没有等计算量的 SFT 或 RL 对照。</li>
+        <li class="no"> <b>不确定性没有展示：</b>附录 B.2 称报告 3 个 seed 的 95% CI，但表 1、2、5 没有区间。</li>
+        <li class="no"> <b>判分与旧能力度量：</b>Medical 和知识任务由 GPT-5-mini 判分；旧能力套件里没有数学或长推理基准。</li>
+      </ul>
+    </section>
+    <section>
+      <h2>开放问题</h2>
+      <ul>
+        <li class="q"> 用 reverse KL（与理论一致）训练，结果是否相同？forward 与 reverse 的直接对比没有报告。</li>
+        <li class="q"> 等 FLOPs 预算下，SDFT 对比 SFT 多 epoch、对比 RL（若有奖励）如何？</li>
+        <li class="q"> 对 thinking 模型，教师 prompt 会不会改变推理风格并把它蒸馏给学生？</li>
+        <li class="q"> 30B 以上、其他模型家族、更长的任务序列上能否保持？</li>
+        <li class="q"> 示范有噪声或来自弱模型时，教师是否仍满足“最优性”条件？</li>
+      </ul>
+    </section>
+  </div>
+  <footer><span>我们的评估；§3.1–3.2，§4，§5，附录 A.1、B.2</span><span>20</span></footer>
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  renderMathInElement(document.body, {
+    delimiters: [ { left:'$$', right:'$$', display:true }, { left:'$', right:'$', display:false } ],
+    throwOnError: false
+  });
+  // 方向键 / PageUp / PageDown / 空格 翻页
+  const pages = [...document.querySelectorAll('.page')];
+  const current = () => pages.reduce((best, p, i) =>
+    Math.abs(p.getBoundingClientRect().top) < Math.abs(pages[best].getBoundingClientRect().top) ? i : best, 0);
+  document.addEventListener('keydown', e => {
+    const fwd = ['ArrowRight','ArrowDown','PageDown',' '].includes(e.key);
+    const back = ['ArrowLeft','ArrowUp','PageUp'].includes(e.key);
+    if (!fwd && !back) return;
+    e.preventDefault();
+    const i = Math.min(pages.length - 1, Math.max(0, current() + (fwd ? 1 : -1)));
+    pages[i].scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+</script>
+</body>
+</html>

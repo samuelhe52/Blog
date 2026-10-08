@@ -1,0 +1,32 @@
+---
+import SlideCard from './SlideCard.astro';
+import type { Deck, Lang } from '../data/slides';
+
+interface Props {
+  decks: Deck[];
+  lang: Lang;
+  compact?: boolean;
+}
+
+const { decks, lang, compact = false } = Astro.props;
+---
+
+<ul class:list={['deck-grid', { compact }]}>
+  {decks.map((deck) => <SlideCard deck={deck} lang={lang} compact={compact} />)}
+</ul>
+
+<style>
+  .deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .deck-grid.compact {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+</style>

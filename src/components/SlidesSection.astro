@@ -1,0 +1,54 @@
+---
+import SlideGrid from './SlideGrid.astro';
+import { sortedDecks, type Lang } from '../data/slides';
+
+interface Props {
+  lang: Lang;
+  limit?: number;
+}
+
+const { lang, limit = 3 } = Astro.props;
+const decks = sortedDecks();
+const t = {
+  'zh-CN': { title: '幻灯片', all: `全部 ${decks.length} 份 →`, href: '/zh/slides/' },
+  en: { title: 'Slides', all: `All ${decks.length} →`, href: '/en/slides/' },
+}[lang];
+---
+
+{decks.length > 0 && (
+  <section class="slides-section">
+    <div class="section-head">
+      <h2 class="section-title"><a href={t.href}>{t.title}</a></h2>
+      {decks.length > limit && <a class="see-all" href={t.href}>{t.all}</a>}
+    </div>
+    <SlideGrid decks={decks.slice(0, limit)} lang={lang} compact />
+  </section>
+)}
+
+<style>
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    margin: 0;
+  }
+
+  .section-title a {
+    color: var(--text);
+  }
+
+  .section-title a:hover {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .see-all {
+    font: 400 1rem/1 var(--font-hand);
+  }
+</style>

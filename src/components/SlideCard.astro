@@ -1,0 +1,242 @@
+---
+import type { Deck, Lang } from '../data/slides';
+
+interface Props {
+  deck: Deck;
+  lang: Lang;
+  compact?: boolean;
+}
+
+const { deck, lang, compact = false } = Astro.props;
+const other: Lang = lang === 'zh-CN' ? 'en' : 'zh-CN';
+// Fall back to the other language when this one has no version.
+const version = deck.versions[lang] ?? deck.versions[other]!;
+const isFallback = !deck.versions[lang];
+
+const t = {
+  'zh-CN': { paper: '论文解读', slides: `${deck.slideCount} 页`, cover: '首页预览' },
+  en: { paper: 'Paper walkthrough', slides: `${deck.slideCount} slides`, cover: 'First slide of' },
+}[lang];
+const langLabels: Record<Lang, string> = { 'zh-CN': '中文', en: 'English' };
+const versions = (['zh-CN', 'en'] as const).filter((code) => deck.versions[code]);
+---
+
+<li class:list={['deck', { compact }]}>
+  <div class="deck-cover">
+    <img
+      src={version.cover}
+      alt={lang === 'zh-CN' ? `${version.title} ${t.cover}` : `${t.cover} ${version.title}`}
+      width="960"
+      height="540"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="deck-body">
+    <p class="deck-kind">{t[deck.kind]} · {t.slides}</p>
+    <h2 class="deck-title">
+      <a class="deck-link" href={version.href} lang={isFallback ? other : undefined}>{version.title}</a>
+    </h2>
+    <p class="deck-description" lang={isFallback ? other : undefined}>{version.description}</p>
+    <div class="deck-meta">
+      <time datetime={deck.date.toISOString()}>
+        {deck.date.toLocaleDateString(lang, { year: 'numeric', month: 'short', day: 'numeric' })}
+      </time>
+      {deck.source && (
+        <a class="deck-source" href={deck.source.url} target="_blank" rel="noopener noreferrer">{deck.source.label}</a>
+      )}
+      <span class="deck-langs">
+        {versions.map((code) => (
+          <a
+            class:list={['deck-lang', { current: deck.versions[code] === version }]}
+            href={deck.versions[code]!.href}
+            lang={code}
+            hreflang={code}
+          >{langLabels[code]}</a>
+        ))}
+      </span>
+    </div>
+  </div>
+</li>
+
+<style>
+  .deck {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03), 0 14px 26px -22px rgba(90, 60, 20, 0.5);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+
+  .deck:hover,
+  .deck:focus-within {
+    transform: translateY(-3px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03), 0 20px 32px -22px rgba(90, 60, 20, 0.6);
+  }
+
+  .deck-cover {
+    aspect-ratio: 16 / 9;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    transition: border-color 0.3s ease-in-out;
+  }
+
+  .deck-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .deck-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1rem 1.15rem 1.05rem;
+  }
+
+  .deck-kind {
+    margin: 0 0 0.35rem;
+    color: var(--seal);
+    font: 400 0.95rem/1.2 var(--font-hand);
+    transition: color 0.3s ease-in-out;
+  }
+
+  .deck-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+
+  .deck-link {
+    color: var(--text);
+  }
+
+  /* Make the whole card clickable; the source and language links sit above this layer. */
+  .deck-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .deck-link:hover {
+    text-decoration: none;
+  }
+
+  .deck:hover .deck-link {
+    color: var(--link);
+  }
+
+  .deck-description {
+    flex: 1;
+    margin: 0 0 0.9rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    transition: color 0.3s ease-in-out;
+  }
+
+  .deck-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.8rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .deck-source {
+    position: relative;
+    z-index: 2;
+  }
+
+  .deck-langs {
+    display: flex;
+    gap: 0.3rem;
+    margin-left: auto;
+  }
+
+  .deck-lang {
+    position: relative;
+    z-index: 2;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    color: var(--text-muted);
+    box-shadow: inset 0 0 0 1px var(--border);
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+
+  .deck-lang:hover {
+    background: var(--border);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .deck-lang.current {
+    color: var(--text);
+    background: var(--note);
+    box-shadow: none;
+  }
+
+  /* Compact: a thumbnail beside the text, for the home page */
+  .deck.compact {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+  }
+
+  .compact .deck-cover {
+    align-self: start;
+    margin: 0.8rem 0 0.8rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .compact .deck-body {
+    padding: 0.7rem 1rem 0.75rem;
+  }
+
+  .compact .deck-kind {
+    margin-bottom: 0.15rem;
+    font-size: 0.85rem;
+  }
+
+  .compact .deck-title {
+    margin-bottom: 0.25rem;
+    font-size: 1.05rem;
+  }
+
+  .compact .deck-description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 480px) {
+    .deck.compact {
+      grid-template-columns: 7rem 1fr;
+    }
+
+    .compact .deck-description {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deck,
+    .deck:hover,
+    .deck:focus-within {
+      transform: none;
+    }
+  }
+</style>

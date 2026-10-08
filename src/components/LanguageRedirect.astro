@@ -1,0 +1,69 @@
+---
+// Sends visitors to the /zh/ or /en/ version of `path` based on browser language.
+interface Props {
+  path?: string;
+}
+
+const { path = '' } = Astro.props;
+const zhLink = `/zh/${path}`;
+const enLink = `/en/${path}`;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>konakona</title>
+		<meta name="robots" content="noindex, nofollow" />
+		<link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+		<script is:inline define:vars={{ zhLink, enLink }}>
+			// Instant redirect based on browser language - runs before body renders
+			(function() {
+				var languages = navigator.languages && navigator.languages.length
+					? navigator.languages
+					: [navigator.language || ''];
+				for (var i = 0; i < languages.length; i++) {
+					var lang = (languages[i] || '').toLowerCase();
+					if (lang.startsWith('zh')) {
+						window.location.replace(zhLink);
+						return;
+					}
+					if (lang.startsWith('en')) {
+						window.location.replace(enLink);
+						return;
+					}
+				}
+				// Default to English
+				window.location.replace(enLink);
+			})();
+		</script>
+	</head>
+	<body>
+		<!-- Fallback for users with JS disabled -->
+		<noscript>
+			<meta http-equiv="refresh" content={`0;url=${enLink}`} />
+			<style>
+				body {
+					font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+					min-height: 100vh;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					margin: 0;
+					background: #fbf7ef;
+					color: #3a322b;
+				}
+				.notice { text-align: center; padding: 2rem; }
+				.notice a { color: #55703f; margin: 0 0.5rem; }
+			</style>
+			<div class="notice">
+				<p>Please select your language:</p>
+				<p>
+					<a href={zhLink}>中文</a> ·
+					<a href={enLink}>English</a>
+				</p>
+			</div>
+		</noscript>
+	</body>
+</html>
+

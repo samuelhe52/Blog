@@ -52,6 +52,7 @@ Body starts at `##`. The layout renders the title as the H1.
 src/
   content/posts/{zh,en}/   posts
   content/folders.yaml     folder names and descriptions
+  data/slides.ts           slide deck list shown at /zh/slides/ and /en/slides/
   pages/                   routes (zh/, en/, folders/, og/, rss.xml)
   components/, layouts/    UI
   i18n/{zh,en}.json        UI strings
@@ -59,6 +60,7 @@ src/
 public/
   scripts/                 client JavaScript (kept out of HTML for CSP)
   images/, lab/            post images and interactive pages
+  slides/<deck>/           standalone HTML slide decks ({en,zh}/index.html, cover-*.webp)
 infra/nginx/               reference Nginx config
 docs/                      guides; docs/archive/ holds old plans
 ```
@@ -71,4 +73,4 @@ Each push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/depl
 
 ## License
 
-The code is licensed under [MIT](LICENSE-CODE). Posts, post images, and the pages in `public/lab/` are licensed under [CC BY 4.0](LICENSE-CONTENT). [LICENSE](LICENSE) lists which files fall under each license.
+The code is licensed under [MIT](LICENSE-CODE). Posts, post images, the pages in `public/lab/`, and the slide decks in `public/slides/` are licensed under [CC BY 4.0](LICENSE-CONTENT); figures reproduced from papers keep their authors' copyright. [LICENSE](LICENSE) lists which files fall under each license.

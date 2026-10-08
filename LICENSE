@@ -20,6 +20,7 @@ All blog content, including but not limited to:
 - Folder names and descriptions in `src/content/folders.yaml`
 - Images used in posts (`public/images/`)
 - Interactive pages embedded in posts (`public/lab/`)
+- Slide decks and their cover images (`public/slides/`), except figures reproduced from the papers they discuss, which remain under their original authors' copyright and licenses
 
 is licensed under the **Creative Commons Attribution 4.0 International License (CC BY 4.0)**. See [LICENSE-CONTENT](LICENSE-CONTENT) for details.
 

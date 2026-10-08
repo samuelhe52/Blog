@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from './Header.astro';
+import SlideGrid from './SlideGrid.astro';
+import { sortedDecks, type Lang } from '../data/slides';
+import { SITE } from '../site.config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = {
+  'zh-CN': {
+    title: '幻灯片',
+    intro: '论文解读和报告用的 HTML 幻灯片。直接在浏览器里放映：方向键翻页，F 全屏。',
+  },
+  en: {
+    title: 'Slides',
+    intro: 'HTML decks from paper walkthroughs and talks. They run in the browser: arrow keys to move, F for fullscreen.',
+  },
+}[lang];
+
+const alternates = {
+  'zh-CN': new URL('/zh/slides/', SITE.domain).href,
+  en: new URL('/en/slides/', SITE.domain).href,
+};
+---
+
+<Layout lang={lang} title={`${t.title} · ${SITE.title}`} description={t.intro} alternates={alternates}>
+  <Header lang={lang} toZh="/zh/slides/" toEn="/en/slides/" />
+  <main id="main-content" tabindex="-1" class="animate">
+    <h1>{t.title}</h1>
+    <p class="slides-intro">{t.intro}</p>
+    <SlideGrid decks={sortedDecks()} lang={lang} />
+  </main>
+</Layout>
+
+<style>
+  h1 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .slides-intro {
+    margin: 0 0 2rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    transition: color 0.3s ease-in-out;
+  }
+</style>

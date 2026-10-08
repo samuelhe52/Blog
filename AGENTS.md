@@ -63,6 +63,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Reading time, table of contents with reading progress, older/newer post navigation, back-to-top, code copy.
 - Light/dark theme via CSS variables; bilingual 404 page.
 - GitHub Actions build and rsync deploy.
+- Slides section: decks are static HTML under public/slides/<deck>/{en,zh}/ with a cover image of the first slide; src/data/slides.ts lists them; /zh/slides/ and /en/slides/ show cards; /slides/ redirects by browser language (LanguageRedirect component, shared with the root page); the home pages show the latest decks as compact cards between Posts and Folders (SlidesSection in the FolderView before-folders slot); deck figures are WebP.
 
 ## Deferred
 
