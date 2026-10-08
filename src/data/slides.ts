@@ -24,7 +24,7 @@ export const DECKS: Deck[] = [
     slug: 'sdft-overview',
     kind: 'paper',
     date: new Date('2026-10-08'),
-    slideCount: 20,
+    slideCount: 21,
     source: { label: 'arXiv 2601.19897', url: 'https://arxiv.org/abs/2601.19897v2' },
     versions: {
       en: {

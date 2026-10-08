@@ -803,6 +803,33 @@
 </div>
 <footer><span>Our assessment; §3.1–3.2, §4, §5, Appendices A.1, B.2</span><span>20</span></footer>
 </div></div>
+<div class="page"><div class="slide">
+<header><h1>Our view: retention rests on a surrogate, and the anchor drifts</h1>
+<p>Left: the argument's core limitations. Right: directions worth testing.</p></header>
+<div class="body c12">
+<section>
+<h2>Core limitations</h2>
+<ul>
+<li class="no"> <b>A surrogate:</b> "less forgetting" rests on an empirical correlation: forgetting grows with the KL between the fine-tuned and base models on new-task inputs (RL's Razor and others). SDFT minimizes student-to-teacher KL and lowers that quantity only indirectly, because the teacher stays close to the base. Both links are surrogates; this is the key limitation.</li>
+<li class="no"> <b>Measured in the wrong place:</b> small KL on new-task inputs does not guarantee small KL on old-task inputs, which is what we care about. Parameters are shared, so a small change on new inputs can move outputs elsewhere.</li>
+<li class="no"> <b>The anchor moves:</b> each step is a minimal change relative to the current policy $\pi_k$ (approximated by the EMA teacher), not the base $\pi_0$. A chain of small steps has no cumulative bound on $D_{\mathrm{KL}}(\pi_K\,\|\,\pi_0)$.</li>
+</ul>
+</section>
+<section>
+<h2>Directions to explore</h2>
+<ul>
+<li><b>An off-task anchor inside the loop.</b> Mix <b>retention prompts</b> $x\sim\mathcal{D}_{\text{ret}}$ into training batches. New-task prompts use the EMA teacher as usual ($\mathcal{L}_{\text{SDFT}}$); retention prompts have no demonstration, where the EMA teacher is only a lagging copy of the student, so they anchor to the base $\pi_0$:
+<div class="eq">$$\mathcal{L}=\mathcal{L}_{\text{SDFT}}+\lambda\,\mathbb{E}_{x\sim\mathcal{D}_{\text{ret}},\,y\sim\pi_\theta}\sum_t w_t\,D_{\mathrm{KL}}\big(\pi_\theta(\cdot\mid y_{\lt t},x)\,\|\,\pi_0(\cdot\mid y_{\lt t},x)\big)$$</div>
+This constrains KL on old inputs directly and gives an anchor that does not drift with $k$. Baselines to beat: plain replay and LwF-style distillation.</li>
+<li><b>Bonus: selective preservation.</b> Not every base token on retention prompts is worth keeping; a per-position weight $w_t$ sets how strongly to preserve it. Heuristic: weight positions where the base is confident, e.g. $w_t=\exp\!\big(-H(\pi_0(\cdot\mid y_{\lt t},x))\big)$.</li>
+<li><b>Closed-loop $\lambda$.</b> Evaluate old tasks at a fixed interval and adjust $\lambda$ or the retention-prompt ratio. This batch-level control complements the token-level $w_t$.</li>
+<li><b>Longer task sequences.</b> Evaluate on sequences longer than the paper's three tasks and record when forgetting appears and which abilities it hits.</li>
+</ul>
+</section>
+</div>
+<footer><span>Our view; RL's Razor (Shenfeld et al. 2025); LwF (Li &amp; Hoiem 2016)</span><span>21</span></footer>
+</div></div>
+
 <script src="/slides/_vendor/katex/katex.min.js"></script>
 <script src="/slides/_vendor/katex/contrib/auto-render.min.js"></script>
 <script>
