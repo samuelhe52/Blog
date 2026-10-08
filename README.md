@@ -61,6 +61,7 @@ public/
   scripts/                 client JavaScript (kept out of HTML for CSP)
   images/, lab/            post images and interactive pages
   slides/<deck>/           standalone HTML slide decks ({en,zh}/index.html, cover-*.webp)
+  slides/_vendor/katex/    self-hosted KaTeX for the decks (the CSP blocks CDN scripts)
 infra/nginx/               reference Nginx config
 docs/                      guides; docs/archive/ holds old plans
 ```
