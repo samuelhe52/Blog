@@ -94,7 +94,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - src/pages/folders/ (zh) and src/pages/en/folders/ for folder views.
 - src/pages/og/ for OG images; src/utils/ for folder, OG, reading-time, and post-link helpers.
 - public/scripts/: all client JavaScript (see the no-inline-scripts rule).
-- infra/nginx/: reference Nginx server block.
+- infra/nginx/: mirror of the production Nginx config on serJP, including the CSP; keep it in sync when the server config changes.
 - docs/: how-to guides; docs/archive/ holds superseded plans and notes.
 
 ## Communication Style

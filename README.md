@@ -62,7 +62,7 @@ public/
   images/, lab/            post images and interactive pages
   slides/<deck>/           standalone HTML slide decks ({en,zh}/index.html, cover-*.webp)
   slides/_vendor/katex/    self-hosted KaTeX for the decks (the CSP blocks CDN scripts)
-infra/nginx/               reference Nginx config
+infra/nginx/               mirror of the production Nginx config (incl. CSP)
 docs/                      guides; docs/archive/ holds old plans
 ```
 
