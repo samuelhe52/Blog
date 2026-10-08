@@ -1,11 +1,8 @@
 # Agents Guide
 
-Timestamp: 2025-11-07T19:58:00.000Z
-Updated: 2026-10-06
-
 ## Purpose
 
-This file tells any assisting agent (automation, AI, scripts) EXACTLY how to approach this bilingual Astro blog project.
+This file describes the decisions and conventions for working on this bilingual Astro blog.
 
 ## High-Level Vision
 
@@ -32,10 +29,8 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 
 ## Core Decisions
 
-(Updated 2026-10-06)
-
-- **Theme approach**: Custom minimal theme (NOT using Astro Nano package due to dependency complexity). Nano parity was reached; the old checklist is in docs/archive/NANO_PARITY.md.
-- Default locale: Chinese, served under /zh/ (was unprefixed until the route restructure). English under /en/. Unprefixed /posts/* redirects to /en/posts/*.
+- **Theme approach**: Custom minimal theme, not the Astro Nano package, to avoid its dependency complexity.
+- Default locale: Chinese, served under /zh/. English under /en/. Unprefixed /posts/* redirects to /en/posts/*.
 - translationSlug identical across languages (English string).
 - Fallback: show available language; switcher always visible; disable target if missing translation.
 - Sitemap: single combined sitemap with hreflang alternates.
@@ -80,7 +75,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 5. Accessibility: proper lang attributes, alt text, readable contrast.
 6. Security: no secrets committed; deployment uses SSH keys in CI secrets.
 7. **Theme transitions**: All components must include CSS transitions for color, background, and border-color changes (0.3s ease-in-out) to prevent flashing when theme switches via in-page buttons. Match pattern in Layout.astro.
-8. **No inline scripts**: Server has CSP restrictions. All JavaScript must be in external files in /public/scripts/ directory. **Exception**: LanguageRedirect.astro (used by the root page and /slides/) uses an inline script for instant language redirect (runs before body renders), and the standalone decks in public/slides/ keep their own inline scripts. The live CSP's script-src does not allow cdn.jsdelivr.net, so decks load KaTeX from /slides/_vendor/katex/ (copied from node_modules/katex/dist; see its VERSION file).
+8. **Scripts**: Keep JavaScript in external files under /public/scripts/. The exceptions are scripts that must run before the page renders (the theme script in Layout.astro, and LanguageRedirect.astro for the root page and /slides/) and the standalone decks in public/slides/. The production CSP (infra/nginx/blog.conf) allows scripts only from the site itself, cdnjs.cloudflare.com, and static.cloudflareinsights.com, so self-host anything else; decks load KaTeX from /slides/_vendor/katex/ (copied from node_modules/katex/dist; see its VERSION file).
 9. Work on `main` directly unless explicitly told otherwise; don't create feature branches.
 
 ## File Structure Guidelines
@@ -93,7 +88,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - src/pages/{zh,en}/posts/[...translationSlug].astro for posts; src/pages/posts/ only redirects to English.
 - src/pages/folders/ (zh) and src/pages/en/folders/ for folder views.
 - src/pages/og/ for OG images; src/utils/ for folder, OG, reading-time, and post-link helpers.
-- public/scripts/: all client JavaScript (see the no-inline-scripts rule).
+- public/scripts/: client JavaScript (see the scripts rule for exceptions).
 - infra/nginx/: mirror of the production Nginx config on serJP, including the CSP; keep it in sync when the server config changes.
 - docs/: how-to guides; docs/archive/ holds superseded plans and notes.
 
@@ -108,8 +103,4 @@ The original phase plan is archived at docs/archive/PROJECT_PLAN.md.
 
 ## Updating This File
 
-Append new sections under "Updates" with timestamps. Do not erase historical decisions.
-
-## Updates
-
-- 2026-10-06: Synced this file with the code before making the repo public. Chinese moved to /zh/ (earlier route restructure); RSS, MDX, and dynamic OG images are implemented; the language switcher no longer uses a cookie. Moved PROJECT_PLAN.md and stale docs into docs/archive/. Replaced the finished MVP checklist and old priorities list with an "Implemented" section.
+Keep this file current: when a decision or fact changes, edit it in place. Git history records past decisions.
