@@ -1,0 +1,9 @@
+{
+  "action": "set_config",
+  "action_parameters": {
+    "disable_rum": true
+  },
+  "description": "Manual analytics: non-blocking beacon loading",
+  "expression": "((http.host in {\"konakona.dev\" \"blog.konakona.dev\" \"tools.konakona.dev\" \"anishelf.konakona.dev\"}) and http.request.method in {\"GET\" \"HEAD\"})",
+  "enabled": true
+}

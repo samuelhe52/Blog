@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/add-analytics.mjs",
     "preview": "astro preview",
     "format": "prettier --write ."
   },
