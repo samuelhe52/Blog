@@ -29,11 +29,13 @@ Markdown responses use `Content-Type: text/markdown; charset=utf-8`. Astro dev/p
 
 ## Deployment
 
-The normal GitHub Actions deployment publishes the generated files. It does **not** update Nginx. The Markdown additions to the repository configuration have not yet been applied to production.
+The normal GitHub Actions deployment publishes the generated files. It does **not** update Nginx. The Markdown configuration was applied to production on 2026-10-25.
 
-When applying the server changes, back up the active configuration at `/etc/nginx/sites-available/blog.konakona52.com.conf`, apply the repository changes, run `nginx -t`, and reload after validation. The `map` directives belong in the HTTP context, where the sites configuration is included. Keep the repository mirror current and remove its pending-application comment after applying the change.
+When applying server changes, back up the active configuration at `/etc/nginx/sites-available/blog.konakona52.com.conf`, apply the repository changes, run `nginx -t`, and reload after validation. The `map` directives belong in the HTTP context, where the sites configuration is included. Keep the repository mirror current after applying changes.
 
 Check the CDN as well as the origin: responses with different Accept headers must not share the wrong cached representation. If a CDN rule caches article HTML without varying on Accept, bypass caching for those article URLs or configure a representation-aware cache key before enabling negotiation. Explicit Markdown URLs work independently of that configuration.
+
+Production verification on 2026-10-25 checked all 31 localized article routes through Cloudflare: negotiated Markdown and explicit Markdown matched the generated files, HTML requests retained their article pages, and canonical article responses carried `Vary: Accept`. Negotiated Markdown responses reported `CF-Cache-Status: DYNAMIC`; repeated HTML/Markdown requests to the same URL returned the correct representation. Unknown paths returned 404, and `/llms.txt`, archives, feeds, and the sitemap remained accessible.
 
 ## Verification
 
