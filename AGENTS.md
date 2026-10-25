@@ -54,6 +54,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Language switcher with disabled states; MissingTranslationNotice.
 - Combined sitemap with hreflang alternates; per-language RSS; robots.txt.
 - Build-time Markdown at each localized article URL followed by `index.md`, plus a generated `/llms.txt` linking to published language versions. Article pages expose Markdown alternate links and a bilingual view link. Markdown metadata records the actual language, canonical HTML URL, and existing translation; English fallback routes export the Chinese original with a notice. Source-relative images resolve to emitted public assets.
+- Nginx configuration supports `Accept: text/markdown` on canonical localized article URLs, with `Vary: Accept` and UTF-8 Markdown MIME types. Explicit nonzero Markdown acceptance opts in; wildcard-only requests retain HTML and `q=0` excludes Markdown. Nginx changes require separate server application (see docs/markdown.md); Astro preview serves the explicit `index.md` files but does not negotiate.
 - MDX, KaTeX math, Shiki code highlighting (light/dark).
 - Per-post dynamic OG images.
 - Home pages show the latest 6 posts with an "All N →" link to the year-grouped archive at /zh/posts/ and /en/posts/ (PostTimeline component, shared by both).

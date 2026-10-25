@@ -13,7 +13,7 @@ jobs:
           node-version: 24
           cache: 'npm'
       - run: npm ci --ignore-scripts
-      - run: npm run build
+      - run: npm test
       - name: Validate secrets
         run: |
           [ -n "${{ secrets.SSH_HOST }}" ] || { echo 'SSH_HOST empty'; exit 1; }
