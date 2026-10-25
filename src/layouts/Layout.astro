@@ -22,8 +22,9 @@ export interface Props {
   alternates?: { 'zh-CN'?: string; en?: string };
   ogImage?: string;
   noindex?: boolean;
+  markdownUrl?: string;
 }
-const { lang, title, description, canonical, alternates, ogImage, noindex } = Astro.props as Props;
+const { lang, title, description, canonical, alternates, ogImage, noindex, markdownUrl } = Astro.props as Props;
 const site = SITE.domain;
 const current = canonical || Astro.url.toString();
 const pageTitle = title || SITE.title;
@@ -65,6 +66,8 @@ const strings = lang === 'zh-CN' ? zh : en;
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex" />}
     {!noindex && <link rel="canonical" href={current} />}
+    <link rel="describedby" href={new URL('/llms.txt', site).href} />
+    {markdownUrl && <link rel="alternate" type="text/markdown" href={new URL(markdownUrl, site).href} />}
     {alternates?.['zh-CN'] && <link rel="alternate" hreflang="zh-CN" href={alternates['zh-CN']} />}
     {alternates?.en && <link rel="alternate" hreflang="en" href={alternates.en} />}
     <meta property="og:title" content={pageTitle} />

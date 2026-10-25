@@ -1,13 +1,19 @@
 ---
+import en from '../i18n/en.json';
+import zh from '../i18n/zh.json';
+
 interface Props {
   title: string;
   description?: string;
   date?: Date;
   lang: 'zh-CN' | 'en';
   readingTime?: string;
+  markdownUrl?: string;
+  uiLang?: 'zh-CN' | 'en';
 }
 
-const { title, description, date, lang, readingTime } = Astro.props;
+const { title, description, date, lang, readingTime, markdownUrl, uiLang = lang } = Astro.props;
+const strings = uiLang === 'zh-CN' ? zh : en;
 ---
 
 <div class="post-header">
@@ -19,6 +25,8 @@ const { title, description, date, lang, readingTime } = Astro.props;
       </time>
       {readingTime && <span aria-hidden="true">·</span>}
       {readingTime && <span>{readingTime}</span>}
+      {markdownUrl && <span aria-hidden="true">·</span>}
+      {markdownUrl && <a class="markdown-link" href={markdownUrl} type="text/markdown">{strings.view_markdown}</a>}
     </div>
   )}
   {description && <p class="description">{description}</p>}
@@ -37,6 +45,7 @@ const { title, description, date, lang, readingTime } = Astro.props;
   }
   .meta {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.6rem;
     align-items: center;
     order: -1;
@@ -53,5 +62,14 @@ const { title, description, date, lang, readingTime } = Astro.props;
     color: var(--text-muted);
     font-size: 1.12rem;
     transition: color 0.3s ease-in-out;
+  }
+  .markdown-link {
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    transition: color 0.3s ease-in-out, background 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+  .markdown-link:hover {
+    color: var(--link);
   }
 </style>

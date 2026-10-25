@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { buildMarkdownUrl, getPublishedPosts } from '../../../utils/publishedPosts';
 import type { GetStaticPaths } from 'astro';
 import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
@@ -12,7 +12,7 @@ import { calculateReadingTime, formatReadingTime } from '../../../utils/reading-
 import { SITE } from '../../../site.config';
 
 export const getStaticPaths = (async () => {
-  const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+  const allPosts = await getPublishedPosts();
   const zhPosts = allPosts.filter(post => post.data.lang === 'zh-CN');
 
   return zhPosts.map(post => {
@@ -28,6 +28,7 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { post, hasEnTranslation } = Astro.props;
+const markdownUrl = buildMarkdownUrl(post.data.translationSlug, 'zh-CN');
 const { Content } = await post.render();
 const { older, newer } = await getAdjacentPosts(post.data.translationSlug, 'zh-CN');
 const readingTime = formatReadingTime(calculateReadingTime(post.body), 'zh-CN');
@@ -53,6 +54,7 @@ const ogImageUrl = new URL(`/og/${post.data.translationSlug}.png`, SITE.domain).
   description={post.data.description}
   alternates={alternates}
   ogImage={ogImageUrl}
+  markdownUrl={markdownUrl}
 >
   <Header
     lang="zh-CN"
@@ -70,7 +72,7 @@ const ogImageUrl = new URL(`/og/${post.data.translationSlug}.png`, SITE.domain).
         </nav>
       )}
       <div class="animate">
-        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang="zh-CN" readingTime={readingTime} />
+        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang="zh-CN" readingTime={readingTime} markdownUrl={markdownUrl} />
       </div>
       <div class="prose animate">
         <Content />

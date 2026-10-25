@@ -8,24 +8,21 @@ import TableOfContents from '../../../components/TableOfContents.astro';
 import PostNav from '../../../components/PostNav.astro';
 import { getAdjacentPosts } from '../../../utils/postLinks';
 import { calculateReadingTime, formatReadingTime } from '../../../utils/reading-time';
-import { getCollection } from 'astro:content';
+import { buildMarkdownUrl, getPostRoutes, getPublishedPosts } from '../../../utils/publishedPosts';
 
 export async function getStaticPaths() {
-  const all = await getCollection('posts', ({ data }) => !data.draft);
-  const slugs = new Set(all.filter(p => p.data.translationSlug).map(p => p.data.translationSlug));
-  return Array.from(slugs).map((slug) => ({ params: { translationSlug: slug } }));
+  const all = await getPublishedPosts();
+  return getPostRoutes(all).filter(({ lang }) => lang === 'en').map(({ post }) => ({
+    params: { translationSlug: post.data.translationSlug },
+    props: { post, counterpart: all.find((other) => other.data.lang === 'zh-CN'
+      && other.data.translationSlug === post.data.translationSlug) },
+  }));
 }
 
 const { translationSlug } = Astro.params;
-const all = await getCollection('posts');
-let post = all.find((p) => p.data.lang === 'en' && p.data.translationSlug === translationSlug);
-const isFallback = !post;
-
-if (!post) {
-  post = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug)!;
-}
-
-const counterpart = all.find((p) => p.data.lang === 'zh-CN' && p.data.translationSlug === translationSlug);
+const { post, counterpart } = Astro.props;
+const isFallback = post.data.lang !== 'en';
+const markdownUrl = buildMarkdownUrl(translationSlug!, 'en');
 const { Content } = await post.render();
 const { older, newer } = await getAdjacentPosts(translationSlug, 'en');
 const readingTime = formatReadingTime(calculateReadingTime(post.body), 'en');
@@ -42,7 +39,7 @@ const alternates = {
 const ogImageUrl = new URL(`/og/${isFallback ? '' : 'en-'}${translationSlug}.png`, Astro.site ?? 'https://blog.konakona.dev/').href;
 ---
 
-<Layout lang="en" title={post.data.title} description={post.data.description} alternates={alternates} ogImage={ogImageUrl}>
+<Layout lang="en" title={post.data.title} description={post.data.description} alternates={alternates} ogImage={ogImageUrl} markdownUrl={markdownUrl}>
   <Header
     lang="en"
     disableZh={!counterpart}
@@ -59,7 +56,7 @@ const ogImageUrl = new URL(`/og/${isFallback ? '' : 'en-'}${translationSlug}.png
         </nav>
       )}
       <div class="animate">
-        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang={isFallback ? 'zh-CN' : 'en'} readingTime={readingTime} />
+        <PostHeader title={post.data.title} description={post.data.description} date={post.data.date} lang={isFallback ? 'zh-CN' : 'en'} readingTime={readingTime} markdownUrl={markdownUrl} uiLang="en" />
       </div>
       {isFallback && <MissingTranslationNotice lang="en" translationUrl={`/zh/posts/${translationSlug}/`} />}
       <div class="prose animate">

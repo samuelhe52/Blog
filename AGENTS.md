@@ -53,6 +53,7 @@ Minimalist, performant bilingual (Chinese default, English secondary) static blo
 - Layout with html lang, canonical, hreflang, meta description, OG/Twitter tags.
 - Language switcher with disabled states; MissingTranslationNotice.
 - Combined sitemap with hreflang alternates; per-language RSS; robots.txt.
+- Build-time Markdown at each localized article URL followed by `index.md`, plus a generated `/llms.txt` linking to published language versions. Article pages expose Markdown alternate links and a bilingual view link. Markdown metadata records the actual language, canonical HTML URL, and existing translation; English fallback routes export the Chinese original with a notice. Source-relative images resolve to emitted public assets.
 - MDX, KaTeX math, Shiki code highlighting (light/dark).
 - Per-post dynamic OG images.
 - Home pages show the latest 6 posts with an "All N →" link to the year-grouped archive at /zh/posts/ and /en/posts/ (PostTimeline component, shared by both).
